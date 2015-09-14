@@ -34,11 +34,13 @@ func stderr(f string, a ...interface{}) {
 func main() {
 	flags := struct {
 		help    bool
+		pretty  bool
 		inFile  string
 		outFile string
 	}{}
 
 	flag.BoolVar(&flags.help, "help", false, "print help and exit")
+	flag.BoolVar(&flags.pretty, "pretty", false, "print help and exit")
 	flag.StringVar(&flags.inFile, "in-file", "/dev/stdin", "input file (YAML)")
 	flag.StringVar(&flags.outFile, "out-file", "/dev/stdout", "output file (JSON)")
 
@@ -61,7 +63,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	dataOut, err := json.Marshal(&cfg)
+	var dataOut []byte
+	if flags.pretty {
+		dataOut, err = json.MarshalIndent(&cfg, "", "  ")
+		dataOut = append(dataOut, '\n')
+	} else {
+		dataOut, err = json.Marshal(&cfg)
+	}
 	if err != nil {
 		stderr("Failed to marshal output: %v", err)
 		os.Exit(1)
