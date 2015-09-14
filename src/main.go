@@ -26,27 +26,31 @@ import (
 	"github.com/coreos/fuze/third_party/github.com/go-yaml/yaml"
 )
 
-var (
-	flagHelp    = flag.Bool("help", false, "print help and exit")
-	flagInFile  = flag.String("in-file", "/dev/stdin", "input file (YAML)")
-	flagOutFile = flag.String("out-file", "/dev/stdout", "output file (JSON)")
-)
-
 func stderr(f string, a ...interface{}) {
 	out := fmt.Sprintf(f, a...)
 	fmt.Fprintln(os.Stderr, strings.TrimSuffix(out, "\n"))
 }
 
 func main() {
+	flags := struct {
+		help    bool
+		inFile  string
+		outFile string
+	}{}
+
+	flag.BoolVar(&flags.help, "help", false, "print help and exit")
+	flag.StringVar(&flags.inFile, "in-file", "/dev/stdin", "input file (YAML)")
+	flag.StringVar(&flags.outFile, "out-file", "/dev/stdout", "output file (JSON)")
+
 	flag.Parse()
 
-	if *flagHelp {
+	if flags.help {
 		flag.Usage()
 		return
 	}
 
 	cfg := config.Config{}
-	dataIn, err := ioutil.ReadFile(*flagInFile)
+	dataIn, err := ioutil.ReadFile(flags.inFile)
 	if err != nil {
 		stderr("Failed to read: %v", err)
 		os.Exit(1)
@@ -63,7 +67,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := ioutil.WriteFile(*flagOutFile, dataOut, 0640); err != nil {
+	if err := ioutil.WriteFile(flags.outFile, dataOut, 0640); err != nil {
 		stderr("Failed to write: %v", err)
 		os.Exit(1)
 	}
