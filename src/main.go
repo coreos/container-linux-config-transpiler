@@ -26,56 +26,57 @@ import (
 	"github.com/coreos/fuze/third_party/github.com/go-yaml/yaml"
 )
 
-var (
-	flagHelp    = flag.Bool("help", false, "print help and exit")
-	flagInFile  = flag.String("in-file", "/dev/stdin", "input file (YAML)")
-	flagOutFile = flag.String("out-file", "/dev/stdout", "output file (JSON)")
-)
-
 func stderr(f string, a ...interface{}) {
 	out := fmt.Sprintf(f, a...)
 	fmt.Fprintln(os.Stderr, strings.TrimSuffix(out, "\n"))
 }
 
-func stdout(f string, a ...interface{}) {
-	out := fmt.Sprintf(f, a...)
-	fmt.Fprintln(os.Stdout, strings.TrimSuffix(out, "\n"))
-}
-
-func panicf(f string, a ...interface{}) {
-	panic(fmt.Sprintf(f, a...))
-}
-
 func main() {
+	flags := struct {
+		help    bool
+		pretty  bool
+		inFile  string
+		outFile string
+	}{}
+
+	flag.BoolVar(&flags.help, "help", false, "print help and exit")
+	flag.BoolVar(&flags.pretty, "pretty", false, "print help and exit")
+	flag.StringVar(&flags.inFile, "in-file", "/dev/stdin", "input file (YAML)")
+	flag.StringVar(&flags.outFile, "out-file", "/dev/stdout", "output file (JSON)")
+
 	flag.Parse()
 
-	if *flagHelp {
+	if flags.help {
 		flag.Usage()
-		os.Exit(1)
+		return
 	}
 
 	cfg := config.Config{}
-	b, err := ioutil.ReadFile(*flagInFile)
+	dataIn, err := ioutil.ReadFile(flags.inFile)
 	if err != nil {
 		stderr("Failed to read: %v", err)
-		os.Exit(2)
+		os.Exit(1)
 	}
 
-	if err := yaml.Unmarshal(b, &cfg); err != nil {
+	if err := yaml.Unmarshal(dataIn, &cfg); err != nil {
 		stderr("Failed to unmarshal input: %v", err)
-		os.Exit(3)
+		os.Exit(1)
 	}
 
-	b, err = json.Marshal(&cfg)
+	var dataOut []byte
+	if flags.pretty {
+		dataOut, err = json.MarshalIndent(&cfg, "", "  ")
+		dataOut = append(dataOut, '\n')
+	} else {
+		dataOut, err = json.Marshal(&cfg)
+	}
 	if err != nil {
 		stderr("Failed to marshal output: %v", err)
-		os.Exit(4)
+		os.Exit(1)
 	}
 
-	if err := ioutil.WriteFile(*flagOutFile, b, 0640); err != nil {
+	if err := ioutil.WriteFile(flags.outFile, dataOut, 0640); err != nil {
 		stderr("Failed to write: %v", err)
-		os.Exit(5)
+		os.Exit(1)
 	}
-
-	os.Exit(0)
 }
