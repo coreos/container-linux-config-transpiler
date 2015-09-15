@@ -40,7 +40,7 @@ func main() {
 	}{}
 
 	flag.BoolVar(&flags.help, "help", false, "print help and exit")
-	flag.BoolVar(&flags.pretty, "pretty", false, "print help and exit")
+	flag.BoolVar(&flags.pretty, "pretty", false, "indent the output file")
 	flag.StringVar(&flags.inFile, "in-file", "/dev/stdin", "input file (YAML)")
 	flag.StringVar(&flags.outFile, "out-file", "/dev/stdout", "output file (JSON)")
 
