@@ -15,9 +15,44 @@
 package main
 
 import (
+	"reflect"
 	"testing"
+
+	"github.com/coreos/fuze/third_party/github.com/coreos/ignition/config"
+	"github.com/coreos/fuze/third_party/github.com/go-yaml/yaml"
 )
 
-func Test(t *testing.T) {
-	// TODO
+func TestHasUnrecognizedKeys(t *testing.T) {
+	tests := []struct {
+		in    string
+		unrec bool
+	}{
+		{
+			in:    "ignition_version: 1",
+			unrec: false,
+		},
+		{
+			in:    "ignition_version: 1\npasswd:\n users:\n  - name: foobar\n",
+			unrec: false,
+		},
+		{
+			in:    "foo: bar",
+			unrec: true,
+		},
+		{
+			in:    "ignition_version: 1\npasswd:\n users:\n  - naem: foobar\n",
+			unrec: true,
+		},
+	}
+
+	for i, tt := range tests {
+		var cfg interface{}
+		if err := yaml.Unmarshal([]byte(tt.in), &cfg); err != nil {
+			t.Errorf("%d: unmarshal failed: %v", i, err)
+			continue
+		}
+		if unrec := hasUnrecognizedKeys(cfg, reflect.TypeOf(config.Config{})); unrec != tt.unrec {
+			t.Errorf("%d: expected %v got %v", i, tt.unrec, unrec)
+		}
+	}
 }
