@@ -35,6 +35,9 @@ func stderr(f string, a ...interface{}) {
 // hasUnrecognizedKeys finds unrecognized keys and warns about them on stderr.
 // returns false when no unrecognized keys were found, true otherwise.
 func hasUnrecognizedKeys(inCfg interface{}, refType reflect.Type) (warnings bool) {
+	if refType.Kind() == reflect.Ptr {
+		refType = refType.Elem()
+	}
 	switch inCfg.(type) {
 	case map[interface{}]interface{}:
 		ks := inCfg.(map[interface{}]interface{})
