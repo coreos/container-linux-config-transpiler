@@ -4,4 +4,3 @@ github.com/alecthomas/units				6b4e7dc5e3143b85ea77909c72caf89416fc2915
 github.com/camlistore/camlistore/pkg/errorutil		9106ce829629773474c689b34aacd7d3aaa99426
 github.com/coreos/ignition/config			47df43127a79500c4f94a9d589794a0fbbf097d4
 github.com/go-yaml/yaml					49c95bdc21843256fb6c4e0d370a05f24a0bf213
-speter.net/go/exp/math/dec/inf				42ca6cd68aa922bc3f32f1e056e61b65945d9ad7
