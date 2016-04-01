@@ -23,8 +23,8 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/coreos/fuze/third_party/github.com/coreos/ignition/config"
-	"github.com/coreos/fuze/third_party/github.com/go-yaml/yaml"
+	"github.com/coreos/ignition/config"
+	"github.com/go-yaml/yaml"
 )
 
 func stderr(f string, a ...interface{}) {

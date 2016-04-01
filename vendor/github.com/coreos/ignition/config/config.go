@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/coreos/fuze/third_party/github.com/camlistore/camlistore/pkg/errorutil"
+	"github.com/camlistore/camlistore/pkg/errorutil"
 )
 
 type Config struct {

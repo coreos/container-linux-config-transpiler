@@ -18,8 +18,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/coreos/fuze/third_party/github.com/coreos/ignition/config"
-	"github.com/coreos/fuze/third_party/github.com/go-yaml/yaml"
+	"github.com/coreos/ignition/config"
+	"github.com/go-yaml/yaml"
 )
 
 func TestHasUnrecognizedKeys(t *testing.T) {

@@ -1,12 +1,12 @@
-sudo: false
 language: go
 matrix:
   include:
-    - go: 1.4
-      env: TOOLS_CMD=golang.org/x/tools/cmd
+    - go: 1.5
+      env: GO15VENDOREXPERIMENT=1
+    - go: 1.6
 
 install:
- - go get ${TOOLS_CMD}/vet
+  -
 
 script:
- - ./test
+  - ./test
