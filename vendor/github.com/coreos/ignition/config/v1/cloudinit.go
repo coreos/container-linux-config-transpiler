@@ -14,7 +14,7 @@
 
 // These functions are copied from github.com/coreos/coreos-cloudinit/config.
 
-package config
+package v1
 
 import (
 	"bytes"

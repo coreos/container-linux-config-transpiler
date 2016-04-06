@@ -18,7 +18,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/coreos/ignition/config"
+	"github.com/coreos/ignition/config/types"
 	"github.com/go-yaml/yaml"
 )
 
@@ -28,11 +28,11 @@ func TestHasUnrecognizedKeys(t *testing.T) {
 		unrec bool
 	}{
 		{
-			in:    "ignition_version: 1",
+			in:    "ignition:\n  version: \"2.0.0\"",
 			unrec: false,
 		},
 		{
-			in:    "ignition_version: 1\npasswd:\n users:\n  - name: foobar\n",
+			in:    "ignition:\n  version: \"2.0.0\"\npasswd:\n users:\n  - name: foobar\n",
 			unrec: false,
 		},
 		{
@@ -40,7 +40,7 @@ func TestHasUnrecognizedKeys(t *testing.T) {
 			unrec: true,
 		},
 		{
-			in:    "ignition_version: 1\npasswd:\n users:\n  - naem: foobar\n",
+			in:    "ignition_version: \"2.0.0\"\npasswd:\n users:\n  - naem: foobar\n",
 			unrec: true,
 		},
 	}
@@ -51,7 +51,7 @@ func TestHasUnrecognizedKeys(t *testing.T) {
 			t.Errorf("%d: unmarshal failed: %v", i, err)
 			continue
 		}
-		if unrec := hasUnrecognizedKeys(cfg, reflect.TypeOf(config.Config{})); unrec != tt.unrec {
+		if unrec := hasUnrecognizedKeys(cfg, reflect.TypeOf(types.Config{})); unrec != tt.unrec {
 			t.Errorf("%d: expected %v got %v", i, tt.unrec, unrec)
 		}
 	}
