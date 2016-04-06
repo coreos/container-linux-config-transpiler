@@ -23,7 +23,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/coreos/ignition/config"
+	"github.com/coreos/ignition/config/types"
 	"github.com/go-yaml/yaml"
 )
 
@@ -89,7 +89,7 @@ func main() {
 		return
 	}
 
-	cfg := config.Config{}
+	cfg := types.Config{}
 	dataIn, err := ioutil.ReadFile(flags.inFile)
 	if err != nil {
 		stderr("Failed to read: %v", err)
