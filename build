@@ -15,4 +15,4 @@ export GOPATH=${PWD}/gopath
 eval $(go env)
 
 echo "Building ${PROJ}..."
-go build -o ${GOBIN}/${PROJ} ${REPO_PATH}/src
+go build -o ${GOBIN}/${PROJ} ${REPO_PATH}/internal
