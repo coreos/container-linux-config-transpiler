@@ -1,4 +1,3 @@
 # If you manipulate the contents of vendor/, amend this accordingly.
 # pkg							version
 github.com/coreos/ignition/config			44c274ab414294a8e34b3a940e0ec1afe6b6c610
-github.com/go-yaml/yaml					49c95bdc21843256fb6c4e0d370a05f24a0bf213
