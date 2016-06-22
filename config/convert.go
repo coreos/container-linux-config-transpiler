@@ -148,6 +148,15 @@ func ConvertAs2_0_0(in Config) (types.Config, error) {
 			newFile.Contents = types.FileContents{Source: types.Url(*source)}
 		}
 
+		if newFile.Contents == (types.FileContents{}) {
+			newFile.Contents = types.FileContents{
+				Source: types.Url{
+					Scheme: "data",
+					Opaque: ",",
+				},
+			}
+		}
+
 		newFile.Contents.Compression = types.Compression(file.Contents.Remote.Compression)
 		newFile.Contents.Verification = convertVerification(file.Contents.Remote.Verification)
 

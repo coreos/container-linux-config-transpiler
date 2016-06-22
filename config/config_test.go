@@ -204,6 +204,8 @@ storage:
         id: 1000
       group:
         id: 1001
+    - path: /opt/file4
+      filesystem: filesystem2
 `},
 			out: out{cfg: types.Config{
 				Ignition: types.Ignition{Version: types.IgnitionVersion{Major: 2}},
@@ -323,6 +325,16 @@ storage:
 							Mode:  types.FileMode(0400),
 							User:  types.FileUser{Id: 1000},
 							Group: types.FileGroup{Id: 1001},
+						},
+						{
+							Filesystem: "filesystem2",
+							Path:       types.Path("/opt/file4"),
+							Contents: types.FileContents{
+								Source: types.Url{
+									Scheme: "data",
+									Opaque: ",",
+								},
+							},
 						},
 					},
 				},
