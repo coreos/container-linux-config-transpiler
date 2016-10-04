@@ -15,14 +15,16 @@
 package types
 
 import (
-	"errors"
+	"net/url"
 	"reflect"
 	"testing"
+
+	"github.com/coreos/ignition/config/validate/report"
 )
 
-func TestAssertValid(t *testing.T) {
+func TestURLValidate(t *testing.T) {
 	type in struct {
-		cfg Config
+		u string
 	}
 	type out struct {
 		err error
@@ -33,19 +35,39 @@ func TestAssertValid(t *testing.T) {
 		out out
 	}{
 		{
-			in:  in{cfg: Config{}},
+			in:  in{u: ""},
 			out: out{},
 		},
 		{
-			in:  in{cfg: Config{Systemd: Systemd{Units: []SystemdUnit{{Name: "foo.bar"}}}}},
-			out: out{err: errors.New("invalid systemd unit extension")},
+			in:  in{u: "http://example.com"},
+			out: out{},
+		},
+		{
+			in:  in{u: "https://example.com"},
+			out: out{},
+		},
+		{
+			in:  in{u: "oem:///foobar"},
+			out: out{},
+		},
+		{
+			in:  in{u: "data:,example%20file%0A"},
+			out: out{},
+		},
+		{
+			in:  in{u: "bad://"},
+			out: out{err: ErrInvalidScheme},
 		},
 	}
 
 	for i, test := range tests {
-		err := test.in.cfg.AssertValid()
-		if !reflect.DeepEqual(test.out.err, err) {
-			t.Errorf("#%d: bad error: want %v, got %v", i, test.out.err, err)
+		u, err := url.Parse(test.in.u)
+		if err != nil {
+			t.Errorf("URL failed to parse. This is an error with the test")
+		}
+		r := Url(*u).Validate()
+		if !reflect.DeepEqual(report.ReportFromError(test.out.err, report.EntryError), r) {
+			t.Errorf("#%d: bad error: want %v, got %v", i, test.out.err, r)
 		}
 	}
 }
