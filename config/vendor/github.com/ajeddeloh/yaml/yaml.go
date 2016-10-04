@@ -95,6 +95,17 @@ func Unmarshal(in []byte, out interface{}) (err error) {
 	return nil
 }
 
+func UnmarshalToNode(in []byte) *Node {
+	p := newParser(in)
+	//defer p.destroy()
+	node := p.parse()
+	if node == nil {
+		return nil
+	}
+	tmp := Node(*node)
+	return &tmp
+}
+
 // Marshal serializes the value provided into a YAML document. The structure
 // of the generated document will reflect the structure of the value itself.
 // Maps and pointers (to struct, string, int, etc) are accepted as the in value.
@@ -222,7 +233,7 @@ func getStructInfo(st reflect.Type) (*structInfo, error) {
 	inlineMap := -1
 	for i := 0; i != n; i++ {
 		field := st.Field(i)
-		if field.PkgPath != "" {
+		if field.PkgPath != "" && !field.Anonymous {
 			continue // Private field
 		}
 
@@ -324,13 +335,15 @@ func isZero(v reflect.Value) bool {
 		return v.Len() == 0
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return v.Int() == 0
+	case reflect.Float32, reflect.Float64:
+		return v.Float() == 0
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		return v.Uint() == 0
 	case reflect.Bool:
 		return !v.Bool()
 	case reflect.Struct:
 		vt := v.Type()
-		for i := v.NumField()-1; i >= 0; i-- {
+		for i := v.NumField() - 1; i >= 0; i-- {
 			if vt.Field(i).PkgPath != "" {
 				continue // Private field
 			}
