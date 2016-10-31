@@ -15,7 +15,6 @@
 package config
 
 import (
-	"errors"
 	"reflect"
 	"testing"
 
@@ -43,7 +42,7 @@ func TestParseAsV2_0_0(t *testing.T) {
 		// Errors
 		{
 			in:  in{data: `foo:`},
-			out: out{err: ErrKeysUnrecognized{"foo"}},
+			out: out{cfg: types.Config{Ignition: types.Ignition{Version: types.IgnitionVersion{Major: 2}}}},
 		},
 		{
 			in: in{data: `
@@ -52,7 +51,7 @@ networkd:
     - name: bad.blah
       contents: not valid
 `},
-			out: out{err: errors.New("invalid networkd unit extension")},
+			out: out{err: ErrInvalidIgnitionConfig},
 		},
 
 		// Config

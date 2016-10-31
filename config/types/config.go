@@ -23,7 +23,7 @@ type Config struct {
 }
 
 type Ignition struct {
-	Config IgnitionConfig
+	Config IgnitionConfig `yaml:"config"`
 }
 
 type IgnitionConfig struct {

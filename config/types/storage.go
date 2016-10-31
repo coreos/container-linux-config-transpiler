@@ -15,7 +15,7 @@
 package types
 
 type Storage struct {
-	Disks       []Disk       `yaml:"disk"`
+	Disks       []Disk       `yaml:"disks"`
 	Arrays      []Raid       `yaml:"raid"`
 	Filesystems []Filesystem `yaml:"filesystems"`
 	Files       []File       `yaml:"files"`
