@@ -33,64 +33,11 @@ func TestAssertValid(t *testing.T) {
 		out out
 	}{
 		{
-			in:  in{cfg: Config{Ignition: Ignition{Version: IgnitionVersion{Major: 2}}}},
-			out: out{},
-		},
-		{
 			in:  in{cfg: Config{}},
-			out: out{err: ErrOldVersion},
-		},
-		{
-			in: in{cfg: Config{
-				Ignition: Ignition{
-					Version: IgnitionVersion{Major: 2},
-					Config: IgnitionConfig{
-						Replace: &ConfigReference{
-							Verification: Verification{
-								Hash: &Hash{Function: "foobar"},
-							},
-						},
-					},
-				},
-			}},
-			out: out{errors.New("unrecognized hash function")},
-		},
-		{
-			in: in{cfg: Config{
-				Ignition: Ignition{Version: IgnitionVersion{Major: 2}},
-				Storage: Storage{
-					Filesystems: []Filesystem{
-						{
-							Name: "filesystem1",
-							Mount: &FilesystemMount{
-								Device: Path("/dev/disk/by-partlabel/ROOT"),
-								Format: FilesystemFormat("btrfs"),
-							},
-						},
-					},
-				},
-			}},
 			out: out{},
 		},
 		{
-			in: in{cfg: Config{
-				Ignition: Ignition{Version: IgnitionVersion{Major: 2}},
-				Storage: Storage{
-					Filesystems: []Filesystem{
-						{
-							Name: "filesystem1",
-							Path: func(p Path) *Path { return &p }("/sysroot"),
-						},
-					},
-				},
-			}},
-			out: out{},
-		},
-		{
-			in: in{cfg: Config{
-				Ignition: Ignition{Version: IgnitionVersion{Major: 2}},
-				Systemd:  Systemd{Units: []SystemdUnit{{Name: "foo.bar"}}},
-			}},
+			in:  in{cfg: Config{Systemd: Systemd{Units: []SystemdUnit{{Name: "foo.bar"}}}}},
 			out: out{err: errors.New("invalid systemd unit extension")},
 		},
 	}
