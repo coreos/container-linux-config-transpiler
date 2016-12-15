@@ -18,7 +18,7 @@ import (
 	"reflect"
 
 	yaml "github.com/ajeddeloh/yaml"
-	"github.com/coreos/fuze/config/types"
+	"github.com/coreos/container-linux-config-transpiler/config/types"
 	"github.com/coreos/ignition/config/validate"
 	"github.com/coreos/ignition/config/validate/report"
 )

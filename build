@@ -1,8 +1,7 @@
 #!/bin/bash -eu
 
-PROJ="fuze"
 ORG_PATH="github.com/coreos"
-REPO_PATH="${ORG_PATH}/${PROJ}"
+REPO_PATH="${ORG_PATH}/container-linux-config-transpiler"
 
 if [ ! -h gopath/src/${REPO_PATH} ]; then
 	mkdir -p gopath/src/${ORG_PATH}
@@ -14,5 +13,5 @@ export GOPATH=${PWD}/gopath
 
 eval $(go env)
 
-echo "Building ${PROJ}..."
-go build -o ${GOBIN}/${PROJ} ${REPO_PATH}/internal
+echo "Building Config Transpiler..."
+go build -o ${GOBIN}/ct ${REPO_PATH}/internal
