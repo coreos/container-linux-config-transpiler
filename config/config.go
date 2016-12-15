@@ -39,7 +39,7 @@ func Parse(data []byte) (types.Config, report.Report) {
 		})
 		r.Merge(validate.ValidateWithoutSource(reflect.ValueOf(cfg)))
 	} else {
-		root, err := FromYamlDocumentNode(*nodes)
+		root, err := fromYamlDocumentNode(*nodes)
 		if err != nil {
 			return types.Config{}, report.ReportFromError(err, report.EntryError)
 		}
