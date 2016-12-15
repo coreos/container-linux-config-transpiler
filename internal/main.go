@@ -22,7 +22,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/coreos/fuze/config"
+	"github.com/coreos/container-linux-config-transpiler/config"
 )
 
 func stderr(f string, a ...interface{}) {
@@ -56,14 +56,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	fuzeCfg, report := config.Parse(dataIn)
+	cfg, report := config.Parse(dataIn)
 	stderr(report.String())
 	if report.IsFatal() {
-		stderr("Failed to parse fuze config")
+		stderr("Failed to parse config")
 		os.Exit(1)
 	}
 
-	cfg, report := config.ConvertAs2_0_0(fuzeCfg)
+	ignCfg, report := config.ConvertAs2_0_0(cfg)
 	stderr(report.String())
 	if report.IsFatal() {
 		stderr("Generated Ignition config was invalid.")
@@ -72,10 +72,10 @@ func main() {
 
 	var dataOut []byte
 	if flags.pretty {
-		dataOut, err = json.MarshalIndent(&cfg, "", "  ")
+		dataOut, err = json.MarshalIndent(&ignCfg, "", "  ")
 		dataOut = append(dataOut, '\n')
 	} else {
-		dataOut, err = json.Marshal(&cfg)
+		dataOut, err = json.Marshal(&ignCfg)
 	}
 	if err != nil {
 		stderr("Failed to marshal output: %v", err)

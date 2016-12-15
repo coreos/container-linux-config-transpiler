@@ -1,6 +1,6 @@
 # Configuration Specification #
 
-The Fuze configuration is a YAML document conforming to the following specification, with **_italicized_** entries being optional:
+The configuration is a YAML document conforming to the following specification, with **_italicized_** entries being optional:
 
 * **_ignition_** (object): metadata about the configuration itself.
   * **_config_** (objects): options related to the configuration.

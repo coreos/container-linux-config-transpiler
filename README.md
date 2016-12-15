@@ -1,5 +1,3 @@
-# Fuze
+# Container Linux Config Transpiler
 
-Fuze is the utility responsible for transforming (fuzing) an
-[Ignition](https://github.com/coreos/ignition) configuration from
-human-friendly YAML into machine-friendly JSON for consumption.
+The config transpiler ("ct" for short) is the utility responsible for transforming a Container Linux instance's configuration from the human-friendly, YAML form into an [Ignition](https://github.com/coreos/ignition) configuration.
