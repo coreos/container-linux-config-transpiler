@@ -38,10 +38,10 @@ func main() {
 		outFile string
 	}{}
 
-	flag.BoolVar(&flags.help, "help", false, "print help and exit")
-	flag.BoolVar(&flags.pretty, "pretty", false, "indent the output file")
-	flag.StringVar(&flags.inFile, "in-file", "/dev/stdin", "input file (YAML)")
-	flag.StringVar(&flags.outFile, "out-file", "/dev/stdout", "output file (JSON)")
+	flag.BoolVar(&flags.help, "help", false, "Print help and exit.")
+	flag.BoolVar(&flags.pretty, "pretty", false, "Indent the resulting Ignition config.")
+	flag.StringVar(&flags.inFile, "in-file", "", "Path to the container linux config. Standard input unless specified otherwise.")
+	flag.StringVar(&flags.outFile, "out-file", "", "Path to the resulting Ignition config. Standard output unless specified otherwies.")
 
 	flag.Parse()
 
@@ -50,7 +50,22 @@ func main() {
 		return
 	}
 
-	dataIn, err := ioutil.ReadFile(flags.inFile)
+	var inFile *os.File
+	var outFile *os.File
+
+	if flags.inFile == "" {
+		inFile = os.Stdin
+	} else {
+		os.Open(flags.inFile)
+	}
+
+	if flags.outFile == "" {
+		outFile = os.Stdout
+	} else {
+		os.Create(flags.outFile)
+	}
+
+	dataIn, err := ioutil.ReadAll(inFile)
 	if err != nil {
 		stderr("Failed to read: %v", err)
 		os.Exit(1)
@@ -82,7 +97,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := ioutil.WriteFile(flags.outFile, dataOut, 0640); err != nil {
+	if _, err := outFile.Write(dataOut); err != nil {
 		stderr("Failed to write: %v", err)
 		os.Exit(1)
 	}
