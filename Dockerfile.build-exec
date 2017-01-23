@@ -1,0 +1,9 @@
+FROM golang:alpine
+ENV CGO_ENABLED=0
+WORKDIR /go/src/github.com/coreos/container-linux-config-transpiler
+COPY . .
+RUN apk update \
+    && apk add bash \
+    && ./build \
+    && cp bin/ct /usr/bin/
+ENTRYPOINT ["/usr/bin/ct"]
