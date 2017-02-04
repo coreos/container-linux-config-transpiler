@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/coreos/container-linux-config-transpiler/config"
+	"github.com/coreos/container-linux-config-transpiler/version"
 )
 
 func stderr(f string, a ...interface{}) {
@@ -34,12 +35,14 @@ func main() {
 	flags := struct {
 		help    bool
 		pretty  bool
+		version bool
 		inFile  string
 		outFile string
 	}{}
 
 	flag.BoolVar(&flags.help, "help", false, "Print help and exit.")
 	flag.BoolVar(&flags.pretty, "pretty", false, "Indent the resulting Ignition config.")
+	flag.BoolVar(&flags.version, "version", false, "Print the version and exit.")
 	flag.StringVar(&flags.inFile, "in-file", "", "Path to the container linux config. Standard input unless specified otherwise.")
 	flag.StringVar(&flags.outFile, "out-file", "", "Path to the resulting Ignition config. Standard output unless specified otherwies.")
 
@@ -47,6 +50,11 @@ func main() {
 
 	if flags.help {
 		flag.Usage()
+		return
+	}
+
+	if flags.version {
+		fmt.Println(version.String)
 		return
 	}
 
