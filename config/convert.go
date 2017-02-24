@@ -21,7 +21,7 @@ import (
 
 	"github.com/alecthomas/units"
 	"github.com/coreos/container-linux-config-transpiler/config/types"
-	ignTypes "github.com/coreos/ignition/config/types"
+	ignTypes "github.com/coreos/ignition/config/v2_0/types"
 	"github.com/coreos/ignition/config/validate"
 	"github.com/coreos/ignition/config/validate/report"
 	"github.com/vincent-petithory/dataurl"
