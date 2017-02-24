@@ -64,13 +64,23 @@ func main() {
 	if flags.inFile == "" {
 		inFile = os.Stdin
 	} else {
-		os.Open(flags.inFile)
+		var err error
+		inFile, err = os.Open(flags.inFile)
+		if err != nil {
+			stderr("Failed to open: %v", err)
+			os.Exit(1)
+		}
 	}
 
 	if flags.outFile == "" {
 		outFile = os.Stdout
 	} else {
-		os.Create(flags.outFile)
+		var err error
+		outFile, err = os.Create(flags.outFile)
+		if err != nil {
+			stderr("Failed to create: %v", err)
+			os.Exit(1)
+		}
 	}
 
 	dataIn, err := ioutil.ReadAll(inFile)
