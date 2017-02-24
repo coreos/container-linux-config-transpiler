@@ -41,7 +41,7 @@ type Partition struct {
 }
 
 func init() {
-	register2_0(func(in Config, out ignTypes.Config) (ignTypes.Config, report.Report) {
+	register2_0(func(in Config, out ignTypes.Config, platform string) (ignTypes.Config, report.Report) {
 		for _, disk := range in.Storage.Disks {
 			newDisk := ignTypes.Disk{
 				Device:    ignTypes.Path(disk.Device),

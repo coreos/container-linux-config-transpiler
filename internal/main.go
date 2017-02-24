@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/coreos/container-linux-config-transpiler/config"
+	"github.com/coreos/container-linux-config-transpiler/config/templating"
 	"github.com/coreos/container-linux-config-transpiler/version"
 )
 
@@ -33,12 +34,13 @@ func stderr(f string, a ...interface{}) {
 
 func main() {
 	flags := struct {
-		help    bool
-		pretty  bool
-		version bool
-		inFile  string
-		outFile string
-		strict  bool
+		help     bool
+		pretty   bool
+		version  bool
+		inFile   string
+		outFile  string
+		strict   bool
+		platform string
 	}{}
 
 	flag.BoolVar(&flags.help, "help", false, "Print help and exit.")
@@ -47,6 +49,7 @@ func main() {
 	flag.StringVar(&flags.inFile, "in-file", "", "Path to the container linux config. Standard input unless specified otherwise.")
 	flag.StringVar(&flags.outFile, "out-file", "", "Path to the resulting Ignition config. Standard output unless specified otherwies.")
 	flag.BoolVar(&flags.strict, "strict", false, "Fail if any warnings are encountered.")
+	flag.StringVar(&flags.platform, "platform", "", fmt.Sprintf("Platform to target. Accepted values: %v.", templating.Platforms))
 
 	flag.Parse()
 
@@ -98,7 +101,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	ignCfg, report := config.ConvertAs2_0(cfg)
+	ignCfg, report := config.ConvertAs2_0(cfg, flags.platform)
 	stderr(report.String())
 	if report.IsFatal() {
 		stderr("Generated Ignition config was invalid.")

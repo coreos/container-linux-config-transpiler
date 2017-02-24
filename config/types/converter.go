@@ -22,7 +22,7 @@ import (
 	"github.com/coreos/ignition/config/validate/report"
 )
 
-type converterFor2_0 func(in Config, out ignTypes.Config) (ignTypes.Config, report.Report)
+type converterFor2_0 func(in Config, out ignTypes.Config, platform string) (ignTypes.Config, report.Report)
 
 var convertersFor2_0 []converterFor2_0
 
@@ -30,7 +30,7 @@ func register2_0(f converterFor2_0) {
 	convertersFor2_0 = append(convertersFor2_0, f)
 }
 
-func ConvertAs2_0(in Config) (ignTypes.Config, report.Report) {
+func ConvertAs2_0(in Config, platform string) (ignTypes.Config, report.Report) {
 	out := ignTypes.Config{
 		Ignition: ignTypes.Ignition{
 			Version: ignTypes.IgnitionVersion{Major: 2, Minor: 0},
@@ -41,7 +41,7 @@ func ConvertAs2_0(in Config) (ignTypes.Config, report.Report) {
 
 	for _, convert := range convertersFor2_0 {
 		var subReport report.Report
-		out, subReport = convert(in, out)
+		out, subReport = convert(in, out, platform)
 		r.Merge(subReport)
 	}
 	if r.IsFatal() {

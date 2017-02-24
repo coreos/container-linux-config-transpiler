@@ -79,14 +79,18 @@ func (flannel *Flannel) UnmarshalYAML(unmarshal func(interface{}) error) error {
 }
 
 func init() {
-	register2_0(func(in Config, out ignTypes.Config) (ignTypes.Config, report.Report) {
+	register2_0(func(in Config, out ignTypes.Config, platform string) (ignTypes.Config, report.Report) {
 		if in.Flannel != nil {
+			contents, err := flannelContents(*in.Flannel, platform)
+			if err != nil {
+				return ignTypes.Config{}, report.ReportFromError(err, report.EntryError)
+			}
 			out.Systemd.Units = append(out.Systemd.Units, ignTypes.SystemdUnit{
 				Name:   "flanneld.service",
 				Enable: true,
 				DropIns: []ignTypes.SystemdUnitDropIn{{
 					Name:     "20-clct-flannel.conf",
-					Contents: flannelContents(*in.Flannel),
+					Contents: contents,
 				}},
 			})
 		}
@@ -95,11 +99,11 @@ func init() {
 }
 
 // flannelContents creates the string containing the systemd drop in for flannel
-func flannelContents(flannel Flannel) string {
+func flannelContents(flannel Flannel, platform string) (string, error) {
 	args := getCliArgs(flannel.Options)
 	vars := []string{fmt.Sprintf("FLANNEL_IMAGE_TAG=v%s", flannel.Version)}
 
-	return assembleUnit("/usr/lib/coreos/flannel-wrapper $FLANNEL_OPTS", args, vars)
+	return assembleUnit("/usr/lib/coreos/flannel-wrapper $FLANNEL_OPTS", args, vars, platform)
 }
 
 // Flannel0_7 represents flannel options for version 0.7.x. Don't embed Flannel0_6 because
