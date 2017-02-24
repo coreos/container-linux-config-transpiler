@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/coreos/container-linux-config-transpiler/config/types"
+	"github.com/coreos/go-semver/semver"
 	ignTypes "github.com/coreos/ignition/config/v2_0/types"
 	"github.com/coreos/ignition/config/validate/report"
 )
@@ -481,6 +482,48 @@ passwd:
 							Name:         "group 2",
 							PasswordHash: "password 2",
 						},
+					},
+				},
+			}},
+		},
+		{
+			in: in{data: `
+etcd:
+    version: "3.0.15"
+    discovery: "https://discovery.etcd.io/<token>"
+    listen_client_urls: "http://0.0.0.0:2379,http://0.0.0.0:4001"
+    max_wals: 44
+`},
+			out: out{cfg: types.Config{
+				Etcd: &types.Etcd{
+					Version: types.EtcdVersion(semver.Version{
+						Major: 3,
+						Minor: 0,
+						Patch: 15,
+					}),
+					Options: types.Etcd3_0{
+						Discovery:        "https://discovery.etcd.io/<token>",
+						ListenClientUrls: "http://0.0.0.0:2379,http://0.0.0.0:4001",
+						MaxWals:          44,
+					},
+				},
+			}},
+		},
+		{
+			in: in{data: `
+flannel:
+    version: 0.6.2
+    etcd_prefix: "/coreos.com/network2"
+`},
+			out: out{cfg: types.Config{
+				Flannel: &types.Flannel{
+					Version: types.FlannelVersion(semver.Version{
+						Major: 0,
+						Minor: 6,
+						Patch: 2,
+					}),
+					Options: types.Flannel0_6{
+						EtcdPrefix: "/coreos.com/network2",
 					},
 				},
 			}},
