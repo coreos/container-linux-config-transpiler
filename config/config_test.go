@@ -20,7 +20,7 @@ import (
 	"testing"
 
 	"github.com/coreos/container-linux-config-transpiler/config/types"
-	ignTypes "github.com/coreos/ignition/config/types"
+	ignTypes "github.com/coreos/ignition/config/v2_0/types"
 	"github.com/coreos/ignition/config/validate/report"
 )
 
@@ -518,11 +518,21 @@ func TestConvertAs2_0_0(t *testing.T) {
 			in: in{cfg: types.Config{
 				Networkd: types.Networkd{
 					Units: []types.NetworkdUnit{
-						{Name: "bad.blah", Contents: "not valid"},
+						{Name: "bad.blah", Contents: "[Match]\nName=en*\n[Network]\nDHCP=yes"},
 					},
 				},
 			}},
 			out: out{r: report.ReportFromError(errors.New("invalid networkd unit extension"), report.EntryError)},
+		},
+		{
+			in: in{cfg: types.Config{
+				Networkd: types.Networkd{
+					Units: []types.NetworkdUnit{
+						{Name: "bad.network", Contents: "[invalid"},
+					},
+				},
+			}},
+			out: out{r: report.ReportFromError(errors.New("invalid unit content: unable to find end of section"), report.EntryError)},
 		},
 
 		// Config
@@ -865,22 +875,22 @@ func TestConvertAs2_0_0(t *testing.T) {
 						{
 							Name:     "test1.service",
 							Enable:   true,
-							Contents: "test1 contents",
+							Contents: "[Service]\nType=oneshot\nExecStart=/usr/bin/echo test 1\n\n[Install]\nWantedBy=multi-user.target\n",
 							DropIns: []types.SystemdUnitDropIn{
 								{
 									Name:     "conf1.conf",
-									Contents: "conf1 contents",
+									Contents: "[Service]\nExecStart=",
 								},
 								{
 									Name:     "conf2.conf",
-									Contents: "conf2 contents",
+									Contents: "[Service]\nExecStart=",
 								},
 							},
 						},
 						{
 							Name:     "test2.service",
 							Mask:     true,
-							Contents: "test2 contents",
+							Contents: "[Service]\nType=oneshot\nExecStart=/usr/bin/echo test 2\n\n[Install]\nWantedBy=multi-user.target\n",
 						},
 					},
 				},
@@ -892,22 +902,22 @@ func TestConvertAs2_0_0(t *testing.T) {
 						{
 							Name:     "test1.service",
 							Enable:   true,
-							Contents: "test1 contents",
+							Contents: "[Service]\nType=oneshot\nExecStart=/usr/bin/echo test 1\n\n[Install]\nWantedBy=multi-user.target\n",
 							DropIns: []ignTypes.SystemdUnitDropIn{
 								{
 									Name:     "conf1.conf",
-									Contents: "conf1 contents",
+									Contents: "[Service]\nExecStart=",
 								},
 								{
 									Name:     "conf2.conf",
-									Contents: "conf2 contents",
+									Contents: "[Service]\nExecStart=",
 								},
 							},
 						},
 						{
 							Name:     "test2.service",
 							Mask:     true,
-							Contents: "test2 contents",
+							Contents: "[Service]\nType=oneshot\nExecStart=/usr/bin/echo test 2\n\n[Install]\nWantedBy=multi-user.target\n",
 						},
 					},
 				},
@@ -920,11 +930,11 @@ func TestConvertAs2_0_0(t *testing.T) {
 				Networkd: types.Networkd{
 					Units: []types.NetworkdUnit{
 						{
-							Name: "empty.netdev",
+							Name:     "test.network",
+							Contents: "[Match]\nName=en*\n[Network]\nDHCP=yes",
 						},
 						{
-							Name:     "test.network",
-							Contents: "test config",
+							Name: "empty.netdev",
 						},
 					},
 				},
@@ -934,11 +944,11 @@ func TestConvertAs2_0_0(t *testing.T) {
 				Networkd: ignTypes.Networkd{
 					Units: []ignTypes.NetworkdUnit{
 						{
-							Name: "empty.netdev",
+							Name:     "test.network",
+							Contents: "[Match]\nName=en*\n[Network]\nDHCP=yes",
 						},
 						{
-							Name:     "test.network",
-							Contents: "test config",
+							Name: "empty.netdev",
 						},
 					},
 				},
