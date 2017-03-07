@@ -3,4 +3,5 @@
 github.com/ajeddeloh/yaml              1072abfea31191db507785e2e0c1b8d1440d35a5
 github.com/alecthomas/units            6b4e7dc5e3143b85ea77909c72caf89416fc2915
 github.com/coreos/ignition/config      c21306c5b4106186cba8947400e0755a47024af6
+github.com/coreos/go-semver            5e3acbb5668c4c3deb4842615c4098eb61fb6b1e
 github.com/vincent-petithory/dataurl   9a301d65acbb728fcc3ace14f45f511a4cfeea9c
