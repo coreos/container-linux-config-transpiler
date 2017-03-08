@@ -1,7 +1,11 @@
-#!/bin/bash -eu
+#!/usr/bin/env bash
+
+set -eu
 
 ORG_PATH="github.com/coreos"
 REPO_PATH="${ORG_PATH}/container-linux-config-transpiler"
+VERSION=$(git describe --dirty)
+GLDFLAGS="-X ${REPO_PATH}/version.Raw=${VERSION}"
 
 if [ ! -h gopath/src/${REPO_PATH} ]; then
 	mkdir -p gopath/src/${ORG_PATH}
@@ -14,4 +18,4 @@ export GOPATH=${PWD}/gopath
 eval $(go env)
 
 echo "Building Config Transpiler..."
-go build -o ${GOBIN}/ct ${REPO_PATH}/internal
+go build -ldflags "${GLDFLAGS}" -o ${GOBIN}/ct ${REPO_PATH}/internal
