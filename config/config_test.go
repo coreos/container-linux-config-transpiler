@@ -540,7 +540,7 @@ flannel:
 		}
 	}
 }
-func TestConvertAs2_0_0(t *testing.T) {
+func TestConvertAs2_0(t *testing.T) {
 	type in struct {
 		cfg types.Config
 	}
@@ -1097,7 +1097,7 @@ func TestConvertAs2_0_0(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		cfg, r := ConvertAs2_0_0(test.in.cfg)
+		cfg, r := ConvertAs2_0(test.in.cfg)
 		if !reflect.DeepEqual(r, test.out.r) {
 			t.Errorf("#%d: bad error: want %v, got %v", i, test.out.r, r)
 		}
