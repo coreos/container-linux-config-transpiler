@@ -20,6 +20,8 @@ type Config struct {
 	Systemd  Systemd  `yaml:"systemd"`
 	Networkd Networkd `yaml:"networkd"`
 	Passwd   Passwd   `yaml:"passwd"`
+	Etcd     *Etcd    `yaml:"etcd"`
+	Flannel  *Flannel `yaml:"flannel"`
 }
 
 type Ignition struct {

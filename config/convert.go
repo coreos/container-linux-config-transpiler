@@ -21,7 +21,7 @@ import (
 
 	"github.com/alecthomas/units"
 	"github.com/coreos/container-linux-config-transpiler/config/types"
-	ignTypes "github.com/coreos/ignition/config/types"
+	ignTypes "github.com/coreos/ignition/config/v2_0/types"
 	"github.com/coreos/ignition/config/validate"
 	"github.com/coreos/ignition/config/validate/report"
 	"github.com/vincent-petithory/dataurl"
@@ -225,6 +225,28 @@ func ConvertAs2_0_0(in types.Config) (ignTypes.Config, report.Report) {
 			System:       group.System,
 		})
 	}
+	// etcd2 and flannel get drop in files with the configuration
+	if in.Etcd != nil {
+		out.Systemd.Units = append(out.Systemd.Units, ignTypes.SystemdUnit{
+			Name:   "etcd-member.service",
+			Enable: true,
+			DropIns: []ignTypes.SystemdUnitDropIn{{
+				Name:     "20-clct-etcd-member.conf",
+				Contents: etcdContents(*in.Etcd),
+			}},
+		})
+	}
+
+	if in.Flannel != nil {
+		out.Systemd.Units = append(out.Systemd.Units, ignTypes.SystemdUnit{
+			Name:   "flanneld.service",
+			Enable: true,
+			DropIns: []ignTypes.SystemdUnitDropIn{{
+				Name:     "20-clct-flannel.conf",
+				Contents: flannelContents(*in.Flannel),
+			}},
+		})
+	}
 
 	r := validate.ValidateWithoutSource(reflect.ValueOf(out))
 	if r.IsFatal() {
@@ -278,4 +300,60 @@ func convertPartitionDimension(in string) (ignTypes.PartitionDimension, error) {
 		sectors++
 	}
 	return ignTypes.PartitionDimension(uint64(sectors)), nil
+}
+
+func isZero(v interface{}) bool {
+	if v == nil {
+		return true
+	}
+	zv := reflect.Zero(reflect.TypeOf(v))
+	return reflect.DeepEqual(v, zv.Interface())
+}
+
+// etcdContents creates the string containing the systemd drop in for etcd-member
+func etcdContents(etcd types.Etcd) string {
+	vars := getEnvVars(etcd.Options)
+	// Add the tag
+	vars = append(vars, fmt.Sprintf("ETCD_IMAGE_TAG=v%s", etcd.Version))
+	return serviceContentsFromEnvVars(vars)
+}
+
+// flannelContents creates the string containing the systemd drop in for flannel
+func flannelContents(flannel types.Flannel) string {
+	vars := getEnvVars(flannel.Options)
+	// Add the tag
+	vars = append(vars, fmt.Sprintf("FLANNEL_IMAGE_TAG=v%s", flannel.Version))
+	return serviceContentsFromEnvVars(vars)
+}
+
+// serviceContentsFromEnvVars builds the systemd drop in from a list of ENV_VAR=VALUE strings.
+func serviceContentsFromEnvVars(vars []string) string {
+	out := "[Service]\n"
+	for _, v := range vars {
+		out += fmt.Sprintf("Environment=\"%s\"\n", v)
+	}
+	return out
+}
+
+// getEnvVars builds a list of ENV_VAR=VALUE from a struct with env: tags on its members.
+func getEnvVars(e interface{}) []string {
+	if e == nil {
+		return nil
+	}
+	et := reflect.TypeOf(e)
+	ev := reflect.ValueOf(e)
+
+	vars := []string{}
+	for i := 0; i < et.NumField(); i++ {
+		if val := ev.Field(i).Interface(); !isZero(val) {
+			if et.Field(i).Anonymous {
+				vars = append(vars, getEnvVars(val)...)
+			} else {
+				key := et.Field(i).Tag.Get("env")
+				vars = append(vars, fmt.Sprintf("%s=%v", key, val))
+			}
+		}
+	}
+
+	return vars
 }

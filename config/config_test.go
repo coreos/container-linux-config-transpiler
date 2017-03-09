@@ -20,7 +20,8 @@ import (
 	"testing"
 
 	"github.com/coreos/container-linux-config-transpiler/config/types"
-	ignTypes "github.com/coreos/ignition/config/types"
+	"github.com/coreos/go-semver/semver"
+	ignTypes "github.com/coreos/ignition/config/v2_0/types"
 	"github.com/coreos/ignition/config/validate/report"
 )
 
@@ -485,6 +486,48 @@ passwd:
 				},
 			}},
 		},
+		{
+			in: in{data: `
+etcd:
+    version: "3.0.15"
+    discovery: "https://discovery.etcd.io/<token>"
+    listen_client_urls: "http://0.0.0.0:2379,http://0.0.0.0:4001"
+    max_wals: 44
+`},
+			out: out{cfg: types.Config{
+				Etcd: &types.Etcd{
+					Version: types.EtcdVersion(semver.Version{
+						Major: 3,
+						Minor: 0,
+						Patch: 15,
+					}),
+					Options: types.Etcd3_0{
+						Discovery:        "https://discovery.etcd.io/<token>",
+						ListenClientUrls: "http://0.0.0.0:2379,http://0.0.0.0:4001",
+						MaxWals:          44,
+					},
+				},
+			}},
+		},
+		{
+			in: in{data: `
+flannel:
+    version: 0.6.2
+    etcd_prefix: "/coreos.com/network2"
+`},
+			out: out{cfg: types.Config{
+				Flannel: &types.Flannel{
+					Version: types.FlannelVersion(semver.Version{
+						Major: 0,
+						Minor: 6,
+						Patch: 2,
+					}),
+					Options: types.Flannel0_6{
+						EtcdPrefix: "/coreos.com/network2",
+					},
+				},
+			}},
+		},
 	}
 
 	for i, test := range tests {
@@ -518,11 +561,21 @@ func TestConvertAs2_0_0(t *testing.T) {
 			in: in{cfg: types.Config{
 				Networkd: types.Networkd{
 					Units: []types.NetworkdUnit{
-						{Name: "bad.blah", Contents: "not valid"},
+						{Name: "bad.blah", Contents: "[Match]\nName=en*\n[Network]\nDHCP=yes"},
 					},
 				},
 			}},
 			out: out{r: report.ReportFromError(errors.New("invalid networkd unit extension"), report.EntryError)},
+		},
+		{
+			in: in{cfg: types.Config{
+				Networkd: types.Networkd{
+					Units: []types.NetworkdUnit{
+						{Name: "bad.network", Contents: "[invalid"},
+					},
+				},
+			}},
+			out: out{r: report.ReportFromError(errors.New("invalid unit content: unable to find end of section"), report.EntryError)},
 		},
 
 		// Config
@@ -865,22 +918,22 @@ func TestConvertAs2_0_0(t *testing.T) {
 						{
 							Name:     "test1.service",
 							Enable:   true,
-							Contents: "test1 contents",
+							Contents: "[Service]\nType=oneshot\nExecStart=/usr/bin/echo test 1\n\n[Install]\nWantedBy=multi-user.target\n",
 							DropIns: []types.SystemdUnitDropIn{
 								{
 									Name:     "conf1.conf",
-									Contents: "conf1 contents",
+									Contents: "[Service]\nExecStart=",
 								},
 								{
 									Name:     "conf2.conf",
-									Contents: "conf2 contents",
+									Contents: "[Service]\nExecStart=",
 								},
 							},
 						},
 						{
 							Name:     "test2.service",
 							Mask:     true,
-							Contents: "test2 contents",
+							Contents: "[Service]\nType=oneshot\nExecStart=/usr/bin/echo test 2\n\n[Install]\nWantedBy=multi-user.target\n",
 						},
 					},
 				},
@@ -892,22 +945,22 @@ func TestConvertAs2_0_0(t *testing.T) {
 						{
 							Name:     "test1.service",
 							Enable:   true,
-							Contents: "test1 contents",
+							Contents: "[Service]\nType=oneshot\nExecStart=/usr/bin/echo test 1\n\n[Install]\nWantedBy=multi-user.target\n",
 							DropIns: []ignTypes.SystemdUnitDropIn{
 								{
 									Name:     "conf1.conf",
-									Contents: "conf1 contents",
+									Contents: "[Service]\nExecStart=",
 								},
 								{
 									Name:     "conf2.conf",
-									Contents: "conf2 contents",
+									Contents: "[Service]\nExecStart=",
 								},
 							},
 						},
 						{
 							Name:     "test2.service",
 							Mask:     true,
-							Contents: "test2 contents",
+							Contents: "[Service]\nType=oneshot\nExecStart=/usr/bin/echo test 2\n\n[Install]\nWantedBy=multi-user.target\n",
 						},
 					},
 				},
@@ -920,11 +973,11 @@ func TestConvertAs2_0_0(t *testing.T) {
 				Networkd: types.Networkd{
 					Units: []types.NetworkdUnit{
 						{
-							Name: "empty.netdev",
+							Name:     "test.network",
+							Contents: "[Match]\nName=en*\n[Network]\nDHCP=yes",
 						},
 						{
-							Name:     "test.network",
-							Contents: "test config",
+							Name: "empty.netdev",
 						},
 					},
 				},
@@ -934,11 +987,11 @@ func TestConvertAs2_0_0(t *testing.T) {
 				Networkd: ignTypes.Networkd{
 					Units: []ignTypes.NetworkdUnit{
 						{
-							Name: "empty.netdev",
+							Name:     "test.network",
+							Contents: "[Match]\nName=en*\n[Network]\nDHCP=yes",
 						},
 						{
-							Name:     "test.network",
-							Contents: "test config",
+							Name: "empty.netdev",
 						},
 					},
 				},
