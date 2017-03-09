@@ -27,17 +27,24 @@ func isZero(v interface{}) bool {
 	return reflect.DeepEqual(v, zv.Interface())
 }
 
-// serviceContentsFromEnvVars builds the systemd drop in from a list of ENV_VAR=VALUE strings.
-func serviceContentsFromEnvVars(vars []string) string {
+// assembleUnit will assemble the contents of a systemd unit dropin that will
+// have the given environment variables, and call the given exec line with the
+// provided args prepended to it
+func assembleUnit(exec string, args, vars []string) string {
 	out := "[Service]\n"
 	for _, v := range vars {
 		out += fmt.Sprintf("Environment=\"%s\"\n", v)
 	}
+	for _, a := range args {
+		exec += fmt.Sprintf(" \\\n  %s", a)
+	}
+	out += "ExecStart=\n"
+	out += fmt.Sprintf("ExecStart=%s", exec)
 	return out
 }
 
-// getEnvVars builds a list of ENV_VAR=VALUE from a struct with env: tags on its members.
-func getEnvVars(e interface{}) []string {
+// getCliArgs builds a list of --ARG=VAL from a struct with cli: tags on its members.
+func getCliArgs(e interface{}) []string {
 	if e == nil {
 		return nil
 	}
@@ -48,10 +55,10 @@ func getEnvVars(e interface{}) []string {
 	for i := 0; i < et.NumField(); i++ {
 		if val := ev.Field(i).Interface(); !isZero(val) {
 			if et.Field(i).Anonymous {
-				vars = append(vars, getEnvVars(val)...)
+				vars = append(vars, getCliArgs(val)...)
 			} else {
-				key := et.Field(i).Tag.Get("env")
-				vars = append(vars, fmt.Sprintf("%s=%v", key, val))
+				key := et.Field(i).Tag.Get("cli")
+				vars = append(vars, fmt.Sprintf("--%s=%q", key, val))
 			}
 		}
 	}

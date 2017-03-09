@@ -96,51 +96,51 @@ func init() {
 
 // flannelContents creates the string containing the systemd drop in for flannel
 func flannelContents(flannel Flannel) string {
-	vars := getEnvVars(flannel.Options)
-	// Add the tag
-	vars = append(vars, fmt.Sprintf("FLANNEL_IMAGE_TAG=v%s", flannel.Version))
-	return serviceContentsFromEnvVars(vars)
+	args := getCliArgs(flannel.Options)
+	vars := []string{fmt.Sprintf("FLANNEL_IMAGE_TAG=v%s", flannel.Version)}
+
+	return assembleUnit("/usr/lib/coreos/flannel-wrapper $FLANNEL_OPTS", args, vars)
 }
 
 // Flannel0_7 represents flannel options for version 0.7.x. Don't embed Flannel0_6 because
 // the yaml parser doesn't handle embedded structs
 type Flannel0_7 struct {
-	EtcdUsername  string `yaml:"etcd_username"   env:"FLANNELD_ETCD_USERNAME"`
-	EtcdPassword  string `yaml:"etcd_password"   env:"FLANNELD_ETCD_PASSWORD"`
-	EtcdEndpoints string `yaml:"etcd_endpoints"  env:"FLANNELD_ETCD_ENDPOINTS"`
-	EtcdCAFile    string `yaml:"etcd_cafile"     env:"FLANNELD_ETCD_CAFILE"`
-	EtcdCertFile  string `yaml:"etcd_certfile"   env:"FLANNELD_ETCD_CERTFILE"`
-	EtcdKeyFile   string `yaml:"etcd_keyfile"    env:"FLANNELD_ETCD_KEYFILE"`
-	EtcdPrefix    string `yaml:"etcd_prefix"     env:"FLANNELD_ETCD_PREFIX"`
-	IPMasq        string `yaml:"ip_masq"         env:"FLANNELD_IP_MASQ"`
-	SubnetFile    string `yaml:"subnet_file"     env:"FLANNELD_SUBNET_FILE"`
-	Iface         string `yaml:"interface"       env:"FLANNELD_IFACE"`
-	PublicIP      string `yaml:"public_ip"       env:"FLANNELD_PUBLIC_IP"`
-	KubeSubnetMgr bool   `yaml:"kube_subnet_mgr" env:"FLANNEL_KUBE_SUBNET_MGR"`
+	EtcdUsername  string `yaml:"etcd_username"   cli:"etcd-username"`
+	EtcdPassword  string `yaml:"etcd_password"   cli:"etcd-password"`
+	EtcdEndpoints string `yaml:"etcd_endpoints"  cli:"etcd-endpoints"`
+	EtcdCAFile    string `yaml:"etcd_cafile"     cli:"etcd-cafile"`
+	EtcdCertFile  string `yaml:"etcd_certfile"   cli:"etcd-certfile"`
+	EtcdKeyFile   string `yaml:"etcd_keyfile"    cli:"etcd-keyfile"`
+	EtcdPrefix    string `yaml:"etcd_prefix"     cli:"etcd-prefix"`
+	IPMasq        string `yaml:"ip_masq"         cli:"ip-masq"`
+	SubnetFile    string `yaml:"subnet_file"     cli:"subnet-file"`
+	Iface         string `yaml:"interface"       cli:"iface"`
+	PublicIP      string `yaml:"public_ip"       cli:"public-ip"`
+	KubeSubnetMgr bool   `yaml:"kube_subnet_mgr" cli:"kube-subnet-mgr"`
 }
 
 type Flannel0_6 struct {
-	EtcdUsername  string `yaml:"etcd_username"  env:"FLANNELD_ETCD_USERNAME"`
-	EtcdPassword  string `yaml:"etcd_password"  env:"FLANNELD_ETCD_PASSWORD"`
-	EtcdEndpoints string `yaml:"etcd_endpoints" env:"FLANNELD_ETCD_ENDPOINTS"`
-	EtcdCAFile    string `yaml:"etcd_cafile"    env:"FLANNELD_ETCD_CAFILE"`
-	EtcdCertFile  string `yaml:"etcd_certfile"  env:"FLANNELD_ETCD_CERTFILE"`
-	EtcdKeyFile   string `yaml:"etcd_keyfile"   env:"FLANNELD_ETCD_KEYFILE"`
-	EtcdPrefix    string `yaml:"etcd_prefix"    env:"FLANNELD_ETCD_PREFIX"`
-	IPMasq        string `yaml:"ip_masq"        env:"FLANNELD_IP_MASQ"`
-	SubnetFile    string `yaml:"subnet_file"    env:"FLANNELD_SUBNET_FILE"`
-	Iface         string `yaml:"interface"      env:"FLANNELD_IFACE"`
-	PublicIP      string `yaml:"public_ip"      env:"FLANNELD_PUBLIC_IP"`
+	EtcdUsername  string `yaml:"etcd_username"  cli:"etcd-username"`
+	EtcdPassword  string `yaml:"etcd_password"  cli:"etcd-password"`
+	EtcdEndpoints string `yaml:"etcd_endpoints" cli:"etcd-endpoints"`
+	EtcdCAFile    string `yaml:"etcd_cafile"    cli:"etcd-cafile"`
+	EtcdCertFile  string `yaml:"etcd_certfile"  cli:"etcd-certfile"`
+	EtcdKeyFile   string `yaml:"etcd_keyfile"   cli:"etcd-keyfile"`
+	EtcdPrefix    string `yaml:"etcd_prefix"    cli:"etcd-prefix"`
+	IPMasq        string `yaml:"ip_masq"        cli:"ip-masq"`
+	SubnetFile    string `yaml:"subnet_file"    cli:"subnet-file"`
+	Iface         string `yaml:"interface"      cli:"iface"`
+	PublicIP      string `yaml:"public_ip"      cli:"public-ip"`
 }
 
 type Flannel0_5 struct {
-	EtcdEndpoints string `yaml:"etcd_endpoints" env:"FLANNELD_ETCD_ENDPOINTS"`
-	EtcdCAFile    string `yaml:"etcd_cafile"    env:"FLANNELD_ETCD_CAFILE"`
-	EtcdCertFile  string `yaml:"etcd_certfile"  env:"FLANNELD_ETCD_CERTFILE"`
-	EtcdKeyFile   string `yaml:"etcd_keyfile"   env:"FLANNELD_ETCD_KEYFILE"`
-	EtcdPrefix    string `yaml:"etcd_prefix"    env:"FLANNELD_ETCD_PREFIX"`
-	IPMasq        string `yaml:"ip_masq"        env:"FLANNELD_IP_MASQ"`
-	SubnetFile    string `yaml:"subnet_file"    env:"FLANNELD_SUBNET_FILE"`
-	Iface         string `yaml:"interface"      env:"FLANNELD_IFACE"`
-	PublicIP      string `yaml:"public_ip"      env:"FLANNELD_PUBLIC_IP"`
+	EtcdEndpoints string `yaml:"etcd_endpoints" cli:"etcd-endpoints"`
+	EtcdCAFile    string `yaml:"etcd_cafile"    cli:"etcd-cafile"`
+	EtcdCertFile  string `yaml:"etcd_certfile"  cli:"etcd-certfile"`
+	EtcdKeyFile   string `yaml:"etcd_keyfile"   cli:"etcd-keyfile"`
+	EtcdPrefix    string `yaml:"etcd_prefix"    cli:"etcd-prefix"`
+	IPMasq        string `yaml:"ip_masq"        cli:"ip-masq"`
+	SubnetFile    string `yaml:"subnet_file"    cli:"subnet-file"`
+	Iface         string `yaml:"interface"      cli:"iface"`
+	PublicIP      string `yaml:"public_ip"      cli:"public-ip"`
 }
