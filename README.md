@@ -1,14 +1,40 @@
 # Container Linux Config Transpiler
 
-The config transpiler ("ct" for short) is the utility responsible for transforming a Container Linux instance's configuration from the human-friendly, YAML form into an [Ignition][ignition] configuration. While it is possible to write Ignition configs directly, CoreOS recommends that this tool be used instead. More details about the reasoning and the overall design of Ignition and this project are provided in the [documentation][overview].
+The Config Transpiler ("ct" for short) is the utility responsible for transforming a human-friendly Container Linux Config into a JSON file. This resulting file can be provided to a Container Linux machine when it first boots to provision the machine.
 
-Use the [bug tracker][issues] to report bugs.
+## Documentation
+
+If you're looking to begin writing configs for your Container Linux machines, check out the [getting started][get-started] documentation.
+
+The [configuration][config] documentation is a comprehensive resource specifying what options can be in a Container Linux Config.
+
+For a more in-depth view of ct and why it exists, take a look at the [Overview][overview] document.
+
+Please use the [bug tracker][issues] to report bugs.
 
 [ignition]: https://github.com/coreos/ignition
-[issues]: https://github.com/coreos/bugs/issues/new?labels=component/ct
+[issues]: https://issues.coreos.com
 [overview]: doc/overview.md
+[get-started]: doc/getting-started.md
+[config]: doc/configuration.md
 
-## Building
+## Examples
+
+There are plenty of small, self-contained examples [in the documentation][examples].
+
+[examples]: doc/examples.md
+
+## Installation
+
+### Prebuilt binaries
+
+The easiest way to get started using ct is to download one of the binaries from the [releases page on GitHub][releases].
+
+[releases]: https://github.com/coreos/container-linux-config-transpiler/releases
+
+### Building from source
+
+To build from source you'll need to have the go compiler installed on your system.
 
 ```shell
 git clone --branch v0.1.0 https://github.com/coreos/container-linux-config-transpiler
@@ -17,3 +43,9 @@ cd container-linux-config-transpiler
 ```
 
 The `ct` binary will be placed in `./bin/`.
+
+## Related projects
+
+- [https://github.com/coreos/ignition](https://github.com/coreos/ignition)
+- [https://github.com/coreos/coreos-metadata/](https://github.com/coreos/coreos-metadata/)
+- [https://github.com/coreos/matchbox](https://github.com/coreos/matchbox)
