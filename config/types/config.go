@@ -29,6 +29,7 @@ type Config struct {
 	Passwd   Passwd   `yaml:"passwd"`
 	Etcd     *Etcd    `yaml:"etcd"`
 	Flannel  *Flannel `yaml:"flannel"`
+	Update   *Update  `yaml:"update"`
 }
 
 type Ignition struct {
