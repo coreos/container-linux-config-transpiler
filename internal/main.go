@@ -38,6 +38,7 @@ func main() {
 		version bool
 		inFile  string
 		outFile string
+		strict  bool
 	}{}
 
 	flag.BoolVar(&flags.help, "help", false, "Print help and exit.")
@@ -45,6 +46,7 @@ func main() {
 	flag.BoolVar(&flags.version, "version", false, "Print the version and exit.")
 	flag.StringVar(&flags.inFile, "in-file", "", "Path to the container linux config. Standard input unless specified otherwise.")
 	flag.StringVar(&flags.outFile, "out-file", "", "Path to the resulting Ignition config. Standard output unless specified otherwies.")
+	flag.BoolVar(&flags.strict, "strict", false, "Fail if any warnings are encountered.")
 
 	flag.Parse()
 
@@ -91,7 +93,7 @@ func main() {
 
 	cfg, report := config.Parse(dataIn)
 	stderr(report.String())
-	if report.IsFatal() {
+	if report.IsFatal() || (flags.strict && len(report.Entries) > 0) {
 		stderr("Failed to parse config")
 		os.Exit(1)
 	}
