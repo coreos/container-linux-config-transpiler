@@ -16,8 +16,10 @@ package types
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/coreos/go-semver/semver"
+	ignTypes "github.com/coreos/ignition/config/v2_0/types"
 	"github.com/coreos/ignition/config/validate/report"
 )
 
@@ -100,6 +102,30 @@ func (etcd *Etcd) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		etcd.Options = o
 	}
 	return nil
+}
+
+func init() {
+	register2_0(func(in Config, out ignTypes.Config) (ignTypes.Config, report.Report) {
+		if in.Etcd != nil {
+			out.Systemd.Units = append(out.Systemd.Units, ignTypes.SystemdUnit{
+				Name:   "etcd-member.service",
+				Enable: true,
+				DropIns: []ignTypes.SystemdUnitDropIn{{
+					Name:     "20-clct-etcd-member.conf",
+					Contents: etcdContents(*in.Etcd),
+				}},
+			})
+		}
+		return out, report.Report{}
+	})
+}
+
+// etcdContents creates the string containing the systemd drop in for etcd-member
+func etcdContents(etcd Etcd) string {
+	vars := getEnvVars(etcd.Options)
+	// Add the tag
+	vars = append(vars, fmt.Sprintf("ETCD_IMAGE_TAG=v%s", etcd.Version))
+	return serviceContentsFromEnvVars(vars)
 }
 
 type Etcd3_0 struct {

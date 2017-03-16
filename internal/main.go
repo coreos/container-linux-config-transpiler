@@ -96,7 +96,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	ignCfg, report := config.ConvertAs2_0_0(cfg)
+	ignCfg, report := config.ConvertAs2_0(cfg)
 	stderr(report.String())
 	if report.IsFatal() {
 		stderr("Generated Ignition config was invalid.")

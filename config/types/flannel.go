@@ -2,8 +2,10 @@ package types
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/coreos/go-semver/semver"
+	ignTypes "github.com/coreos/ignition/config/v2_0/types"
 	"github.com/coreos/ignition/config/validate/report"
 )
 
@@ -74,6 +76,30 @@ func (flannel *Flannel) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		flannel.Options = o
 	}
 	return nil
+}
+
+func init() {
+	register2_0(func(in Config, out ignTypes.Config) (ignTypes.Config, report.Report) {
+		if in.Flannel != nil {
+			out.Systemd.Units = append(out.Systemd.Units, ignTypes.SystemdUnit{
+				Name:   "flanneld.service",
+				Enable: true,
+				DropIns: []ignTypes.SystemdUnitDropIn{{
+					Name:     "20-clct-flannel.conf",
+					Contents: flannelContents(*in.Flannel),
+				}},
+			})
+		}
+		return out, report.Report{}
+	})
+}
+
+// flannelContents creates the string containing the systemd drop in for flannel
+func flannelContents(flannel Flannel) string {
+	vars := getEnvVars(flannel.Options)
+	// Add the tag
+	vars = append(vars, fmt.Sprintf("FLANNEL_IMAGE_TAG=v%s", flannel.Version))
+	return serviceContentsFromEnvVars(vars)
 }
 
 // Flannel0_7 represents flannel options for version 0.7.x. Don't embed Flannel0_6 because

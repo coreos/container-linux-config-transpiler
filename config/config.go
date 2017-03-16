@@ -19,6 +19,7 @@ import (
 
 	yaml "github.com/ajeddeloh/yaml"
 	"github.com/coreos/container-linux-config-transpiler/config/types"
+	ignTypes "github.com/coreos/ignition/config/v2_0/types"
 	"github.com/coreos/ignition/config/validate"
 	"github.com/coreos/ignition/config/validate/report"
 )
@@ -51,4 +52,8 @@ func Parse(data []byte) (types.Config, report.Report) {
 		return types.Config{}, r
 	}
 	return cfg, r
+}
+
+func ConvertAs2_0(in types.Config) (ignTypes.Config, report.Report) {
+	return types.ConvertAs2_0(in)
 }
