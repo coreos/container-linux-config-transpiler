@@ -30,6 +30,7 @@ type Config struct {
 	Etcd     *Etcd    `yaml:"etcd"`
 	Flannel  *Flannel `yaml:"flannel"`
 	Update   *Update  `yaml:"update"`
+	Docker   *Docker  `yaml:"docker"`
 }
 
 type Ignition struct {
