@@ -58,7 +58,7 @@ func (s UpdateServer) Validate() report.Report {
 }
 
 func init() {
-	register2_0(func(in Config, out ignTypes.Config) (ignTypes.Config, report.Report) {
+	register2_0(func(in Config, out ignTypes.Config, platform string) (ignTypes.Config, report.Report) {
 		if in.Update != nil {
 			out.Storage.Files = append(out.Storage.Files, ignTypes.File{
 				Filesystem: "root",

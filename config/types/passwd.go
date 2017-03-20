@@ -52,7 +52,7 @@ type Group struct {
 }
 
 func init() {
-	register2_0(func(in Config, out ignTypes.Config) (ignTypes.Config, report.Report) {
+	register2_0(func(in Config, out ignTypes.Config, platform string) (ignTypes.Config, report.Report) {
 		for _, user := range in.Passwd.Users {
 			newUser := ignTypes.User{
 				Name:              user.Name,

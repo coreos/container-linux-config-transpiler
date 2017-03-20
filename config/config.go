@@ -54,6 +54,6 @@ func Parse(data []byte) (types.Config, report.Report) {
 	return cfg, r
 }
 
-func ConvertAs2_0(in types.Config) (ignTypes.Config, report.Report) {
-	return types.ConvertAs2_0(in)
+func ConvertAs2_0(in types.Config, platform string) (ignTypes.Config, report.Report) {
+	return types.ConvertAs2_0(in, platform)
 }

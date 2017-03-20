@@ -17,6 +17,12 @@ package types
 import (
 	"fmt"
 	"reflect"
+
+	"github.com/coreos/container-linux-config-transpiler/config/templating"
+)
+
+var (
+	ErrPlatformUnspecified = fmt.Errorf("platform must be specified to use templating")
 )
 
 func isZero(v interface{}) bool {
@@ -30,8 +36,24 @@ func isZero(v interface{}) bool {
 // assembleUnit will assemble the contents of a systemd unit dropin that will
 // have the given environment variables, and call the given exec line with the
 // provided args prepended to it
-func assembleUnit(exec string, args, vars []string) string {
-	out := "[Service]\n"
+func assembleUnit(exec string, args, vars []string, platform string) (string, error) {
+	hasTemplating := templating.HasTemplating(args)
+
+	var out string
+	if hasTemplating {
+		if platform == "" {
+			return "", ErrPlatformUnspecified
+		}
+		out = "[Unit]\nRequires=coreos-metadata.service\nAfter=coreos-metadata.service\n\n[Service]\nEnvironmentFile=/run/metadata/coreos\n"
+		var err error
+		args, err = templating.PerformTemplating(platform, args)
+		if err != nil {
+			return "", err
+		}
+	} else {
+		out = "[Service]\n"
+	}
+
 	for _, v := range vars {
 		out += fmt.Sprintf("Environment=\"%s\"\n", v)
 	}
@@ -40,7 +62,7 @@ func assembleUnit(exec string, args, vars []string) string {
 	}
 	out += "ExecStart=\n"
 	out += fmt.Sprintf("ExecStart=%s", exec)
-	return out
+	return out, nil
 }
 
 // getCliArgs builds a list of --ARG=VAL from a struct with cli: tags on its members.

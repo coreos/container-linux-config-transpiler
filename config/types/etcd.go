@@ -105,14 +105,18 @@ func (etcd *Etcd) UnmarshalYAML(unmarshal func(interface{}) error) error {
 }
 
 func init() {
-	register2_0(func(in Config, out ignTypes.Config) (ignTypes.Config, report.Report) {
+	register2_0(func(in Config, out ignTypes.Config, platform string) (ignTypes.Config, report.Report) {
 		if in.Etcd != nil {
+			contents, err := etcdContents(*in.Etcd, platform)
+			if err != nil {
+				return ignTypes.Config{}, report.ReportFromError(err, report.EntryError)
+			}
 			out.Systemd.Units = append(out.Systemd.Units, ignTypes.SystemdUnit{
 				Name:   "etcd-member.service",
 				Enable: true,
 				DropIns: []ignTypes.SystemdUnitDropIn{{
 					Name:     "20-clct-etcd-member.conf",
-					Contents: etcdContents(*in.Etcd),
+					Contents: contents,
 				}},
 			})
 		}
@@ -121,11 +125,11 @@ func init() {
 }
 
 // etcdContents creates the string containing the systemd drop in for etcd-member
-func etcdContents(etcd Etcd) string {
+func etcdContents(etcd Etcd, platform string) (string, error) {
 	args := getCliArgs(etcd.Options)
 	vars := []string{fmt.Sprintf("ETCD_IMAGE_TAG=v%s", etcd.Version)}
 
-	return assembleUnit("/usr/lib/coreos/etcd-wrapper $ETCD_OPTS", args, vars)
+	return assembleUnit("/usr/lib/coreos/etcd-wrapper $ETCD_OPTS", args, vars, platform)
 }
 
 type Etcd3_0 struct {

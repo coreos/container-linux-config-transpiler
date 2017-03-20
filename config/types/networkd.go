@@ -29,7 +29,7 @@ type NetworkdUnit struct {
 }
 
 func init() {
-	register2_0(func(in Config, out ignTypes.Config) (ignTypes.Config, report.Report) {
+	register2_0(func(in Config, out ignTypes.Config, platform string) (ignTypes.Config, report.Report) {
 		for _, unit := range in.Networkd.Units {
 			out.Networkd.Units = append(out.Networkd.Units, ignTypes.NetworkdUnit{
 				Name:     ignTypes.NetworkdUnitName(unit.Name),

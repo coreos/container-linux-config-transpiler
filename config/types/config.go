@@ -47,7 +47,7 @@ type ConfigReference struct {
 }
 
 func init() {
-	register2_0(func(in Config, out ignTypes.Config) (ignTypes.Config, report.Report) {
+	register2_0(func(in Config, out ignTypes.Config, platform string) (ignTypes.Config, report.Report) {
 		for _, ref := range in.Ignition.Config.Append {
 			newRef, err := convertConfigReference(ref)
 			if err != nil {
