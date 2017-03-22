@@ -1,3 +1,22 @@
+20-Mar-2016 CONFIG-TRANSPILER v0.2.0
+
+  Features
+
+    - New etcd and flannel sections have been added, allowing for easy
+      configuration of the service.
+    - New -strict flag, that causes warnings to be treated as errors
+    - New update section added, for easy selection of the OS update group and
+      server
+    - Dynamic data support added, allowing things like the machine's ipv4
+      address to be referenced in the etcd and flannel sections
+    - New docker section added, for easy configuration of flags on the docker
+      daemon
+    - New locksmith section added for configuring of reboot strategy
+
+  Fixes
+
+    - -in-file and -out-file flags were broken
+
 29-Dec-2016 CONFIG-TRANSPILER v0.1.0
 
   Features
