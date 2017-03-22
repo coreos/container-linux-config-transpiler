@@ -158,6 +158,23 @@ func TestGetFields(t *testing.T) {
 		F: test3,
 	}
 
+	// test non-structs embedded via an alias to interface{} don't cause panics
+	test6 := struct {
+		E int
+		Anything
+	}{
+		E:        5,
+		Anything: 65,
+	}
+
+	// test embedded nils
+	test7 := struct {
+		E int
+		Anything
+	}{
+		E: 5,
+	}
+
 	type in struct {
 		strct reflect.Value
 	}
@@ -255,6 +272,32 @@ func TestGetFields(t *testing.T) {
 				{
 					Type:  reflect.TypeOf(test5).Field(1),
 					Value: reflect.ValueOf(test5.F),
+				},
+			}},
+		},
+		{
+			in: in{strct: reflect.ValueOf(test6)},
+			out: out{fields: []field{
+				{
+					Type:  reflect.TypeOf(test6).Field(0),
+					Value: reflect.ValueOf(test6.E),
+				},
+				{
+					Type:  reflect.TypeOf(test6).Field(1),
+					Value: reflect.ValueOf(65),
+				},
+			}},
+		},
+		{
+			in: in{strct: reflect.ValueOf(test7)},
+			out: out{fields: []field{
+				{
+					Type:  reflect.TypeOf(test7).Field(0),
+					Value: reflect.ValueOf(test7.E),
+				},
+				{
+					Type:  reflect.TypeOf(test7).Field(1),
+					Value: reflect.ValueOf(nil),
 				},
 			}},
 		},
