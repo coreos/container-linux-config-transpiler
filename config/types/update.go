@@ -59,7 +59,21 @@ func (s UpdateServer) Validate() report.Report {
 
 func init() {
 	register2_0(func(in Config, out ignTypes.Config, platform string) (ignTypes.Config, report.Report) {
+		var contents string
 		if in.Update != nil {
+			if in.Update.Group != "" {
+				contents += fmt.Sprintf("GROUP=%s", strings.ToLower(string(in.Update.Group)))
+			}
+			if in.Update.Server != "" {
+				contents += fmt.Sprintf("\nSERVER=%s", in.Update.Server)
+			}
+		}
+		if in.Locksmith != nil {
+			if in.Locksmith.RebootStrategy != "" {
+				contents += fmt.Sprintf("\nREBOOT_STRATEGY=%s", strings.ToLower(string(in.Locksmith.RebootStrategy)))
+			}
+		}
+		if contents != "" {
 			out.Storage.Files = append(out.Storage.Files, ignTypes.File{
 				Filesystem: "root",
 				Path:       "/etc/coreos/update.conf",
@@ -67,22 +81,11 @@ func init() {
 				Contents: ignTypes.FileContents{
 					Source: ignTypes.Url{
 						Scheme: "data",
-						Opaque: "," + updateConfContents(in.Update),
+						Opaque: "," + dataurl.EscapeString(contents),
 					},
 				},
 			})
 		}
 		return out, report.Report{}
 	})
-}
-
-func updateConfContents(u *Update) string {
-	var res string
-	if u.Group != "" {
-		res = fmt.Sprintf("GROUP=%s", strings.ToLower(string(u.Group)))
-	}
-	if u.Server != "" {
-		res += fmt.Sprintf("\nSERVER=%s", u.Server)
-	}
-	return dataurl.EscapeString(res)
 }

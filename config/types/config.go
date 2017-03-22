@@ -22,15 +22,16 @@ import (
 )
 
 type Config struct {
-	Ignition Ignition `yaml:"ignition"`
-	Storage  Storage  `yaml:"storage"`
-	Systemd  Systemd  `yaml:"systemd"`
-	Networkd Networkd `yaml:"networkd"`
-	Passwd   Passwd   `yaml:"passwd"`
-	Etcd     *Etcd    `yaml:"etcd"`
-	Flannel  *Flannel `yaml:"flannel"`
-	Update   *Update  `yaml:"update"`
-	Docker   *Docker  `yaml:"docker"`
+	Ignition  Ignition   `yaml:"ignition"`
+	Storage   Storage    `yaml:"storage"`
+	Systemd   Systemd    `yaml:"systemd"`
+	Networkd  Networkd   `yaml:"networkd"`
+	Passwd    Passwd     `yaml:"passwd"`
+	Etcd      *Etcd      `yaml:"etcd"`
+	Flannel   *Flannel   `yaml:"flannel"`
+	Update    *Update    `yaml:"update"`
+	Docker    *Docker    `yaml:"docker"`
+	Locksmith *Locksmith `yaml:"locksmith"`
 }
 
 type Ignition struct {

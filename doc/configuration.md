@@ -139,6 +139,11 @@ docker:
   flags:
     - --config-file=/etc/docker/daemon.json
     - --default-gateway=172.16.0.1
+update:
+  group:  "alpha"
+  server: "https://public.update.core-os.net/v1/update/"
+locksmith:
+  reboot-strategy: "etcd-lock"
 ```
 
 _Note: all fields are optional unless otherwise marked_
@@ -238,6 +243,11 @@ _Note: all fields are optional unless otherwise marked_
   * **_other options_** (string): this section accepts any valid flannel options for the version of flannel specified. For a comprehensive list, please consult flannel's documentation. Note all options here should be in snake_case, not spine-case.
 * **docker**
   * **flags** (list of strings): additional flags to pass to the docker daemon when it is started
+* **update**
+  * **group** (string): the update group to follow. Most users will want one of: stable, beta, alpha.
+  * **server** (string): the server to fetch updates from.
+* **locksmith**
+  * **reboot-strategy** (string): the reboot strategy for locksmithd to follow. Must be one of: reboot, etcd-lock, off.
 
 [part-types]: http://en.wikipedia.org/wiki/GUID_Partition_Table#Partition_type_GUIDs
 [rfc2397]: https://tools.ietf.org/html/rfc2397
