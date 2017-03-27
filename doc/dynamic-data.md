@@ -14,13 +14,14 @@ The available information varies by provider, and is expressed in different vari
 
 This is the information available in each provider.
 
-|                | Azure | Digital Ocean | EC2 | GCE | Packet |
-|----------------|-------|---------------|-----|-----|--------|
-| `HOSTNAME`     |       | ✓             | ✓   | ✓   | ✓      |
-| `PRIVATE_IPV4` | ✓     | ✓             | ✓   | ✓   | ✓      |
-| `PUBLIC_IPV4`  | ✓     | ✓             | ✓   | ✓   |        |
-| `PRIVATE_IPV6` |       | ✓             |     |     | ✓      |
-| `PUBLIC_IPV6`  |       | ✓             |     |     | ✓      |
+|                    | `HOSTNAME` | `PRIVATE_IPV4` | `PUBLIC_IPV4` | `PRIVATE_IPV6` | `PUBLIC_IPV6` |
+|--------------------|------------|----------------|---------------|----------------|---------------|
+| Azure              |            | ✓              | ✓             |                |               |
+| Digital Ocean      | ✓          | ✓              | ✓             | ✓              | ✓             |
+| EC2                | ✓          | ✓              | ✓             |                |               |
+| GCE                | ✓          | ✓              | ✓             |                |               |
+| Packet             | ✓          | ✓              | ✓             |                | ✓             |
+| OpenStack-Metadata | ✓          | ✓              | ✓             |                |               |
 
 ## Behind the scenes
 
