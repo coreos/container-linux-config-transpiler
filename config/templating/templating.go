@@ -25,11 +25,12 @@ var (
 )
 
 const (
-	PlatformAzure  = "azure"
-	PlatformDO     = "digitalocean"
-	PlatformEC2    = "ec2"
-	PlatformGCE    = "gce"
-	PlatformPacket = "packet"
+	PlatformAzure             = "azure"
+	PlatformDO                = "digitalocean"
+	PlatformEC2               = "ec2"
+	PlatformGCE               = "gce"
+	PlatformPacket            = "packet"
+	PlatformOpenStackMetadata = "openstack-metadata"
 )
 
 var Platforms = []string{
@@ -38,6 +39,7 @@ var Platforms = []string{
 	PlatformEC2,
 	PlatformGCE,
 	PlatformPacket,
+	PlatformOpenStackMetadata,
 }
 
 const (
@@ -77,6 +79,11 @@ var platformTemplatingMap = map[string]map[string]string{
 		fieldV4Private: "COREOS_PACKET_IPV4_PRIVATE_0",
 		fieldV4Public:  "COREOS_PACKET_IPV4_PUBLIC_0",
 		fieldV6Public:  "COREOS_PACKET_IPV6_PUBLIC_0",
+	},
+	PlatformOpenStackMetadata: {
+		fieldHostname:  "COREOS_OPENSTACK_HOSTNAME",
+		fieldV4Private: "COREOS_OPENSTACK_IPV4_LOCAL",
+		fieldV4Public:  "COREOS_OPENSTACK_IPV4_PUBLIC",
 	},
 }
 
