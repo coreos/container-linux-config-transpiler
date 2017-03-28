@@ -65,8 +65,7 @@ func assembleUnit(exec string, args, vars []string, platform string) (string, er
 	return out, nil
 }
 
-// getCliArgs builds a list of --ARG=VAL from a struct with cli: tags on its members.
-func getCliArgs(e interface{}) []string {
+func getArgs(format, tagName string, e interface{}) []string {
 	if e == nil {
 		return nil
 	}
@@ -79,11 +78,16 @@ func getCliArgs(e interface{}) []string {
 			if et.Field(i).Anonymous {
 				vars = append(vars, getCliArgs(val)...)
 			} else {
-				key := et.Field(i).Tag.Get("cli")
-				vars = append(vars, fmt.Sprintf("--%s=%q", key, val))
+				key := et.Field(i).Tag.Get(tagName)
+				vars = append(vars, fmt.Sprintf(format, key, val))
 			}
 		}
 	}
 
 	return vars
+}
+
+// getCliArgs builds a list of --ARG=VAL from a struct with cli: tags on its members.
+func getCliArgs(e interface{}) []string {
+	return getArgs("--%s=%q", "cli", e)
 }
