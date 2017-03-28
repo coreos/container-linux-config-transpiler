@@ -26,7 +26,7 @@ var (
 )
 
 type Locksmith struct {
-	RebootStrategy RebootStrategy `yaml:"reboot-strategy"`
+	RebootStrategy RebootStrategy `yaml:"reboot_strategy"`
 }
 
 type RebootStrategy string
