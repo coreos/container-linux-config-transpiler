@@ -1,3 +1,14 @@
+28-Mar-2016 CONFIG-TRANSPILER v0.2.1
+
+  Features
+
+    - Added platform support for openstack-metadata
+
+  Fixes
+
+    - reboot-strategy under the locksmith section renamed to reboot_strategy to
+      be consistent with the rest of the schema
+
 20-Mar-2016 CONFIG-TRANSPILER v0.2.0
 
   Features
