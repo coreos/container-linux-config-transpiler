@@ -5,7 +5,7 @@ set -eu
 ORG_PATH="github.com/coreos"
 REPO_PATH="${ORG_PATH}/container-linux-config-transpiler"
 VERSION=$(git describe --dirty)
-GLDFLAGS="-X ${REPO_PATH}/version.Raw=${VERSION}"
+GLDFLAGS="-X github.com/coreos/container-linux-config-transpiler/internal/version.Raw=${VERSION}"
 
 if [ ! -h gopath/src/${REPO_PATH} ]; then
 	mkdir -p gopath/src/${ORG_PATH}

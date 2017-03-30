@@ -24,7 +24,7 @@ import (
 
 	"github.com/coreos/container-linux-config-transpiler/config"
 	"github.com/coreos/container-linux-config-transpiler/config/templating"
-	"github.com/coreos/container-linux-config-transpiler/version"
+	"github.com/coreos/container-linux-config-transpiler/internal/version"
 )
 
 func stderr(f string, a ...interface{}) {
