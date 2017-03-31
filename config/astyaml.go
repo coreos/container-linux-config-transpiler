@@ -43,11 +43,11 @@ func fromYamlDocumentNode(n yaml.Node) (yamlNode, error) {
 }
 
 func (n yamlNode) ValueLineCol(source io.ReadSeeker) (int, int, string) {
-	return n.Line, n.Column, ""
+	return n.Line + 1, n.Column + 1, ""
 }
 
 func (n yamlNode) KeyLineCol(source io.ReadSeeker) (int, int, string) {
-	return n.key.Line, n.key.Column, ""
+	return n.key.Line + 1, n.key.Column + 1, ""
 }
 
 func (n yamlNode) LiteralValue() interface{} {
