@@ -13,10 +13,11 @@ var (
 	ErrFlannelTooOld      = errors.New("invalid flannel version (too old)")
 	ErrFlannelMinorTooNew = errors.New("flannel minor version too new. Only options available in the previous minor version will be supported")
 	OldestFlannelVersion  = *semver.New("0.5.0")
+	FlannelDefaultVersion = *semver.New("0.6.0")
 )
 
 type Flannel struct {
-	Version FlannelVersion `yaml:"version"`
+	Version *FlannelVersion `yaml:"version"`
 	Options
 }
 
@@ -55,7 +56,13 @@ func (flannel *Flannel) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 	*flannel = Flannel(t)
 
-	v := semver.Version(flannel.Version)
+	var v semver.Version
+	if flannel.Version == nil {
+		v = FlannelDefaultVersion
+	} else {
+		v = semver.Version(*flannel.Version)
+	}
+
 	if v.Major == 0 && v.Minor >= 7 {
 		o := Flannel0_7{}
 		if err := unmarshal(&o); err != nil {
