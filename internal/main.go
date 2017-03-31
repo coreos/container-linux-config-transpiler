@@ -47,7 +47,7 @@ func main() {
 	flag.BoolVar(&flags.pretty, "pretty", false, "Indent the resulting Ignition config.")
 	flag.BoolVar(&flags.version, "version", false, "Print the version and exit.")
 	flag.StringVar(&flags.inFile, "in-file", "", "Path to the container linux config. Standard input unless specified otherwise.")
-	flag.StringVar(&flags.outFile, "out-file", "", "Path to the resulting Ignition config. Standard output unless specified otherwies.")
+	flag.StringVar(&flags.outFile, "out-file", "", "Path to the resulting Ignition config. Standard output unless specified otherwise.")
 	flag.BoolVar(&flags.strict, "strict", false, "Fail if any warnings are encountered.")
 	flag.StringVar(&flags.platform, "platform", "", fmt.Sprintf("Platform to target. Accepted values: %v.", templating.Platforms))
 
