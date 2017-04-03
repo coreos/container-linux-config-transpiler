@@ -1,4 +1,10 @@
-28-Mar-2016 CONFIG-TRANSPILER v0.2.1
+03-Apr-2017 CONFIG-TRANSPILER v0.2.2
+
+  Features
+    
+    - Version field no longer required for etcd and flannel sections
+
+28-Mar-2017 CONFIG-TRANSPILER v0.2.1
 
   Features
 
@@ -9,7 +15,7 @@
     - reboot-strategy under the locksmith section renamed to reboot_strategy to
       be consistent with the rest of the schema
 
-20-Mar-2016 CONFIG-TRANSPILER v0.2.0
+20-Mar-2017 CONFIG-TRANSPILER v0.2.0
 
   Features
 
