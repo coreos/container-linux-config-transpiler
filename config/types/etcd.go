@@ -28,6 +28,7 @@ var (
 	EtcdMinorVersionTooNew = errors.New("Etcd minor version specified is too new, only options available in the previous minor version will be accepted")
 	EtcdMajorVersionTooNew = errors.New("Etcd version is not valid (too new)")
 	OldestEtcd             = *semver.New("2.3.0")
+	EtcdDefaultVersion     = *semver.New("3.0.0")
 )
 
 // Options can be the options for any Etcd version
@@ -70,7 +71,7 @@ func (e EtcdVersion) String() string {
 // to be an embedded type so that the structure of the yaml tree matches the
 // structure of the go config tree
 type Etcd struct {
-	Version EtcdVersion `yaml:"version"`
+	Version *EtcdVersion `yaml:"version"`
 	Options
 }
 
@@ -81,7 +82,13 @@ func (etcd *Etcd) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 	*etcd = Etcd(t)
 
-	version := semver.Version(etcd.Version)
+	var version semver.Version
+	if etcd.Version == nil {
+		version = EtcdDefaultVersion
+	} else {
+		version = semver.Version(*etcd.Version)
+	}
+
 	if version.Major == 2 && version.Minor >= 3 {
 		o := Etcd2{}
 		if err := unmarshal(&o); err != nil {
@@ -127,7 +134,10 @@ func init() {
 // etcdContents creates the string containing the systemd drop in for etcd-member
 func etcdContents(etcd Etcd, platform string) (string, error) {
 	args := getCliArgs(etcd.Options)
-	vars := []string{fmt.Sprintf("ETCD_IMAGE_TAG=v%s", etcd.Version)}
+	var vars []string
+	if etcd.Version != nil {
+		vars = []string{fmt.Sprintf("ETCD_IMAGE_TAG=v%s", etcd.Version)}
+	}
 
 	return assembleUnit("/usr/lib/coreos/etcd-wrapper $ETCD_OPTS", args, vars, platform)
 }

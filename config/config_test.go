@@ -496,11 +496,12 @@ etcd:
 `},
 			out: out{cfg: types.Config{
 				Etcd: &types.Etcd{
-					Version: types.EtcdVersion(semver.Version{
-						Major: 3,
-						Minor: 0,
-						Patch: 15,
-					}),
+					Version: func(t types.EtcdVersion) *types.EtcdVersion { return &t }(
+						types.EtcdVersion(semver.Version{
+							Major: 3,
+							Minor: 0,
+							Patch: 15,
+						})),
 					Options: types.Etcd3_0{
 						Discovery:        "https://discovery.etcd.io/<token>",
 						ListenClientUrls: "http://0.0.0.0:2379,http://0.0.0.0:4001",
@@ -517,11 +518,12 @@ flannel:
 `},
 			out: out{cfg: types.Config{
 				Flannel: &types.Flannel{
-					Version: types.FlannelVersion(semver.Version{
-						Major: 0,
-						Minor: 6,
-						Patch: 2,
-					}),
+					Version: func(t types.FlannelVersion) *types.FlannelVersion { return &t }(
+						types.FlannelVersion(semver.Version{
+							Major: 0,
+							Minor: 6,
+							Patch: 2,
+						})),
 					Options: types.Flannel0_6{
 						EtcdPrefix: "/coreos.com/network2",
 					},
