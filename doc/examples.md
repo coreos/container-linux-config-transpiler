@@ -172,6 +172,19 @@ This example will create a dropin for the `etcd-member` systemd unit, configurin
 
 This is referencing dynamic data that isn't known until an instance is booted, for more information on how this works please take a look at the [referencing dynamic data][4] document.
 
+## Updates and Locksmithd
+
+```yaml
+update:
+  group:  "beta"
+locksmith:
+  reboot_strategy: "etcd-lock"
+  window_start:    "Sun 1:00"
+  window_length:   "2h"
+```
+
+This example configures the Container Linux instance to be a member of the beta group, configures locksmithd to acquire a lock in etcd before rebooting for an update, and only allows reboots during a 2 hour window starting at 1 AM on Sundays.
+
 [1]: configuration.md
 [2]: https://coreos.com/os/docs/latest/using-systemd-drop-in-units.html
 [3]: https://coreos.com/os/docs/latest/network-config-with-networkd.html

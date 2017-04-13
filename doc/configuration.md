@@ -144,6 +144,13 @@ update:
   server: "https://public.update.core-os.net/v1/update/"
 locksmith:
   reboot_strategy: "etcd-lock"
+  window_start:    "Mon 2:00"
+  window_length:   "2h25m3s"
+  group:           "load balancers"
+  etcd_endpoints:  "https://172.16.0.101:2379,https://172.16.0.102:2379,https://172.16.0.103:2379"
+  etcd_cafile:     "/etc/ssl/etcd/ca.pem"
+  etcd_certfile:   "/etc/ssl/etcd/client.pem"
+  etcd_keyfile:    "/etc/ssl/etcd/client-key.pem"
 ```
 
 _Note: all fields are optional unless otherwise marked_
@@ -248,6 +255,13 @@ _Note: all fields are optional unless otherwise marked_
   * **server** (string): the server to fetch updates from.
 * **locksmith**
   * **reboot_strategy** (string): the reboot strategy for locksmithd to follow. Must be one of: reboot, etcd-lock, off.
+  * **window_start** (string, required if window-length isn't empty): the start of the window that locksmithd can reboot the machine during
+  * **window_length** (string, required if window-start isn't empty): the duration of the window that locksmithd can reboot the machine during
+  * **group** (string): the locksmith etcd group to be part of for reboot control
+  * **etcd_endpoints** (string): the endpoints of etcd locksmith should use
+  * **etcd_cafile** (string): the tls CA file to use when communicating with etcd
+  * **etcd_certfile** (string): the tls cert file to use when communicating with etcd
+  * **etcd_keyfile** (string): the tls key file to use when communicating with etcd
 
 [part-types]: http://en.wikipedia.org/wiki/GUID_Partition_Table#Partition_type_GUIDs
 [rfc2397]: https://tools.ietf.org/html/rfc2397

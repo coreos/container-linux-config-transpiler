@@ -69,8 +69,9 @@ func init() {
 			}
 		}
 		if in.Locksmith != nil {
-			if in.Locksmith.RebootStrategy != "" {
-				contents += fmt.Sprintf("\nREBOOT_STRATEGY=%s", strings.ToLower(string(in.Locksmith.RebootStrategy)))
+			lines := in.Locksmith.configLines()
+			if len(lines) > 0 {
+				contents += "\n" + strings.Join(lines, "\n")
 			}
 		}
 		if contents != "" {
