@@ -533,7 +533,7 @@ flannel:
 	}
 
 	for i, test := range tests {
-		cfg, err := Parse([]byte(test.in.data))
+		cfg, _, err := Parse([]byte(test.in.data))
 		if !reflect.DeepEqual(err, test.out.r) {
 			t.Errorf("#%d: bad error: want %v, got %v", i, test.out.r, err)
 		}
@@ -1099,7 +1099,7 @@ func TestConvertAs2_0(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		cfg, r := ConvertAs2_0(test.in.cfg, "")
+		cfg, r := ConvertAs2_0(test.in.cfg, "", nil)
 		if !reflect.DeepEqual(r, test.out.r) {
 			t.Errorf("#%d: bad error: want %v, got %v", i, test.out.r, r)
 		}
