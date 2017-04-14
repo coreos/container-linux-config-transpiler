@@ -94,7 +94,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	cfg, report := config.Parse(dataIn)
+	cfg, ast, report := config.Parse(dataIn)
 	if len(report.Entries) > 0 {
 		stderr(report.String())
 	}
@@ -103,7 +103,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	ignCfg, report := config.ConvertAs2_0(cfg, flags.platform)
+	ignCfg, report := config.ConvertAs2_0(cfg, flags.platform, ast)
 	if len(report.Entries) > 0 {
 		stderr(report.String())
 		if report.IsFatal() || flags.strict {

@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package astyaml
 
 import (
 	"errors"
 	"io"
+	"strings"
 
 	yaml "github.com/ajeddeloh/yaml"
 	"github.com/coreos/ignition/config/validate"
@@ -24,37 +25,41 @@ import (
 
 var (
 	ErrNotDocumentNode = errors.New("Can only convert from document node")
+	ErrNotMappingNode  = errors.New("Tried to change the key of a node which is not a mapping node")
+	ErrKeyNotFound     = errors.New("Key to be replaced not found")
 )
 
-type yamlNode struct {
+type YamlNode struct {
+	tag string
 	key yaml.Node
 	yaml.Node
 }
 
-func fromYamlDocumentNode(n yaml.Node) (yamlNode, error) {
+func FromYamlDocumentNode(n yaml.Node) (YamlNode, error) {
 	if n.Kind != yaml.DocumentNode {
-		return yamlNode{}, ErrNotDocumentNode
+		return YamlNode{}, ErrNotDocumentNode
 	}
 
-	return yamlNode{
+	return YamlNode{
 		key:  n,
+		tag:  "yaml",
 		Node: *n.Children[0],
 	}, nil
 }
 
-func (n yamlNode) ValueLineCol(source io.ReadSeeker) (int, int, string) {
+func (n YamlNode) ValueLineCol(source io.ReadSeeker) (int, int, string) {
 	return n.Line + 1, n.Column + 1, ""
 }
 
-func (n yamlNode) KeyLineCol(source io.ReadSeeker) (int, int, string) {
+func (n YamlNode) KeyLineCol(source io.ReadSeeker) (int, int, string) {
 	return n.key.Line + 1, n.key.Column + 1, ""
 }
 
-func (n yamlNode) LiteralValue() interface{} {
+func (n YamlNode) LiteralValue() interface{} {
 	return n.Value
 }
 
-func (n yamlNode) SliceChild(index int) (validate.AstNode, bool) {
+func (n YamlNode) SliceChild(index int) (validate.AstNode, bool) {
 	if n.Kind != yaml.SequenceNode {
 		return nil, false
 	}
@@ -62,13 +67,14 @@ func (n yamlNode) SliceChild(index int) (validate.AstNode, bool) {
 		return nil, false
 	}
 
-	return yamlNode{
+	return YamlNode{
 		key:  yaml.Node{},
+		tag:  n.tag,
 		Node: *n.Children[index],
 	}, true
 }
 
-func (n yamlNode) KeyValueMap() (map[string]validate.AstNode, bool) {
+func (n YamlNode) KeyValueMap() (map[string]validate.AstNode, bool) {
 	if n.Kind != yaml.MappingNode {
 		return nil, false
 	}
@@ -76,15 +82,53 @@ func (n yamlNode) KeyValueMap() (map[string]validate.AstNode, bool) {
 	kvmap := map[string]validate.AstNode{}
 	for i := 0; i < len(n.Children); i += 2 {
 		key := *n.Children[i]
+		if n.tag == "json" {
+			key.Value = getIgnKeyName(key.Value)
+		}
 		value := *n.Children[i+1]
-		kvmap[key.Value] = yamlNode{
+		kvmap[key.Value] = YamlNode{
 			key:  key,
+			tag:  n.tag,
 			Node: value,
 		}
 	}
 	return kvmap, true
 }
 
-func (n yamlNode) Tag() string {
-	return "yaml"
+// ChangeKey replaces the oldkey with a new key/value pair. Useful for patching
+// up a tree parsed from yaml but then used for validating an ignition structure
+func (n *YamlNode) ChangeKey(oldKeyName, newKeyName string, newValue YamlNode) error {
+	if n.Kind != yaml.MappingNode {
+		return ErrNotMappingNode
+	}
+	for i := 0; i < len(n.Children); i += 2 {
+		key := n.Children[i]
+		if key.Value == oldKeyName {
+			//key.Value = newKeyName
+			(*n.Children[i]).Value = newKeyName
+			*n.Children[i+1] = newValue.Node
+			return nil
+		}
+	}
+
+	return ErrKeyNotFound
+}
+
+// getIgnKeyName converts a snake_case (used by clct) to a camelCase (used by
+// ignition)
+func getIgnKeyName(keyname string) string {
+	words := strings.Split(keyname, "_")
+	for i, word := range words[1:] {
+		words[i+1] = strings.Title(word)
+	}
+	return strings.Join(words, "")
+}
+
+func (n YamlNode) Tag() string {
+	return n.tag
+}
+
+// ChangeTreeTag changes the value Tag() returns to newTag
+func (n *YamlNode) ChangeTreeTag(newTag string) {
+	n.tag = newTag
 }
