@@ -18,12 +18,30 @@ import (
 	"fmt"
 	"reflect"
 
+	ignTypes "github.com/coreos/ignition/config/v2_0/types"
+	"github.com/coreos/ignition/config/validate/report"
+
 	"github.com/coreos/container-linux-config-transpiler/config/templating"
 )
 
 var (
 	ErrPlatformUnspecified = fmt.Errorf("platform must be specified to use templating")
 )
+
+func init() {
+	register2_0(func(in Config, out ignTypes.Config, platform string) (ignTypes.Config, report.Report) {
+		if platform == templating.PlatformOpenStackMetadata {
+			out.Systemd.Units = append(out.Systemd.Units, ignTypes.SystemdUnit{
+				Name: "coreos-metadata.service",
+				DropIns: []ignTypes.SystemdUnitDropIn{{
+					Name:     "20-clct-provider-override.conf",
+					Contents: fmt.Sprintf("[Service]\nEnvironment=COREOS_METADATA_OPT_PROVIDER=--provider=%s", platform),
+				}},
+			})
+		}
+		return out, report.Report{}
+	})
+}
 
 func isZero(v interface{}) bool {
 	if v == nil {
