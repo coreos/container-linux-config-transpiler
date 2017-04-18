@@ -24,6 +24,9 @@ import (
 	"github.com/coreos/ignition/config/validate/report"
 )
 
+// Parse will convert a byte slice containing a Container Linux Config into a
+// golang struct representing the config, and a report of any warnings or errors
+// that occurred during the parsing.
 func Parse(data []byte) (types.Config, report.Report) {
 	var cfg types.Config
 	var r report.Report
@@ -54,6 +57,11 @@ func Parse(data []byte) (types.Config, report.Report) {
 	return cfg, r
 }
 
+// ConvertAs2_0 will convert a golang struct representing a Container Linux
+// Config into an Ignition Config, and a report of any warnings or errors.
+// ConvertAs2_0 also accepts a platform string, which can either be one of the
+// platform strings defined in config/templating/templating.go or an empty
+// string if [dynamic data](doc/dynamic-data.md) isn't used.
 func ConvertAs2_0(in types.Config, platform string) (ignTypes.Config, report.Report) {
 	return types.ConvertAs2_0(in, platform)
 }
