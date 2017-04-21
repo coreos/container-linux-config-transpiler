@@ -1,3 +1,16 @@
+20-Apr-2017 CONFIG-TRANSPILER v0.3.0
+
+  Features
+    
+    - The locksmith section gained many more fields for configuration, including
+      reboot windows and etcd configuration
+  
+  Fixes
+
+    - The openstack-metadata provider will now override the platform in
+      coreos-metadata to set the platform to use the metadata service. This is
+      necessary for the coreos-metadata unit to run successfully.
+
 03-Apr-2017 CONFIG-TRANSPILER v0.2.2
 
   Features
