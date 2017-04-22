@@ -1,6 +1,6 @@
 # Examples
 
-Here you can find a bunch of simple examples for using ct, with some explanations about what they do. The examples here are in no way comprehensive, for a full list of all the options present in ct check out [configuration.md][1].
+Here you can find a bunch of simple examples for using ct, with some explanations about what they do. The examples here are in no way comprehensive, for a full list of all the options present in ct check out the [configuration specification][spec].
 
 ## Users and groups
 
@@ -117,7 +117,7 @@ systemd:
             Environment="ETCD_NAME=infra0"
 ```
 
-This example adds a drop-in for the `etcd-member` unit, setting the name for etcd to `infra0` with an environment variable. More information on systemd dropins can be found [here][2].
+This example adds a drop-in for the `etcd-member` unit, setting the name for etcd to `infra0` with an environment variable. More information on systemd dropins can be found in [the docs][dropins].
 
 ```yaml
 systemd:
@@ -153,7 +153,7 @@ networkd:
         Gateway=192.168.0.1
 ```
 
-This example creates a networkd unit to set the IP address on the `enp2s0` interface to the static address `192.168.0.15/24`, and sets an appropriate gateway. More information on networkd units in CoreOS can be found [here][3].
+This example creates a networkd unit to set the IP address on the `enp2s0` interface to the static address `192.168.0.15/24`, and sets an appropriate gateway. More information on networkd units in CoreOS can be found in [the docs][networkd].
 
 ## etcd
 
@@ -170,7 +170,7 @@ etcd:
 
 This example will create a dropin for the `etcd-member` systemd unit, configuring it to use the specified version and adding all the specified options. This will also enable the `etcd-member` unit.
 
-This is referencing dynamic data that isn't known until an instance is booted, for more information on how this works please take a look at the [referencing dynamic data][4] document.
+This is referencing dynamic data that isn't known until an instance is booted, for more information on how this works please take a look at the [referencing dynamic data][dynamic-data] document.
 
 ## Updates and Locksmithd
 
@@ -185,7 +185,7 @@ locksmith:
 
 This example configures the Container Linux instance to be a member of the beta group, configures locksmithd to acquire a lock in etcd before rebooting for an update, and only allows reboots during a 2 hour window starting at 1 AM on Sundays.
 
-[1]: configuration.md
-[2]: https://coreos.com/os/docs/latest/using-systemd-drop-in-units.html
-[3]: https://coreos.com/os/docs/latest/network-config-with-networkd.html
-[4]: dynamic-data.md
+[spec]: configuration.md
+[dropins]: https://coreos.com/os/docs/latest/using-systemd-drop-in-units.html
+[networkd]: https://coreos.com/os/docs/latest/network-config-with-networkd.html
+[dynamic-data]: dynamic-data.md
