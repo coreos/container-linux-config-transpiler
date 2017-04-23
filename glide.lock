@@ -1,0 +1,25 @@
+hash: bfff9c2dfb6aeaa7e0210a00a3e55b294cf65bd77f02615fc8ee7a1b0722dc93
+updated: 2017-04-23T14:13:06.742587941-07:00
+imports:
+- name: github.com/ajeddeloh/yaml
+  version: 1072abfea31191db507785e2e0c1b8d1440d35a5
+- name: github.com/alecthomas/units
+  version: 6b4e7dc5e3143b85ea77909c72caf89416fc2915
+- name: github.com/coreos/go-semver
+  version: 5e3acbb5668c4c3deb4842615c4098eb61fb6b1e
+  subpackages:
+  - semver
+- name: github.com/coreos/go-systemd
+  version: 43e4800a6165b4e02bb2a36673c54b230d6f7b26
+  subpackages:
+  - unit
+- name: github.com/coreos/ignition
+  version: d75d0aa3bf307f0954ce4ea8cac56dacec8d16ce
+  subpackages:
+  - config/types
+  - config/v2_0/types
+  - config/validate
+  - config/validate/report
+- name: github.com/vincent-petithory/dataurl
+  version: 9a301d65acbb728fcc3ace14f45f511a4cfeea9c
+testImports: []
