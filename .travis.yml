@@ -1,12 +1,8 @@
 language: go
-matrix:
-  include:
-    - go: 1.5
-      env: GO15VENDOREXPERIMENT=1
-    - go: 1.6
-
+go:
+  - 1.7
+  - 1.8
 install:
   -
-
 script:
   - ./test
