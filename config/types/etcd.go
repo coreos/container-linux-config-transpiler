@@ -149,6 +149,7 @@ type Etcd3_0 struct {
 	SnapshotCount            int    `yaml:"snapshot_count"              cli:"snapshot-count"`
 	HeartbeatInterval        int    `yaml:"heartbeat_interval"          cli:"heartbeat-interval"`
 	ElectionTimeout          int    `yaml:"election_timeout"            cli:"election-timeout"`
+	EnablePprof              bool   `yaml:"enable_pprof"                cli:"enable-pprof"`
 	ListenPeerUrls           string `yaml:"listen_peer_urls"            cli:"listen-peer-urls"`
 	ListenClientUrls         string `yaml:"listen_client_urls"          cli:"listen-client-urls"`
 	MaxSnapshots             int    `yaml:"max_snapshots"               cli:"max-snapshots"`
@@ -195,6 +196,7 @@ type Etcd3_1 struct {
 	SnapshotCount            int    `yaml:"snapshot_count"              cli:"snapshot-count"`
 	HeartbeatInterval        int    `yaml:"heartbeat_interval"          cli:"heartbeat-interval"`
 	ElectionTimeout          int    `yaml:"election_timeout"            cli:"election-timeout"`
+	EnablePprof              bool   `yaml:"enable_pprof"                cli:"enable-pprof"`
 	ListenPeerUrls           string `yaml:"listen_peer_urls"            cli:"listen-peer-urls"`
 	ListenClientUrls         string `yaml:"listen_client_urls"          cli:"listen-client-urls"`
 	MaxSnapshots             int    `yaml:"max_snapshots"               cli:"max-snapshots"`
