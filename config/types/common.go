@@ -97,6 +97,10 @@ func getArgs(format, tagName string, e interface{}) []string {
 				vars = append(vars, getCliArgs(val)...)
 			} else {
 				key := et.Field(i).Tag.Get(tagName)
+				if _, ok := val.(string); ok {
+					// to handle whitespace characters
+					val = fmt.Sprintf("%q", val)
+				}
 				vars = append(vars, fmt.Sprintf(format, key, val))
 			}
 		}
@@ -107,5 +111,5 @@ func getArgs(format, tagName string, e interface{}) []string {
 
 // getCliArgs builds a list of --ARG=VAL from a struct with cli: tags on its members.
 func getCliArgs(e interface{}) []string {
-	return getArgs("--%s=%q", "cli", e)
+	return getArgs("--%s=%v", "cli", e)
 }
