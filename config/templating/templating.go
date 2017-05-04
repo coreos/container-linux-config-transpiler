@@ -71,8 +71,8 @@ var platformTemplatingMap = map[string]map[string]string{
 	},
 	PlatformGCE: {
 		fieldHostname:  "COREOS_GCE_HOSTNAME",
-		fieldV4Private: "COREOS_GCE_IP_EXTERNAL_0",
-		fieldV4Public:  "COREOS_GCE_IP_LOCAL_0",
+		fieldV4Private: "COREOS_GCE_IP_LOCAL_0",
+		fieldV4Public:  "COREOS_GCE_IP_EXTERNAL_0",
 	},
 	PlatformPacket: {
 		fieldHostname:  "COREOS_PACKET_HOSTNAME",
