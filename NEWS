@@ -1,3 +1,16 @@
+04-May-2017 CONFIG-TRANSPILER v0.3.1
+
+  Features
+
+    - Added 'enable-pprof' flag in etcd
+
+  Fixes
+
+    - Non-string values in the etcd and flannel sections are now formatted
+      correctly
+    - On GCE the PUBLIC_IPV4 and PRIVATE_IPV4 dynamic data fields produced the
+      incorrect environment variable names, this has been fixed
+
 20-Apr-2017 CONFIG-TRANSPILER v0.3.0
 
   Features
