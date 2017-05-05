@@ -110,7 +110,12 @@ func flannelContents(flannel Flannel, platform string) (string, error) {
 	args := getCliArgs(flannel.Options)
 	vars := []string{fmt.Sprintf("FLANNEL_IMAGE_TAG=v%s", flannel.Version)}
 
-	return assembleUnit("/usr/lib/coreos/flannel-wrapper $FLANNEL_OPTS", args, vars, platform)
+	unit, err := assembleUnit("/usr/lib/coreos/flannel-wrapper $FLANNEL_OPTS", args, vars, platform)
+	if err != nil {
+		return "", err
+	}
+
+	return unit.String(), nil
 }
 
 // Flannel0_7 represents flannel options for version 0.7.x. Don't embed Flannel0_6 because
