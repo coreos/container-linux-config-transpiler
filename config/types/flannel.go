@@ -1,6 +1,7 @@
 package types
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -10,20 +11,37 @@ import (
 )
 
 var (
-	ErrFlannelTooOld      = errors.New("invalid flannel version (too old)")
-	ErrFlannelMinorTooNew = errors.New("flannel minor version too new. Only options available in the previous minor version will be supported")
-	OldestFlannelVersion  = *semver.New("0.5.0")
-	FlannelDefaultVersion = *semver.New("0.6.0")
+	ErrFlannelTooOld                  = errors.New("invalid flannel version (too old)")
+	ErrFlannelMinorTooNew             = errors.New("flannel minor version too new. Only options available in the previous minor version will be supported")
+	ErrNetConfigInvalidJSON           = errors.New("flannel network config doesn't appear to be valid JSON")
+	ErrNetConfigProvidedAndKubeMgrSet = errors.New("flannel network config cannot be provided if kube_subnet_mgr is set")
+	OldestFlannelVersion              = *semver.New("0.5.0")
+	FlannelDefaultVersion             = *semver.New("0.6.0")
 )
 
 type Flannel struct {
-	Version *FlannelVersion `yaml:"version"`
+	Version       *FlannelVersion `yaml:"version"`
+	NetworkConfig NetworkConfig   `yaml:"network_config"`
 	Options
 }
 
 type flannelCommon Flannel
 
 type FlannelVersion semver.Version
+
+type NetworkConfig string
+
+func (nc NetworkConfig) Validate() report.Report {
+	if nc == "" {
+		return report.Report{}
+	}
+	tmp := make(map[string]interface{})
+	err := json.Unmarshal([]byte(nc), &tmp)
+	if err != nil {
+		return report.ReportFromError(ErrNetConfigInvalidJSON, report.EntryError)
+	}
+	return report.Report{}
+}
 
 func (v *FlannelVersion) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	t := semver.Version(*v)
@@ -47,6 +65,16 @@ func (fv FlannelVersion) Validate() report.Report {
 
 func (fv FlannelVersion) String() string {
 	return semver.Version(fv).String()
+}
+
+func (f *Flannel) Validate() report.Report {
+	switch o := f.Options.(type) {
+	case Flannel0_7:
+		if o.KubeSubnetMgr && f.NetworkConfig != "" {
+			return report.ReportFromError(ErrNetConfigProvidedAndKubeMgrSet, report.EntryError)
+		}
+	}
+	return report.Report{}
 }
 
 func (flannel *Flannel) UnmarshalYAML(unmarshal func(interface{}) error) error {
@@ -113,6 +141,45 @@ func flannelContents(flannel Flannel, platform string) (string, error) {
 	unit, err := assembleUnit("/usr/lib/coreos/flannel-wrapper $FLANNEL_OPTS", args, vars, platform)
 	if err != nil {
 		return "", err
+	}
+
+	if flannel.NetworkConfig != "" {
+		pre := "ExecStartPre=/usr/bin/etcdctl"
+		var endpoints string
+		var etcdCAFile string
+		var etcdCertFile string
+		var etcdKeyFile string
+		switch o := flannel.Options.(type) {
+		case Flannel0_7:
+			endpoints = o.EtcdEndpoints
+			etcdCAFile = o.EtcdCAFile
+			etcdCertFile = o.EtcdCertFile
+			etcdKeyFile = o.EtcdKeyFile
+		case Flannel0_6:
+			endpoints = o.EtcdEndpoints
+			etcdCAFile = o.EtcdCAFile
+			etcdCertFile = o.EtcdCertFile
+			etcdKeyFile = o.EtcdKeyFile
+		case Flannel0_5:
+			endpoints = o.EtcdEndpoints
+			etcdCAFile = o.EtcdCAFile
+			etcdCertFile = o.EtcdCertFile
+			etcdKeyFile = o.EtcdKeyFile
+		}
+		if endpoints != "" {
+			pre += fmt.Sprintf(" --endpoints=%q", endpoints)
+		}
+		if etcdCAFile != "" {
+			pre += fmt.Sprintf(" --ca-file=%q", etcdCAFile)
+		}
+		if etcdCertFile != "" {
+			pre += fmt.Sprintf(" --cert-file=%q", etcdCertFile)
+		}
+		if etcdKeyFile != "" {
+			pre += fmt.Sprintf(" --key-file=%q", etcdKeyFile)
+		}
+		pre += fmt.Sprintf(" set /coreos.com/network/config %q", flannel.NetworkConfig)
+		unit.Service.Add(pre)
 	}
 
 	return unit.String(), nil
