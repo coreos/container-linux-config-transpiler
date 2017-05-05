@@ -31,8 +31,8 @@ For a more in-depth walk through of how this feature works, let's look at the et
 etcd:
   version:                     "3.0.15"
   name:                        "{HOSTNAME}"
-  advertise_client_urls:       "{PRIVATE_IPV4}:2379"
-  initial_advertise_peer_urls: "{PRIVATE_IPV4}:2380"
+  advertise_client_urls:       "http://{PRIVATE_IPV4}:2379"
+  initial_advertise_peer_urls: "http://{PRIVATE_IPV4}:2380"
   listen_client_urls:          "http://0.0.0.0:2379"
   listen_peer_urls:            "http://{PRIVATE_IPV4}:2380"
   initial_cluster:             "%m=http://{PRIVATE_IPV4}:2380"
@@ -53,9 +53,9 @@ ExecStart=/usr/lib/coreos/etcd-wrapper $ETCD_OPTS \
   --name="${COREOS_EC2_HOSTNAME}" \
   --listen-peer-urls="http://${COREOS_EC2_IPV4_LOCAL}:2380" \
   --listen-client-urls="http://0.0.0.0:2379" \
-  --initial-advertise-peer-urls="${COREOS_EC2_IPV4_LOCAL}:2380" \
+  --initial-advertise-peer-urls="http://${COREOS_EC2_IPV4_LOCAL}:2380" \
   --initial-cluster="%m=http://${COREOS_EC2_IPV4_LOCAL}:2380" \
-  --advertise-client-urls="${COREOS_EC2_IPV4_LOCAL}:2379"
+  --advertise-client-urls="http://${COREOS_EC2_IPV4_LOCAL}:2379"
 ```
 
 This drop-in specifies that etcd should run after the coreos-metadata service, and it uses `/run/metadata/coreos` as an `EnvironmentFile`. This enables the coreos-metadata service, and puts the information it discovers into environment variables. These environment variables are then expanded by systemd when the service starts, inserting the dynamic data into the command-line flags to etcd.
