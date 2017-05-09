@@ -161,8 +161,8 @@ This example creates a networkd unit to set the IP address on the `enp2s0` inter
 etcd:
   version:                     "3.0.15"
   name:                        "{HOSTNAME}"
-  advertise_client_urls:       "{PRIVATE_IPV4}:2379"
-  initial_advertise_peer_urls: "{PRIVATE_IPV4}:2380"
+  advertise_client_urls:       "http://{PRIVATE_IPV4}:2379"
+  initial_advertise_peer_urls: "http://{PRIVATE_IPV4}:2380"
   listen_client_urls:          "http://0.0.0.0:2379"
   listen_peer_urls:            "http://{PRIVATE_IPV4}:2380"
   initial_cluster:             "%m=http://{PRIVATE_IPV4}:2380"
