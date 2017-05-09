@@ -139,7 +139,12 @@ func etcdContents(etcd Etcd, platform string) (string, error) {
 		vars = []string{fmt.Sprintf("ETCD_IMAGE_TAG=v%s", etcd.Version)}
 	}
 
-	return assembleUnit("/usr/lib/coreos/etcd-wrapper $ETCD_OPTS", args, vars, platform)
+	unit, err := assembleUnit("/usr/lib/coreos/etcd-wrapper $ETCD_OPTS", args, vars, platform)
+	if err != nil {
+		return "", err
+	}
+
+	return unit.String(), nil
 }
 
 type Etcd3_0 struct {
