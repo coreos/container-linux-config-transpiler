@@ -170,7 +170,7 @@ etcd:
 
 This example will create a dropin for the `etcd-member` systemd unit, configuring it to use the specified version and adding all the specified options. This will also enable the `etcd-member` unit.
 
-This is referencing dynamic data that isn't known until an instance is booted, for more information on how this works please take a look at the [referencing dynamic data][dynamic-data] document.
+This is referencing dynamic data that isn't known until an instance is booted. For more information on how this works, please take a look at the [referencing dynamic data][dynamic-data] document.
 
 ## Updates and Locksmithd
 
