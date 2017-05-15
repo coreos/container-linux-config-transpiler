@@ -29,7 +29,7 @@ import (
 )
 
 const (
-	infoString = "yaml"
+	infoString = "yaml container-linux-config"
 )
 
 func main() {
