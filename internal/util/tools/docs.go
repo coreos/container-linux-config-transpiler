@@ -12,45 +12,67 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package doc
+// Reads all markdown files in the specified directory and validates the
+// Container Linux Configs wrapped in code fences.
+
+package main
 
 import (
+	"flag"
+	"fmt"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
-	"testing"
 
 	"github.com/coreos/container-linux-config-transpiler/config"
 )
 
-// TestValidYAML reads in all .md files in the current directory, finds parts of
-// the file wrapped in ```yaml and ```, and attempts to parse/validate it with
-// ct. If the report is >0 this test fails (it fails on warnings).
-func TestValidYAML(t *testing.T) {
-	files, err := ioutil.ReadDir(".")
-	if err != nil {
-		t.Errorf("couldn't read dir: %v", err)
+const (
+	infoString = "yaml"
+)
+
+func main() {
+	flags := struct {
+		help bool
+		root string
+	}{}
+
+	flag.BoolVar(&flags.help, "help", false, "Print help and exit.")
+	flag.StringVar(&flags.root, "root", "doc", "Path to the documentation.")
+
+	flag.Parse()
+
+	if flags.help {
+		flag.Usage()
+		return
 	}
-	for _, f := range files {
-		if !strings.HasSuffix(f.Name(), ".md") {
-			// Only check markdown files
-			continue
+
+	if err := filepath.Walk(flags.root, func(path string, info os.FileInfo, err error) error {
+		if !strings.HasSuffix(info.Name(), ".md") || info.IsDir() {
+			return nil
 		}
-		fileContents, err := ioutil.ReadFile(f.Name())
+
+		fileContents, err := ioutil.ReadFile(path)
 		if err != nil {
-			t.Errorf("couldn't read file %s: %v", f.Name(), err)
+			return err
 		}
 
 		fileLines := strings.Split(string(fileContents), "\n")
-
 		yamlSections := findYamlSections(fileLines)
 
 		for _, yaml := range yamlSections {
 			_, report := config.Parse([]byte(strings.Join(yaml, "\n")))
 			reportStr := report.String()
 			if reportStr != "" {
-				t.Errorf("non-empty parsing report in %s: %s", f.Name(), reportStr)
+				return fmt.Errorf("non-empty parsing report in %s: %s", info.Name(), reportStr)
 			}
 		}
+
+		return nil
+	}); err != nil {
+		fmt.Fprintf(os.Stderr, "failed while validating docs: %v", err)
+		os.Exit(1)
 	}
 }
 
@@ -69,7 +91,7 @@ func findYamlSections(fileLines []string) [][]string {
 		if inASection {
 			currentSection = append(currentSection, line)
 		}
-		if line == "```yaml" {
+		if line == "```"+infoString {
 			inASection = true
 		}
 	}
