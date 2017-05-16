@@ -8,7 +8,7 @@ Here you can find a bunch of simple examples for using ct, with some explanation
 passwd:
   users:
     - name: core
-      password_hash: password1
+      password_hash: "$6$43y3tkl..."
       ssh_authorized_keys:
         - key1
 ```
@@ -19,7 +19,7 @@ This example modifies the existing `core` user, giving it a known password hash 
 passwd:
   users:
     - name: user1
-      password_hash: password1
+      password_hash: "$6$43y3tkl..."
       ssh_authorized_keys:
         - key1
         - key2
@@ -34,7 +34,7 @@ This example will create two users, `user1` and `user2`. The first user has a pa
 passwd:
   users:
     - name: user1
-      password_hash: password1
+      password_hash: "$6$43y3tkl..."
       ssh_authorized_keys:
         - key1
       create:
@@ -46,7 +46,7 @@ passwd:
         shell: /bin/zsh
 ```
 
-This example creates one user, `user1`, with the password hash `password1`, and sets up one ssh public key for the user. The user is also given the home directory `/home/user1`, but it's not created, the user is added to the `wheel` and `plugdev` groups, and the user's shell is set to `/bin/zsh`.
+This example creates one user, `user1`, with the password hash `$6$43y3tkl...`, and sets up one ssh public key for the user. The user is also given the home directory `/home/user1`, but it's not created, the user is added to the `wheel` and `plugdev` groups, and the user's shell is set to `/bin/zsh`.
 
 ## Storage and files
 
