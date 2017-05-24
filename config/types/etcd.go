@@ -257,6 +257,7 @@ type Etcd3_2 struct {
 	HeartbeatInterval        int    `yaml:"heartbeat_interval"          cli:"heartbeat-interval"`
 	ElectionTimeout          int    `yaml:"election_timeout"            cli:"election-timeout"`
 	EnablePprof              bool   `yaml:"enable_pprof"                cli:"enable-pprof"`
+	EnableV2                 bool   `yaml:"enable_v2"                   cli:"enable-v2"`
 	ListenPeerUrls           string `yaml:"listen_peer_urls"            cli:"listen-peer-urls"`
 	ListenClientUrls         string `yaml:"listen_client_urls"          cli:"listen-client-urls"`
 	MaxSnapshots             int    `yaml:"max_snapshots"               cli:"max-snapshots"`
@@ -291,6 +292,7 @@ type Etcd3_2 struct {
 	PeerClientCertAuth       bool   `yaml:"peer_client_cert_auth"       cli:"peer-client-cert-auth"`
 	PeerTrustedCaFile        string `yaml:"peer_trusted_ca_file"        cli:"peer-trusted-ca-file"`
 	PeerAutoTls              bool   `yaml:"peer_auto_tls"               cli:"peer-auto-tls"`
+	AuthToken                string `yaml:"auth_token"                  cli:"auth-token"`
 	Debug                    bool   `yaml:"debug"                       cli:"debug"`
 	LogPackageLevels         string `yaml:"log_package_levels"          cli:"log-package-levels"`
 	ForceNewCluster          bool   `yaml:"force_new_cluster"           cli:"force-new-cluster"`
