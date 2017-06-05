@@ -106,7 +106,7 @@ func main() {
 	ignCfg, report := config.ConvertAs2_0(cfg, flags.platform)
 	if len(report.Entries) > 0 {
 		stderr(report.String())
-		if report.IsFatal() {
+		if report.IsFatal() || flags.strict {
 			os.Exit(1)
 		}
 	}
