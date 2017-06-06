@@ -37,12 +37,14 @@ The easiest way to get started using ct is to download one of the binaries from 
 To build from source you'll need to have the go compiler installed on your system.
 
 ```shell
-git clone --branch v0.1.0 https://github.com/coreos/container-linux-config-transpiler
+git clone --branch v0.3.1 https://github.com/coreos/container-linux-config-transpiler
 cd container-linux-config-transpiler
 ./build
 ```
 
 The `ct` binary will be placed in `./bin/`.
+
+Note: Review releases for new branch versions.
 
 ## Related projects
 
