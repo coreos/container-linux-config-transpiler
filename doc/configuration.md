@@ -25,8 +25,8 @@ _Note: all fields are optional unless otherwise marked_
     * **partitions** (list of objects): the list of partitions and their configuration for this particular disk.
       * **label** (string): the PARTLABEL for the partition.
       * **number** (integer): the partition number, which dictates it's position in the partition table (one-indexed). If zero, use the next available partition slot.
-      * **size** (integer): the size of the partition (in sectors). If zero, the partition will fill the remainder of the disk.
-      * **start** (integer): the start of the partition (in sectors). If zero, the partition will be positioned at the earliest available part of the disk.
+      * **size** (integer): the size of the partition. If zero, the partition will fill the remainder of the disk.
+      * **start** (integer): the start of the partition. If zero, the partition will be positioned at the earliest available part of the disk.
       * **typeguid_** (string): the GPT [partition type GUID][part-types]. If omitted, the default will be 0FC63DAF-8483-4772-8E79-3D69D8477DE4 (Linux filesystem data).
   * **raid** (list of objects): the list of RAID arrays to be configured.
     * **name** (string, required): the name to use for the resulting md device.
