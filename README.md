@@ -39,7 +39,7 @@ To build from source you'll need to have the go compiler installed on your syste
 ```shell
 git clone --branch v0.3.1 https://github.com/coreos/container-linux-config-transpiler
 cd container-linux-config-transpiler
-./build
+make build
 ```
 
 The `ct` binary will be placed in `./bin/`.
