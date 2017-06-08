@@ -37,7 +37,7 @@ type Locksmith struct {
 	WindowStart    WindowStart    `yaml:"window_start"    locksmith:"LOCKSMITHD_REBOOT_WINDOW_START"`
 	WindowLength   WindowLength   `yaml:"window_length"   locksmith:"LOCKSMITHD_REBOOT_WINDOW_LENGTH"`
 	Group          string         `yaml:"group"           locksmith:"LOCKSMITHD_GROUP"`
-	EtcdEndpoints  string         `yaml:"etcd_endpoints"  locksmith:"LOCKSMITHD_ENDPOINTS"`
+	EtcdEndpoints  string         `yaml:"etcd_endpoints"  locksmith:"LOCKSMITHD_ENDPOINT"`
 	EtcdCAFile     string         `yaml:"etcd_cafile"     locksmith:"LOCKSMITHD_ETCD_CAFILE"`
 	EtcdCertFile   string         `yaml:"etcd_certfile"   locksmith:"LOCKSMITHD_ETCD_CERTFILE"`
 	EtcdKeyFile    string         `yaml:"etcd_keyfile"    locksmith:"LOCKSMITHD_ETCD_KEYFILE"`
