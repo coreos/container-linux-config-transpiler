@@ -15,45 +15,59 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 
 	"github.com/coreos/ignition/config/validate/report"
 )
 
-type Partition struct {
-	Label    PartitionLabel     `json:"label,omitempty"`
-	Number   int                `json:"number"`
-	Size     PartitionDimension `json:"size"`
-	Start    PartitionDimension `json:"start"`
-	TypeGUID PartitionTypeGUID  `json:"typeGuid,omitempty"`
-}
+const (
+	guidRegexStr = "^(|[[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{12})$"
+)
 
-type PartitionLabel string
+var (
+	ErrLabelTooLong         = errors.New("partition labels may not exceed 36 characters")
+	ErrDoesntMatchGUIDRegex = errors.New("doesn't match the form \"01234567-89AB-CDEF-EDCB-A98765432101\"")
+)
 
-func (n PartitionLabel) Validate() report.Report {
+func (p Partition) ValidateLabel() report.Report {
+	r := report.Report{}
 	// http://en.wikipedia.org/wiki/GUID_Partition_Table#Partition_entries:
 	// 56 (0x38) 	72 bytes 	Partition name (36 UTF-16LE code units)
 
 	// XXX(vc): note GPT calls it a name, we're using label for consistency
 	// with udev naming /dev/disk/by-partlabel/*.
-	if len(string(n)) > 36 {
-		return report.ReportFromError(fmt.Errorf("partition labels may not exceed 36 characters"), report.EntryError)
+	if len(p.Label) > 36 {
+		r.Add(report.Entry{
+			Message: ErrLabelTooLong.Error(),
+			Kind:    report.EntryError,
+		})
 	}
-	return report.Report{}
+	return r
 }
 
-type PartitionDimension uint64
+func (p Partition) ValidateTypeGUID() report.Report {
+	return validateGUID(p.TypeGUID)
+}
 
-type PartitionTypeGUID string
+func (p Partition) ValidateGUID() report.Report {
+	return validateGUID(p.GUID)
+}
 
-func (d PartitionTypeGUID) Validate() report.Report {
-	ok, err := regexp.MatchString("^(|[[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{12})$", string(d))
+func validateGUID(guid string) report.Report {
+	r := report.Report{}
+	ok, err := regexp.MatchString(guidRegexStr, guid)
 	if err != nil {
-		return report.ReportFromError(fmt.Errorf("error matching type-guid regexp: %v", err), report.EntryError)
+		r.Add(report.Entry{
+			Message: fmt.Sprintf("error matching guid regexp: %v", err),
+			Kind:    report.EntryError,
+		})
+	} else if !ok {
+		r.Add(report.Entry{
+			Message: ErrDoesntMatchGUIDRegex.Error(),
+			Kind:    report.EntryError,
+		})
 	}
-	if !ok {
-		return report.ReportFromError(fmt.Errorf(`partition type-guid must have the form "01234567-89AB-CDEF-EDCB-A98765432101", got: %q`, string(d)), report.EntryError)
-	}
-	return report.Report{}
+	return r
 }
