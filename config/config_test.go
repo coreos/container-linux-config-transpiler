@@ -1108,3 +1108,291 @@ func TestConvertAs2_0(t *testing.T) {
 		}
 	}
 }
+
+func TestAndConvertAs2_0_0(t *testing.T) {
+	type in struct {
+		data string
+	}
+	type out struct {
+		cfg ignTypes.Config
+		r   report.Report
+	}
+
+	tests := []struct {
+		in  in
+		out out
+	}{
+		{
+			in: in{data: `
+networkd:
+  units:
+    - name: bad.blah
+      contents: not valid
+`},
+			out: out{
+				cfg: ignTypes.Config{},
+				r: report.Report{Entries: []report.Entry{{
+					Message: "invalid networkd unit extension",
+					Kind:    report.EntryError,
+					Line:    4,
+					Column:  13,
+				}}},
+			},
+		},
+		{
+			in: in{data: `
+networkd:
+  units:
+    - name: bad.network
+      contents: "[not valid"
+`},
+			out: out{
+				cfg: ignTypes.Config{},
+				r: report.Report{Entries: []report.Entry{{
+					Message: "invalid unit content: unable to find end of section",
+					Kind:    report.EntryError,
+					Line:    4,
+					Column:  7,
+				}}},
+			},
+		},
+
+		// valid
+		{
+			in: in{data: `
+ignition:
+  config:
+    append:
+      - source: http://example.com/test1
+        verification:
+          hash:
+            function: sha512
+            sum: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+      - source: http://example.com/test2
+    replace:
+      source: http://example.com/test3
+      verification:
+        hash:
+          function: sha512
+          sum: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+`},
+			out: out{cfg: ignTypes.Config{
+				Ignition: ignTypes.Ignition{
+					Version: ignTypes.IgnitionVersion{Major: 2},
+					Config: ignTypes.IgnitionConfig{
+						Append: []ignTypes.ConfigReference{
+							{
+								Source: ignTypes.Url{
+									Scheme: "http",
+									Host:   "example.com",
+									Path:   "/test1",
+								},
+								Verification: ignTypes.Verification{
+									Hash: &ignTypes.Hash{
+										Function: "sha512",
+										Sum:      "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+									},
+								},
+							},
+							{
+								Source: ignTypes.Url{
+									Scheme: "http",
+									Host:   "example.com",
+									Path:   "/test2",
+								},
+							},
+						},
+						Replace: &ignTypes.ConfigReference{
+							Source: ignTypes.Url{
+								Scheme: "http",
+								Host:   "example.com",
+								Path:   "/test3",
+							},
+							Verification: ignTypes.Verification{
+								Hash: &ignTypes.Hash{
+									Function: "sha512",
+									Sum:      "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+								},
+							},
+						},
+					},
+				},
+			}},
+		},
+
+		// Invalid files
+		{
+			in: in{data: `
+storage:
+  files:
+    - path: opt/file1
+      filesystem: root
+      contents:
+        inline: file1
+      mode: 0644
+      user:
+        id: 500
+      group:
+        id: 501
+    - path: /opt/file2
+      filesystem: root
+      contents:
+        remote:
+          url: httpz://example.com/file2
+          compression: gzip
+          verification:
+            hash:
+              function: sha512
+              sum: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+      mode: 0644
+      user:
+        id: 502
+      group:
+        id: 503
+`},
+			out: out{
+				cfg: ignTypes.Config{},
+				r: report.Report{Entries: []report.Entry{
+					{
+						Message: "path not absolute",
+						Kind:    report.EntryError,
+						Line:    4,
+						Column:  13,
+					},
+					{
+						Message: "invalid url scheme",
+						Kind:    report.EntryError,
+						Line:    17,
+						Column:  16,
+					},
+				}},
+			},
+		},
+
+		// Invalid disk dimensions
+		{
+			in: in{data: `
+storage:
+  disks:
+    - device: /dev/sda
+      wipe_table: true
+      partitions:
+        - label: ROOT
+          number: 7
+          size: -100MB
+          start: 50MB
+          type_guid: 11111111-1111-1111-1111-111111111111
+        - label: DATA
+          number: 12
+          size: 1GB
+          start: -300MB
+          type_guid: 00000000-0000-0000-0000-000000000000
+`},
+			out: out{
+				cfg: ignTypes.Config{},
+				r: report.Report{Entries: []report.Entry{
+					{
+						Message: "invalid dimension (negative): \"-100MB\"",
+						Kind:    report.EntryError,
+						Line:    9,
+						Column:  17,
+					},
+					{
+						Message: "invalid dimension (negative): \"-300MB\"",
+						Kind:    report.EntryError,
+						Line:    15,
+						Column:  18,
+					},
+				}},
+			},
+		},
+
+		// Valid files
+		{
+			in: in{data: `
+storage:
+  files:
+    - path: /opt/file1
+      filesystem: root
+      contents:
+        inline: file1
+      mode: 0644
+      user:
+        id: 500
+      group:
+        id: 501
+    - path: /opt/file2
+      filesystem: root
+      contents:
+        remote:
+          url: http://example.com/file2
+          compression: gzip
+          verification:
+            hash:
+              function: sha512
+              sum: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+      mode: 0644
+      user:
+        id: 502
+      group:
+        id: 503
+`},
+			out: out{cfg: ignTypes.Config{
+				Ignition: ignTypes.Ignition{Version: ignTypes.IgnitionVersion{Major: 2}},
+				Storage: ignTypes.Storage{
+					Files: []ignTypes.File{
+						{
+							Filesystem: "root",
+							Path:       ignTypes.Path("/opt/file1"),
+							Contents: ignTypes.FileContents{
+								Source: ignTypes.Url{
+									Scheme: "data",
+									Opaque: ",file1",
+								},
+							},
+							Mode:  ignTypes.FileMode(0644),
+							User:  ignTypes.FileUser{Id: 500},
+							Group: ignTypes.FileGroup{Id: 501},
+						},
+						{
+							Filesystem: "root",
+							Path:       ignTypes.Path("/opt/file2"),
+							Contents: ignTypes.FileContents{
+								Source: ignTypes.Url{
+									Scheme: "http",
+									Host:   "example.com",
+									Path:   "/file2",
+								},
+								Compression: "gzip",
+								Verification: ignTypes.Verification{
+									Hash: &ignTypes.Hash{
+										Function: "sha512",
+										Sum:      "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+									},
+								},
+							},
+							Mode:  ignTypes.FileMode(0644),
+							User:  ignTypes.FileUser{Id: 502},
+							Group: ignTypes.FileGroup{Id: 503},
+						},
+					},
+				},
+			}},
+		},
+	}
+
+	for i, test := range tests {
+		cfg, ast, r := Parse([]byte(test.in.data))
+		if len(r.Entries) != 0 {
+			t.Errorf("#%d: got error while parsing input: %v", i, r)
+		}
+		igncfg, r := ConvertAs2_0(cfg, "", ast)
+		if !reflect.DeepEqual(r, test.out.r) {
+			t.Errorf("#%d: bad error: want %v, got %v", i, test.out.r, r)
+		}
+		if !reflect.DeepEqual(igncfg, test.out.cfg) {
+			t.Errorf("#%d: bad config: want %#v, got %#v", i, test.out.cfg, cfg)
+		}
+	}
+
+}
