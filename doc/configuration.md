@@ -96,7 +96,7 @@ _Note: all fields are optional unless otherwise marked_
   * **_other options_** (string): this section accepts any valid etcd options for the version of etcd specified. For a comprehensive list, please consult etcd's documentation. Note all options here should be in snake_case, not spine-case.
 * **flannel**
   * **version** (string): the version of flannel to be run
-  * **flannel_config** (string): the flannel configuration to be written into etcd before flannel starts.
+  * **network_config** (string): the flannel configuration to be written into etcd before flannel starts.
   * **_other options_** (string): this section accepts any valid flannel options for the version of flannel specified. For a comprehensive list, please consult flannel's documentation. Note all options here should be in snake_case, not spine-case.
 * **docker**
   * **flags** (list of strings): additional flags to pass to the docker daemon when it is started
