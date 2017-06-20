@@ -1,4 +1,4 @@
-// Copyright 2016 CoreOS, Inc.
+// Copyright 2015 CoreOS, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,25 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package types
+package dbus
 
-import (
-	"errors"
+type set struct {
+	data map[string]bool
+}
 
-	"github.com/coreos/ignition/config/validate/report"
-)
+func (s *set) Add(value string) {
+	s.data[value] = true
+}
 
-var (
-	ErrCompressionInvalid = errors.New("invalid compression method")
-)
+func (s *set) Remove(value string) {
+	delete(s.data, value)
+}
 
-type Compression string
+func (s *set) Contains(value string) (exists bool) {
+	_, exists = s.data[value]
+	return
+}
 
-func (c Compression) Validate() report.Report {
-	switch c {
-	case "", "gzip":
-	default:
-		return report.ReportFromError(ErrCompressionInvalid, report.EntryError)
+func (s *set) Length() int {
+	return len(s.data)
+}
+
+func (s *set) Values() (values []string) {
+	for val, _ := range s.data {
+		values = append(values, val)
 	}
-	return report.Report{}
+	return
+}
+
+func newSet() *set {
+	return &set{make(map[string]bool)}
 }

@@ -62,7 +62,7 @@ func main() {
 		yamlSections := findYamlSections(fileLines)
 
 		for _, yaml := range yamlSections {
-			_, report := config.Parse([]byte(strings.Join(yaml, "\n")))
+			_, _, report := config.Parse([]byte(strings.Join(yaml, "\n")))
 			reportStr := report.String()
 			if reportStr != "" {
 				return fmt.Errorf("non-empty parsing report in %s: %s", info.Name(), reportStr)
