@@ -44,6 +44,13 @@ func init() {
 					Contents: fmt.Sprintf("[Service]\nEnvironment=COREOS_METADATA_OPT_PROVIDER=--provider=%s", platform),
 				}},
 			})
+			out.Systemd.Units = append(out.Systemd.Units, ignTypes.SystemdUnit{
+				Name: "coreos-metadata-sshkeys@.service",
+				DropIns: []ignTypes.SystemdUnitDropIn{{
+					Name:     "20-clct-provider-override.conf",
+					Contents: fmt.Sprintf("[Service]\nEnvironment=COREOS_METADATA_OPT_PROVIDER=--provider=%s", platform),
+				}},
+			})
 		}
 		return out, report.Report{}, ast
 	})
