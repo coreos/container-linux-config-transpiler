@@ -22,6 +22,7 @@ This is the information available in each provider.
 | GCE                | ✓          | ✓              | ✓             |                |               |
 | Packet             | ✓          | ✓              | ✓             |                | ✓             |
 | OpenStack-Metadata | ✓          | ✓              | ✓             |                |               |
+| Vagrant-Virtualbox | ✓          | ✓              |               |                |               |
 
 ## Behind the scenes
 
