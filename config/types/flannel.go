@@ -137,7 +137,10 @@ func init() {
 // flannelContents creates the string containing the systemd drop in for flannel
 func flannelContents(flannel Flannel, platform string) (string, error) {
 	args := getCliArgs(flannel.Options)
-	vars := []string{fmt.Sprintf("FLANNEL_IMAGE_TAG=v%s", flannel.Version)}
+	var vars []string
+	if flannel.Version != nil {
+		vars = []string{fmt.Sprintf("FLANNEL_IMAGE_TAG=v%s", flannel.Version)}
+	}
 
 	unit, err := assembleUnit("/usr/lib/coreos/flannel-wrapper $FLANNEL_OPTS", args, vars, platform)
 	if err != nil {
