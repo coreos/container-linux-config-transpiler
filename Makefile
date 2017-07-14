@@ -1,4 +1,5 @@
 export CGO_ENABLED:=0
+export GOPATH=$(shell pwd)/gopath
 
 # kernel-style V=1 build verbosity
 ifeq ("$(origin V)", "command line")
@@ -18,9 +19,13 @@ REPO=github.com/coreos/container-linux-config-transpiler
 
 all: build
 
+gopath:
+	$(Q)mkdir -p gopath/src/github.com/coreos
+	$(Q)ln -s ../../../.. gopath/src/$(REPO)
+
 build: bin/ct
 
-bin/ct:
+bin/ct: | gopath
 	$(Q)go build -o $@ -v -ldflags $(LD_FLAGS) $(REPO)/internal
 
 test:
@@ -46,7 +51,7 @@ _output/apple-darwin/ct: GOARGS = GOOS=darwin GOARCH=amd64
 _output/pc-windows-gnu/ct: GOARGS = GOOS=windows GOARCH=amd64
 
 _output/%/ct: NAME=_output/ct-$(VERSION)-x86_64-$*
-_output/%/ct:
+_output/%/ct: | gopath
 	$(Q)$(GOARGS) go build -o $(NAME) -ldflags $(LD_FLAGS) $(REPO)/internal
 
 .PHONY: all build clean test
