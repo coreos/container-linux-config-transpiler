@@ -1,7 +1,7 @@
 export CGO_ENABLED:=0
 
-VERSION=$(shell ./git-version)
-LD_FLAGS="-w -X github.com/coreos/container-linux-config-transpiler/version.Raw=$(VERSION)"
+VERSION=$(shell git describe --dirty)
+LD_FLAGS="-w -X github.com/coreos/container-linux-config-transpiler/internal/version.Raw=$(VERSION)"
 
 REPO=github.com/coreos/container-linux-config-transpiler
 
