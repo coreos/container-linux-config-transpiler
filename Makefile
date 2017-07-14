@@ -1,41 +1,50 @@
-export CGO_ENABLED:=0
+# kernel-style V=1 build verbosity
+ifeq ("$(origin V)", "command line")
+       BUILD_VERBOSE = $(V)
+endif
+
+ifeq ($(BUILD_VERBOSE),1)
+       Q =
+else
+       Q = @
+endif
 
 VERSION=$(shell git describe --dirty)
-LD_FLAGS="-w -X github.com/coreos/container-linux-config-transpiler/internal/version.Raw=$(VERSION)"
-
 REPO=github.com/coreos/container-linux-config-transpiler
+LD_FLAGS="-w -X $(REPO)/internal/version.Raw=$(VERSION)"
 
-all: build
+export GOPATH=$(shell pwd)/gopath
+export CGO_ENABLED:=0
 
-build: bin/ct
+.PHONY: all
+all: bin/ct
 
-bin/ct:
-	@go build -o $@ -v -ldflags $(LD_FLAGS) $(REPO)/internal
+gopath:
+	$(Q)mkdir -p gopath/src/github.com/coreos
+	$(Q)ln -s ../../../.. gopath/src/$(REPO)
 
+.PHONY: test
 test:
-	@./test
+	$(Q)./test
 
 .PHONY: vendor
 vendor:
-	@glide update --strip-vendor
-	@glide-vc --use-lock-file --no-tests --only-code
+	$(Q)glide update --strip-vendor
+	$(Q)glide-vc --use-lock-file --no-tests --only-code
 
+.PHONY: clean
 clean:
-	@rm -rf bin
-	@rm -rf _output
+	$(Q)rm -rf bin
 
 .PHONY: release
 release: \
-	_output/unknown-linux-gnu/ct \
-	_output/apple-darwin/ct \
-	_output/pc-windows-gnu/ct
+	bin/ct-$(VERSION)-x86_64-unknown-linux-gnu \
+	bin/ct-$(VERSION)-x86_64-apple-darwin \
+	bin/ct-$(VERSION)-x86_64-pc-windows-gnu.exe
 
-_output/unknown-linux-gnu/ct: GOARGS = GOOS=linux GOARCH=amd64
-_output/apple-darwin/ct: GOARGS = GOOS=darwin GOARCH=amd64
-_output/pc-windows-gnu/ct: GOARGS = GOOS=windows GOARCH=amd64
+bin/ct-%-x86_64-unknown-linux-gnu: GOARGS = GOOS=linux GOARCH=amd64
+bin/ct-%-x86_64-apple-darwin: GOARGS = GOOS=darwin GOARCH=amd64
+bin/ct-%-x86_64-pc-windows-gnu.exe: GOARGS = GOOS=windows GOARCH=amd64
 
-_output/%/ct: NAME=_output/ct-$(VERSION)-x86_64-$*
-_output/%/ct:
-	$(GOARGS) go build -o $(NAME) -ldflags $(LD_FLAGS) $(REPO)/internal
-
-.PHONY: all build clean test
+bin/%: | gopath
+	$(Q)$(GOARGS) go build -o $@ -ldflags $(LD_FLAGS) $(REPO)/internal
