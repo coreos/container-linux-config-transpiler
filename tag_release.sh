@@ -17,7 +17,7 @@ COMMIT=$2
 	exit 3
 }
 
-source ./build
+make release
 
 git tag --sign --message "Config-Transpiler ${VER}" "${VER}" "${COMMIT}"
 
