@@ -25,9 +25,6 @@ gopath:
 
 build: bin/ct
 
-bin/ct: | gopath
-	$(Q)go build -o $@ -v -ldflags $(LD_FLAGS) $(REPO)/internal
-
 test:
 	$(Q)./test
 
@@ -38,20 +35,18 @@ vendor:
 
 clean:
 	$(Q)rm -rf bin
-	$(Q)rm -rf _output
 
 .PHONY: release
 release: \
-	_output/unknown-linux-gnu/ct \
-	_output/apple-darwin/ct \
-	_output/pc-windows-gnu/ct
+	bin/ct-$(VERSION)-x86_64-unknown-linux-gnu \
+	bin/ct-$(VERSION)-x86_64-apple-darwin \
+	bin/ct-$(VERSION)-x86_64-pc-windows-gnu.exe
 
-_output/unknown-linux-gnu/ct: GOARGS = GOOS=linux GOARCH=amd64
-_output/apple-darwin/ct: GOARGS = GOOS=darwin GOARCH=amd64
-_output/pc-windows-gnu/ct: GOARGS = GOOS=windows GOARCH=amd64
+bin/ct-%-x86_64-unknown-linux-gnu: GOARGS = GOOS=linux GOARCH=amd64
+bin/ct-%-x86_64-apple-darwin: GOARGS = GOOS=darwin GOARCH=amd64
+bin/ct-%-x86_64-pc-windows-gnu.exe: GOARGS = GOOS=windows GOARCH=amd64
 
-_output/%/ct: NAME=_output/ct-$(VERSION)-x86_64-$*
-_output/%/ct: | gopath
-	$(Q)$(GOARGS) go build -o $(NAME) -ldflags $(LD_FLAGS) $(REPO)/internal
+bin/%: | gopath
+	$(Q)$(GOARGS) go build -o $@ -ldflags $(LD_FLAGS) $(REPO)/internal
 
 .PHONY: all build clean test
