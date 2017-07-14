@@ -1,5 +1,16 @@
 export CGO_ENABLED:=0
 
+# kernel-style V=1 build verbosity
+ifeq ("$(origin V)", "command line")
+       BUILD_VERBOSE = $(V)
+endif
+
+ifeq ($(BUILD_VERBOSE),1)
+       Q =
+else
+       Q = @
+endif
+
 VERSION=$(shell git describe --dirty)
 LD_FLAGS="-w -X github.com/coreos/container-linux-config-transpiler/internal/version.Raw=$(VERSION)"
 
@@ -10,19 +21,19 @@ all: build
 build: bin/ct
 
 bin/ct:
-	@go build -o $@ -v -ldflags $(LD_FLAGS) $(REPO)/internal
+	$(Q)go build -o $@ -v -ldflags $(LD_FLAGS) $(REPO)/internal
 
 test:
-	@./test
+	$(Q)./test
 
 .PHONY: vendor
 vendor:
-	@glide update --strip-vendor
-	@glide-vc --use-lock-file --no-tests --only-code
+	$(Q)glide update --strip-vendor
+	$(Q)glide-vc --use-lock-file --no-tests --only-code
 
 clean:
-	@rm -rf bin
-	@rm -rf _output
+	$(Q)rm -rf bin
+	$(Q)rm -rf _output
 
 .PHONY: release
 release: \
@@ -36,6 +47,6 @@ _output/pc-windows-gnu/ct: GOARGS = GOOS=windows GOARCH=amd64
 
 _output/%/ct: NAME=_output/ct-$(VERSION)-x86_64-$*
 _output/%/ct:
-	$(GOARGS) go build -o $(NAME) -ldflags $(LD_FLAGS) $(REPO)/internal
+	$(Q)$(GOARGS) go build -o $(NAME) -ldflags $(LD_FLAGS) $(REPO)/internal
 
 .PHONY: all build clean test
