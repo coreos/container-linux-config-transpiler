@@ -165,7 +165,7 @@ etcd:
   initial_advertise_peer_urls: "http://{PRIVATE_IPV4}:2380"
   listen_client_urls:          "http://0.0.0.0:2379"
   listen_peer_urls:            "http://{PRIVATE_IPV4}:2380"
-  initial_cluster:             "%m=http://{PRIVATE_IPV4}:2380"
+  initial_cluster:             "{HOSTNAME}=http://{PRIVATE_IPV4}:2380"
 ```
 
 This example will create a dropin for the `etcd-member` systemd unit, configuring it to use the specified version and adding all the specified options. This will also enable the `etcd-member` unit.
