@@ -23,7 +23,7 @@ import (
 	"strings"
 
 	"github.com/coreos/container-linux-config-transpiler/config"
-	"github.com/coreos/container-linux-config-transpiler/config/templating"
+	"github.com/coreos/container-linux-config-transpiler/config/platform"
 	"github.com/coreos/container-linux-config-transpiler/internal/version"
 )
 
@@ -49,7 +49,7 @@ func main() {
 	flag.StringVar(&flags.inFile, "in-file", "", "Path to the container linux config. Standard input unless specified otherwise.")
 	flag.StringVar(&flags.outFile, "out-file", "", "Path to the resulting Ignition config. Standard output unless specified otherwise.")
 	flag.BoolVar(&flags.strict, "strict", false, "Fail if any warnings are encountered.")
-	flag.StringVar(&flags.platform, "platform", "", fmt.Sprintf("Platform to target. Accepted values: %v.", templating.Platforms))
+	flag.StringVar(&flags.platform, "platform", "", fmt.Sprintf("Platform to target. Accepted values: %v.", platform.Platforms))
 
 	flag.Parse()
 
