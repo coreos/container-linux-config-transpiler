@@ -1056,6 +1056,7 @@ func TestConvertAs2_0(t *testing.T) {
 							Name:              "user 1",
 							PasswordHash:      "password 1",
 							SSHAuthorizedKeys: []string{"key1", "key2"},
+							Create:            &ignTypes.UserCreate{},
 						},
 						{
 							Name:              "user 2",
