@@ -1,5 +1,5 @@
-hash: 108dfecb065ae7628c6eea011e78e9ae25fc029d8770d6784ad26ede77a90ba5
-updated: 2017-06-20T18:10:38.968919013-04:00
+hash: 866f7f8e6abd6c52e124db97d9c5665e261f65a06289e9803dfd18c6720ca40f
+updated: 2017-08-07T13:11:10.67669909-07:00
 imports:
 - name: github.com/ajeddeloh/yaml
   version: 1072abfea31191db507785e2e0c1b8d1440d35a5
@@ -15,7 +15,7 @@ imports:
   - dbus
   - unit
 - name: github.com/coreos/ignition
-  version: 94330dad80def6a1066037713b24ac6ac624985f
+  version: 11813c57bc05f30644bbae7891ae30a4a62e0b33
   subpackages:
   - config/types
   - config/v2_0/types
