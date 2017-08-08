@@ -1,3 +1,11 @@
+08-Aug-2017 CONFIG-TRANSPILER v0.4.2
+
+  Fixes
+
+    - Emit an error when an unsupported platform is used
+    - Always emit an empty create object for non-core users to ensure Ignition
+      creates them
+
 14-Jul-2017 CONFIG-TRANSPILER v0.4.1
 
   Fixes
