@@ -55,9 +55,6 @@ type Group struct {
 func init() {
 	register2_0(func(in Config, ast validate.AstNode, out ignTypes.Config, platform string) (ignTypes.Config, report.Report, validate.AstNode) {
 		for _, user := range in.Passwd.Users {
-			if user.Name != "core" && user.Create == nil {
-				user.Create = &UserCreate{}
-			}
 			newUser := ignTypes.PasswdUser{
 				Name:              user.Name,
 				PasswordHash:      &user.PasswordHash,

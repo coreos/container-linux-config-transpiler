@@ -25,17 +25,9 @@ import (
 var (
 	MaxVersion = semver.Version{
 		Major: 2,
-		Minor: 0,
+		Minor: 1,
 	}
 )
-
-type Config struct {
-	Ignition Ignition `json:"ignition"`
-	Storage  Storage  `json:"storage,omitempty"`
-	Systemd  Systemd  `json:"systemd,omitempty"`
-	Networkd Networkd `json:"networkd,omitempty"`
-	Passwd   Passwd   `json:"passwd,omitempty"`
-}
 
 func (c Config) Validate() report.Report {
 	r := report.Report{}

@@ -1,5 +1,5 @@
 hash: 866f7f8e6abd6c52e124db97d9c5665e261f65a06289e9803dfd18c6720ca40f
-updated: 2017-08-07T13:11:10.67669909-07:00
+updated: 2017-09-07T15:02:44.945026326-07:00
 imports:
 - name: github.com/ajeddeloh/yaml
   version: 1072abfea31191db507785e2e0c1b8d1440d35a5
@@ -18,7 +18,7 @@ imports:
   version: 11813c57bc05f30644bbae7891ae30a4a62e0b33
   subpackages:
   - config/types
-  - config/v2_0/types
+  - config/v2_1/types
   - config/validate
   - config/validate/report
 - name: github.com/vincent-petithory/dataurl

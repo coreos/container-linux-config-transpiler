@@ -16,6 +16,7 @@ package types
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/coreos/ignition/config/validate/report"
 )
@@ -24,13 +25,38 @@ var (
 	ErrCompressionInvalid = errors.New("invalid compression method")
 )
 
-type Compression string
+func (f File) ValidateMode() report.Report {
+	r := report.Report{}
+	if err := validateMode(f.Mode); err != nil {
+		r.Add(report.Entry{
+			Message: err.Error(),
+			Kind:    report.EntryError,
+		})
+	}
+	return r
+}
 
-func (c Compression) Validate() report.Report {
-	switch c {
+func (fc FileContents) ValidateCompression() report.Report {
+	r := report.Report{}
+	switch fc.Compression {
 	case "", "gzip":
 	default:
-		return report.ReportFromError(ErrCompressionInvalid, report.EntryError)
+		r.Add(report.Entry{
+			Message: ErrCompressionInvalid.Error(),
+			Kind:    report.EntryError,
+		})
 	}
-	return report.Report{}
+	return r
+}
+
+func (fc FileContents) ValidateSource() report.Report {
+	r := report.Report{}
+	err := validateURL(fc.Source)
+	if err != nil {
+		r.Add(report.Entry{
+			Message: fmt.Sprintf("invalid url %q: %v", fc.Source, err),
+			Kind:    report.EntryError,
+		})
+	}
+	return r
 }

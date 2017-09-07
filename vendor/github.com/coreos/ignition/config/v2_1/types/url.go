@@ -14,6 +14,36 @@
 
 package types
 
-type Systemd struct {
-	Units []SystemdUnit `json:"units,omitempty"`
+import (
+	"errors"
+	"net/url"
+
+	"github.com/vincent-petithory/dataurl"
+)
+
+var (
+	ErrInvalidScheme = errors.New("invalid url scheme")
+)
+
+func validateURL(s string) error {
+	// Empty url is valid, indicates an empty file
+	if s == "" {
+		return nil
+	}
+	u, err := url.Parse(s)
+	if err != nil {
+		return err
+	}
+
+	switch u.Scheme {
+	case "http", "https", "oem", "tftp", "s3":
+		return nil
+	case "data":
+		if _, err := dataurl.DecodeString(s); err != nil {
+			return err
+		}
+		return nil
+	default:
+		return ErrInvalidScheme
+	}
 }

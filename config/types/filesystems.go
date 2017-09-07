@@ -21,9 +21,9 @@ import (
 )
 
 type Filesystem struct {
-	Name  string `yaml:"name"`
-	Mount *Mount `yaml:"mount"`
-	Path  string `yaml:"path"`
+	Name  string  `yaml:"name"`
+	Mount *Mount  `yaml:"mount"`
+	Path  *string `yaml:"path"`
 }
 
 type Mount struct {
@@ -42,7 +42,7 @@ func init() {
 		for _, filesystem := range in.Storage.Filesystems {
 			newFilesystem := ignTypes.Filesystem{
 				Name: filesystem.Name,
-				Path: &filesystem.Path,
+				Path: filesystem.Path,
 			}
 
 			if filesystem.Mount != nil {
