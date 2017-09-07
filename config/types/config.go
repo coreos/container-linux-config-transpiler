@@ -17,7 +17,7 @@ package types
 import (
 	"net/url"
 
-	ignTypes "github.com/coreos/ignition/config/v2_0/types"
+	ignTypes "github.com/coreos/ignition/config/v2_1/types"
 	"github.com/coreos/ignition/config/validate"
 	"github.com/coreos/ignition/config/validate/report"
 )
@@ -79,7 +79,7 @@ func init() {
 }
 
 func convertConfigReference(in ConfigReference, ast validate.AstNode) (ignTypes.ConfigReference, report.Report) {
-	source, err := url.Parse(in.Source)
+	_, err := url.Parse(in.Source)
 	if err != nil {
 		r := report.ReportFromError(err, report.EntryError)
 		if n, err := getNodeChild(ast, "source"); err == nil {
@@ -89,7 +89,7 @@ func convertConfigReference(in ConfigReference, ast validate.AstNode) (ignTypes.
 	}
 
 	return ignTypes.ConfigReference{
-		Source:       ignTypes.Url(*source),
+		Source:       in.Source,
 		Verification: convertVerification(in.Verification),
 	}, report.Report{}
 }
@@ -98,11 +98,9 @@ func convertVerification(in Verification) ignTypes.Verification {
 	if in.Hash.Function == "" || in.Hash.Sum == "" {
 		return ignTypes.Verification{}
 	}
+	s := in.Hash.String()
 
 	return ignTypes.Verification{
-		&ignTypes.Hash{
-			Function: in.Hash.Function,
-			Sum:      in.Hash.Sum,
-		},
+		Hash: &s,
 	}
 }

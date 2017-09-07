@@ -19,7 +19,7 @@ import (
 	"fmt"
 
 	"github.com/coreos/go-semver/semver"
-	ignTypes "github.com/coreos/ignition/config/v2_0/types"
+	ignTypes "github.com/coreos/ignition/config/v2_1/types"
 	"github.com/coreos/ignition/config/validate"
 	"github.com/coreos/ignition/config/validate/report"
 )
@@ -125,10 +125,10 @@ func init() {
 			if err != nil {
 				return ignTypes.Config{}, report.ReportFromError(err, report.EntryError), ast
 			}
-			out.Systemd.Units = append(out.Systemd.Units, ignTypes.SystemdUnit{
+			out.Systemd.Units = append(out.Systemd.Units, ignTypes.Unit{
 				Name:   "etcd-member.service",
 				Enable: true,
-				DropIns: []ignTypes.SystemdUnitDropIn{{
+				Dropins: []ignTypes.Dropin{{
 					Name:     "20-clct-etcd-member.conf",
 					Contents: contents,
 				}},

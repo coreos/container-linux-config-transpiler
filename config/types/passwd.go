@@ -15,7 +15,7 @@
 package types
 
 import (
-	ignTypes "github.com/coreos/ignition/config/v2_0/types"
+	ignTypes "github.com/coreos/ignition/config/v2_1/types"
 	"github.com/coreos/ignition/config/validate"
 	"github.com/coreos/ignition/config/validate/report"
 )
@@ -58,20 +58,20 @@ func init() {
 			if user.Name != "core" && user.Create == nil {
 				user.Create = &UserCreate{}
 			}
-			newUser := ignTypes.User{
+			newUser := ignTypes.PasswdUser{
 				Name:              user.Name,
-				PasswordHash:      user.PasswordHash,
-				SSHAuthorizedKeys: user.SSHAuthorizedKeys,
+				PasswordHash:      &user.PasswordHash,
+				SSHAuthorizedKeys: convertStringSliceIntoTypesSSHAuthorizedKeySlice(user.SSHAuthorizedKeys),
 			}
 
 			if user.Create != nil {
-				newUser.Create = &ignTypes.UserCreate{
-					Uid:          user.Create.Uid,
-					GECOS:        user.Create.GECOS,
-					Homedir:      user.Create.Homedir,
+				newUser.Create = &ignTypes.Usercreate{
+					UID:          convertUintPointerToIntPointer(user.Create.Uid),
+					Gecos:        user.Create.GECOS,
+					HomeDir:      user.Create.Homedir,
 					NoCreateHome: user.Create.NoCreateHome,
 					PrimaryGroup: user.Create.PrimaryGroup,
-					Groups:       user.Create.Groups,
+					Groups:       convertStringSliceIntoTypesUsercreateGroupSlice(user.Create.Groups),
 					NoUserGroup:  user.Create.NoUserGroup,
 					System:       user.Create.System,
 					NoLogInit:    user.Create.NoLogInit,
@@ -83,13 +83,40 @@ func init() {
 		}
 
 		for _, group := range in.Passwd.Groups {
-			out.Passwd.Groups = append(out.Passwd.Groups, ignTypes.Group{
+			out.Passwd.Groups = append(out.Passwd.Groups, ignTypes.PasswdGroup{
 				Name:         group.Name,
-				Gid:          group.Gid,
+				Gid:          convertUintPointerToIntPointer(group.Gid),
 				PasswordHash: group.PasswordHash,
 				System:       group.System,
 			})
 		}
 		return out, report.Report{}, ast
 	})
+}
+
+// golang--
+func convertStringSliceIntoTypesSSHAuthorizedKeySlice(ss []string) []ignTypes.SSHAuthorizedKey {
+	var res []ignTypes.SSHAuthorizedKey
+	for _, s := range ss {
+		res = append(res, ignTypes.SSHAuthorizedKey(s))
+	}
+	return res
+}
+
+// golang--
+func convertStringSliceIntoTypesUsercreateGroupSlice(ss []string) []ignTypes.UsercreateGroup {
+	var res []ignTypes.UsercreateGroup
+	for _, s := range ss {
+		res = append(res, ignTypes.UsercreateGroup(s))
+	}
+	return res
+}
+
+// golang--
+func convertUintPointerToIntPointer(u *uint) *int {
+	if u == nil {
+		return nil
+	}
+	x := int(*u)
+	return &x
 }

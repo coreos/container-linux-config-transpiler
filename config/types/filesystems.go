@@ -15,7 +15,7 @@
 package types
 
 import (
-	ignTypes "github.com/coreos/ignition/config/v2_0/types"
+	ignTypes "github.com/coreos/ignition/config/v2_1/types"
 	"github.com/coreos/ignition/config/validate"
 	"github.com/coreos/ignition/config/validate/report"
 )
@@ -42,25 +42,19 @@ func init() {
 		for _, filesystem := range in.Storage.Filesystems {
 			newFilesystem := ignTypes.Filesystem{
 				Name: filesystem.Name,
-				Path: func(p ignTypes.Path) *ignTypes.Path {
-					if p == "" {
-						return nil
-					}
-
-					return &p
-				}(ignTypes.Path(filesystem.Path)),
+				Path: &filesystem.Path,
 			}
 
 			if filesystem.Mount != nil {
-				newFilesystem.Mount = &ignTypes.FilesystemMount{
-					Device: ignTypes.Path(filesystem.Mount.Device),
-					Format: ignTypes.FilesystemFormat(filesystem.Mount.Format),
+				newFilesystem.Mount = &ignTypes.Mount{
+					Device: filesystem.Mount.Device,
+					Format: filesystem.Mount.Format,
 				}
 
 				if filesystem.Mount.Create != nil {
-					newFilesystem.Mount.Create = &ignTypes.FilesystemCreate{
+					newFilesystem.Mount.Create = &ignTypes.Create{
 						Force:   filesystem.Mount.Create.Force,
-						Options: ignTypes.MkfsOptions(filesystem.Mount.Create.Options),
+						Options: convertStringSliceToTypesCreateOptionSlice(filesystem.Mount.Create.Options),
 					}
 				}
 			}
@@ -69,4 +63,13 @@ func init() {
 		}
 		return out, report.Report{}, ast
 	})
+}
+
+// golang--
+func convertStringSliceToTypesCreateOptionSlice(ss []string) []ignTypes.CreateOption {
+	var res []ignTypes.CreateOption
+	for _, s := range ss {
+		res = append(res, ignTypes.CreateOption(s))
+	}
+	return res
 }

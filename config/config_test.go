@@ -21,7 +21,7 @@ import (
 
 	"github.com/coreos/container-linux-config-transpiler/config/types"
 	"github.com/coreos/go-semver/semver"
-	ignTypes "github.com/coreos/ignition/config/v2_0/types"
+	ignTypes "github.com/coreos/ignition/config/v2_1/types"
 	"github.com/coreos/ignition/config/validate/report"
 )
 
@@ -352,7 +352,7 @@ systemd:
 							Name:     "test1.service",
 							Enable:   true,
 							Contents: "test1 contents",
-							DropIns: []types.SystemdUnitDropIn{
+							Dropins: []types.SystemdUnitDropIn{
 								{
 									Name:     "conf1.conf",
 									Contents: "conf1 contents",
@@ -921,7 +921,7 @@ func TestConvertAs2_0(t *testing.T) {
 							Name:     "test1.service",
 							Enable:   true,
 							Contents: "[Service]\nType=oneshot\nExecStart=/usr/bin/echo test 1\n\n[Install]\nWantedBy=multi-user.target\n",
-							DropIns: []types.SystemdUnitDropIn{
+							Dropins: []types.SystemdUnitDropIn{
 								{
 									Name:     "conf1.conf",
 									Contents: "[Service]\nExecStart=",
@@ -943,12 +943,12 @@ func TestConvertAs2_0(t *testing.T) {
 			out: out{cfg: ignTypes.Config{
 				Ignition: ignTypes.Ignition{Version: ignTypes.IgnitionVersion{Major: 2}},
 				Systemd: ignTypes.Systemd{
-					Units: []ignTypes.SystemdUnit{
+					Units: []ignTypes.Unit{
 						{
 							Name:     "test1.service",
 							Enable:   true,
 							Contents: "[Service]\nType=oneshot\nExecStart=/usr/bin/echo test 1\n\n[Install]\nWantedBy=multi-user.target\n",
-							DropIns: []ignTypes.SystemdUnitDropIn{
+							Dropins: []ignTypes.Dropin{
 								{
 									Name:     "conf1.conf",
 									Contents: "[Service]\nExecStart=",

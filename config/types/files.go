@@ -19,7 +19,7 @@ import (
 
 	"github.com/coreos/container-linux-config-transpiler/config/astyaml"
 
-	ignTypes "github.com/coreos/ignition/config/v2_0/types"
+	ignTypes "github.com/coreos/ignition/config/v2_1/types"
 	"github.com/coreos/ignition/config/validate"
 	"github.com/coreos/ignition/config/validate/report"
 	"github.com/vincent-petithory/dataurl"
@@ -60,19 +60,23 @@ func init() {
 		for i, file := range in.Storage.Files {
 			file_node, _ := getNodeChild(files_node, i)
 			newFile := ignTypes.File{
-				Filesystem: file.Filesystem,
-				Path:       ignTypes.Path(file.Path),
-				Mode:       ignTypes.FileMode(file.Mode),
-				User:       ignTypes.FileUser{Id: file.User.Id},
-				Group:      ignTypes.FileGroup{Id: file.Group.Id},
+				Node: ignTypes.Node{
+					Filesystem: file.Filesystem,
+					Path:       file.Path,
+					User:       ignTypes.NodeUser{ID: &file.User.Id},
+					Group:      ignTypes.NodeGroup{ID: &file.Group.Id},
+				},
+				FileEmbedded1: ignTypes.FileEmbedded1{
+					Mode: file.Mode,
+				},
 			}
 
 			if file.Contents.Inline != "" {
 				newFile.Contents = ignTypes.FileContents{
-					Source: ignTypes.Url{
+					Source: (&url.URL{
 						Scheme: "data",
 						Opaque: "," + dataurl.EscapeString(file.Contents.Inline),
-					},
+					}).String(),
 				}
 			}
 
@@ -100,20 +104,17 @@ func init() {
 					newContentsAsYaml.ChangeKey("url", "source", url.(astyaml.YamlNode))
 				}
 
-				newFile.Contents = ignTypes.FileContents{Source: ignTypes.Url(*source)}
+				newFile.Contents = ignTypes.FileContents{Source: source.String()}
 
 			}
 
 			if newFile.Contents == (ignTypes.FileContents{}) {
 				newFile.Contents = ignTypes.FileContents{
-					Source: ignTypes.Url{
-						Scheme: "data",
-						Opaque: ",",
-					},
+					Source: "data:,",
 				}
 			}
 
-			newFile.Contents.Compression = ignTypes.Compression(file.Contents.Remote.Compression)
+			newFile.Contents.Compression = file.Contents.Remote.Compression
 			newFile.Contents.Verification = convertVerification(file.Contents.Remote.Verification)
 
 			out.Storage.Files = append(out.Storage.Files, newFile)
