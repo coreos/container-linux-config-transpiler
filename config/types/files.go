@@ -85,7 +85,7 @@ func init() {
 				if err != nil {
 					// if invalid, record error and continue
 					convertReport := report.ReportFromError(err, report.EntryError)
-					if n, err := getNodeChildPath(file_node, "contents", "remote", "url"); err != nil {
+					if n, err := getNodeChildPath(file_node, "contents", "remote", "url"); err == nil {
 						line, col, _ := n.ValueLineCol(nil)
 						convertReport.AddPosition(line, col, "")
 					}
