@@ -27,9 +27,19 @@ type Passwd struct {
 
 type User struct {
 	Name              string      `yaml:"name"`
-	PasswordHash      string      `yaml:"password_hash"`
+	PasswordHash      *string     `yaml:"password_hash"`
 	SSHAuthorizedKeys []string    `yaml:"ssh_authorized_keys"`
 	Create            *UserCreate `yaml:"create"`
+	UID               *int        `yaml:"uid"`
+	Gecos             string      `yaml:"gecos"`
+	HomeDir           string      `yaml:"home_dir"`
+	NoCreateHome      bool        `yaml:"no_create_home"`
+	PrimaryGroup      string      `yaml:"primary_group"`
+	Groups            []string    `yaml:"groups"`
+	NoUserGroup       bool        `yaml:"no_user_group"`
+	System            bool        `yaml:"system"`
+	NoLogInit         bool        `yaml:"no_log_init"`
+	Shell             string      `yaml:"shell"`
 }
 
 type UserCreate struct {
@@ -57,8 +67,18 @@ func init() {
 		for _, user := range in.Passwd.Users {
 			newUser := ignTypes.PasswdUser{
 				Name:              user.Name,
-				PasswordHash:      &user.PasswordHash,
+				PasswordHash:      user.PasswordHash,
 				SSHAuthorizedKeys: convertStringSliceIntoTypesSSHAuthorizedKeySlice(user.SSHAuthorizedKeys),
+				UID:               user.UID,
+				Gecos:             user.Gecos,
+				HomeDir:           user.HomeDir,
+				NoCreateHome:      user.NoCreateHome,
+				PrimaryGroup:      user.PrimaryGroup,
+				Groups:            convertStringSliceIntoTypesPasswdUserGroupSlice(user.Groups),
+				NoUserGroup:       user.NoUserGroup,
+				System:            user.System,
+				NoLogInit:         user.NoLogInit,
+				Shell:             user.Shell,
 			}
 
 			if user.Create != nil {
@@ -105,6 +125,15 @@ func convertStringSliceIntoTypesUsercreateGroupSlice(ss []string) []ignTypes.Use
 	var res []ignTypes.UsercreateGroup
 	for _, s := range ss {
 		res = append(res, ignTypes.UsercreateGroup(s))
+	}
+	return res
+}
+
+// golang--
+func convertStringSliceIntoTypesPasswdUserGroupSlice(ss []string) []ignTypes.PasswdUserGroup {
+	var res []ignTypes.PasswdUserGroup
+	for _, s := range ss {
+		res = append(res, ignTypes.PasswdUserGroup(s))
 	}
 	return res
 }

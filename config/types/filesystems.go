@@ -27,9 +27,13 @@ type Filesystem struct {
 }
 
 type Mount struct {
-	Device string  `yaml:"device"`
-	Format string  `yaml:"format"`
-	Create *Create `yaml:"create"`
+	Device         string   `yaml:"device"`
+	Format         string   `yaml:"format"`
+	Create         *Create  `yaml:"create"`
+	WipeFilesystem bool     `yaml:"wipe_filesystem"`
+	Label          *string  `yaml:"label"`
+	UUID           *string  `yaml:"uuid"`
+	Options        []string `yaml:"options"`
 }
 
 type Create struct {
@@ -39,6 +43,7 @@ type Create struct {
 
 func init() {
 	register2_0(func(in Config, ast validate.AstNode, out ignTypes.Config, platform string) (ignTypes.Config, report.Report, validate.AstNode) {
+		r := report.Report{}
 		for _, filesystem := range in.Storage.Filesystems {
 			newFilesystem := ignTypes.Filesystem{
 				Name: filesystem.Name,
@@ -47,8 +52,12 @@ func init() {
 
 			if filesystem.Mount != nil {
 				newFilesystem.Mount = &ignTypes.Mount{
-					Device: filesystem.Mount.Device,
-					Format: filesystem.Mount.Format,
+					Device:         filesystem.Mount.Device,
+					Format:         filesystem.Mount.Format,
+					WipeFilesystem: filesystem.Mount.WipeFilesystem,
+					Label:          filesystem.Mount.Label,
+					UUID:           filesystem.Mount.UUID,
+					Options:        convertStringSliceToTypesMountOptionSlice(filesystem.Mount.Options),
 				}
 
 				if filesystem.Mount.Create != nil {
@@ -61,7 +70,7 @@ func init() {
 
 			out.Storage.Filesystems = append(out.Storage.Filesystems, newFilesystem)
 		}
-		return out, report.Report{}, ast
+		return out, r, ast
 	})
 }
 
@@ -70,6 +79,15 @@ func convertStringSliceToTypesCreateOptionSlice(ss []string) []ignTypes.CreateOp
 	var res []ignTypes.CreateOption
 	for _, s := range ss {
 		res = append(res, ignTypes.CreateOption(s))
+	}
+	return res
+}
+
+// golang--
+func convertStringSliceToTypesMountOptionSlice(ss []string) []ignTypes.MountOption {
+	var res []ignTypes.MountOption
+	for _, s := range ss {
+		res = append(res, ignTypes.MountOption(s))
 	}
 	return res
 }

@@ -27,6 +27,7 @@ type Systemd struct {
 type SystemdUnit struct {
 	Name     string              `yaml:"name"`
 	Enable   bool                `yaml:"enable"`
+	Enabled  *bool               `yaml:"enabled"`
 	Mask     bool                `yaml:"mask"`
 	Contents string              `yaml:"contents"`
 	Dropins  []SystemdUnitDropIn `yaml:"dropins"`
@@ -43,6 +44,7 @@ func init() {
 			newUnit := ignTypes.Unit{
 				Name:     unit.Name,
 				Enable:   unit.Enable,
+				Enabled:  unit.Enabled,
 				Mask:     unit.Mask,
 				Contents: unit.Contents,
 			}

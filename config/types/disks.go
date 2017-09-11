@@ -38,6 +38,7 @@ type Partition struct {
 	Number   int    `yaml:"number"`
 	Size     string `yaml:"size"`
 	Start    string `yaml:"start"`
+	GUID     string `yaml:"guid"`
 	TypeGUID string `yaml:"type_guid"`
 }
 
@@ -77,6 +78,7 @@ func init() {
 					Number:   partition.Number,
 					Size:     size,
 					Start:    start,
+					GUID:     partition.GUID,
 					TypeGUID: partition.TypeGUID,
 				}
 				newDisk.Partitions = append(newDisk.Partitions, newPart)

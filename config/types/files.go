@@ -25,13 +25,23 @@ import (
 	"github.com/vincent-petithory/dataurl"
 )
 
+type FileUser struct {
+	Id   *int   `yaml:"id"`
+	Name string `yaml:"name"`
+}
+
+type FileGroup struct {
+	Id   *int   `yaml:"id"`
+	Name string `yaml:"name"`
+}
+
 type File struct {
 	Filesystem string       `yaml:"filesystem"`
 	Path       string       `yaml:"path"`
-	Mode       int          `yaml:"mode"`
-	Contents   FileContents `yaml:"contents"`
 	User       FileUser     `yaml:"user"`
 	Group      FileGroup    `yaml:"group"`
+	Mode       int          `yaml:"mode"`
+	Contents   FileContents `yaml:"contents"`
 }
 
 type FileContents struct {
@@ -45,12 +55,21 @@ type Remote struct {
 	Verification Verification `yaml:"verification"`
 }
 
-type FileUser struct {
-	Id int `yaml:"id"`
+type Directory struct {
+	Filesystem string    `yaml:"filesystem"`
+	Path       string    `yaml:"path"`
+	User       FileUser  `yaml:"user"`
+	Group      FileGroup `yaml:"group"`
+	Mode       int       `yaml:"mode"`
 }
 
-type FileGroup struct {
-	Id int `yaml:"id"`
+type Link struct {
+	Filesystem string    `yaml:"filesystem"`
+	Path       string    `yaml:"path"`
+	User       FileUser  `yaml:"user"`
+	Group      FileGroup `yaml:"group"`
+	Hard       bool      `yaml:"hard"`
+	Target     string    `yaml:"target"`
 }
 
 func init() {
@@ -63,8 +82,14 @@ func init() {
 				Node: ignTypes.Node{
 					Filesystem: file.Filesystem,
 					Path:       file.Path,
-					User:       ignTypes.NodeUser{ID: &file.User.Id},
-					Group:      ignTypes.NodeGroup{ID: &file.Group.Id},
+					User: ignTypes.NodeUser{
+						ID:   file.User.Id,
+						Name: file.User.Name,
+					},
+					Group: ignTypes.NodeGroup{
+						ID:   file.Group.Id,
+						Name: file.Group.Name,
+					},
 				},
 				FileEmbedded1: ignTypes.FileEmbedded1{
 					Mode: file.Mode,
@@ -118,6 +143,45 @@ func init() {
 			newFile.Contents.Verification = convertVerification(file.Contents.Remote.Verification)
 
 			out.Storage.Files = append(out.Storage.Files, newFile)
+		}
+		for _, dir := range in.Storage.Directories {
+			out.Storage.Directories = append(out.Storage.Directories, ignTypes.Directory{
+				Node: ignTypes.Node{
+					Filesystem: dir.Filesystem,
+					Path:       dir.Path,
+					User: ignTypes.NodeUser{
+						ID:   dir.User.Id,
+						Name: dir.User.Name,
+					},
+					Group: ignTypes.NodeGroup{
+						ID:   dir.Group.Id,
+						Name: dir.Group.Name,
+					},
+				},
+				DirectoryEmbedded1: ignTypes.DirectoryEmbedded1{
+					Mode: dir.Mode,
+				},
+			})
+		}
+		for _, link := range in.Storage.Links {
+			out.Storage.Links = append(out.Storage.Links, ignTypes.Link{
+				Node: ignTypes.Node{
+					Filesystem: link.Filesystem,
+					Path:       link.Path,
+					User: ignTypes.NodeUser{
+						ID:   link.User.Id,
+						Name: link.User.Name,
+					},
+					Group: ignTypes.NodeGroup{
+						ID:   link.Group.Id,
+						Name: link.Group.Name,
+					},
+				},
+				LinkEmbedded1: ignTypes.LinkEmbedded1{
+					Hard:   link.Hard,
+					Target: link.Target,
+				},
+			})
 		}
 		return out, r, ast
 	})
