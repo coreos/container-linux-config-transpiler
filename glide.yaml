@@ -1,7 +1,11 @@
 package: github.com/coreos/container-linux-config-transpiler
+ignore:
+- go-spew
+- go-difflib
+- testify
 import:
 - package: github.com/ajeddeloh/yaml
-  version: 1072abfea31191db507785e2e0c1b8d1440d35a5
+  version: 6b94386aeefd8c4b8470aee72bfca084c2f91da9
 - package: github.com/alecthomas/units
   version: 6b4e7dc5e3143b85ea77909c72caf89416fc2915
 - package: github.com/coreos/ignition

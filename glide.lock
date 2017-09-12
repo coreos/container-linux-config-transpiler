@@ -1,8 +1,8 @@
-hash: 866f7f8e6abd6c52e124db97d9c5665e261f65a06289e9803dfd18c6720ca40f
-updated: 2017-09-07T15:02:44.945026326-07:00
+hash: 58bd6c1214f865fc932b21dde23e553ea1467e4ebcc813a049e254fb41deb687
+updated: 2017-09-18T13:34:22.117467812-07:00
 imports:
 - name: github.com/ajeddeloh/yaml
-  version: 1072abfea31191db507785e2e0c1b8d1440d35a5
+  version: 6b94386aeefd8c4b8470aee72bfca084c2f91da9
 - name: github.com/alecthomas/units
   version: 6b4e7dc5e3143b85ea77909c72caf89416fc2915
 - name: github.com/coreos/go-semver
