@@ -54,7 +54,7 @@ func TestValidateWindowStart(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		r := WindowStart(test.in.start).Validate()
+		r := Locksmith{WindowStart: test.in.start}.ValidateWindowStart()
 		if !reflect.DeepEqual(test.out.r, r) {
 			t.Errorf("#%d: wanted %v, got %v", i, test.out.r, r)
 		}
