@@ -1,5 +1,5 @@
-hash: 58bd6c1214f865fc932b21dde23e553ea1467e4ebcc813a049e254fb41deb687
-updated: 2017-09-18T13:34:22.117467812-07:00
+hash: 2c5c36bd2a9d2d05852b59a5c3f294e435a250930db95f14c8c57e4f6f724376
+updated: 2017-09-18T14:28:31.346687765-07:00
 imports:
 - name: github.com/ajeddeloh/yaml
   version: 6b94386aeefd8c4b8470aee72bfca084c2f91da9
@@ -21,6 +21,18 @@ imports:
   - config/v2_1/types
   - config/validate
   - config/validate/report
+- name: github.com/stretchr/testify
+  version: 69483b4bd14f5845b5a1e55bca19e954e827f1d0
+  subpackages:
+  - assert
 - name: github.com/vincent-petithory/dataurl
   version: 9a301d65acbb728fcc3ace14f45f511a4cfeea9c
-testImports: []
+testImports:
+- name: github.com/davecgh/go-spew
+  version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
+  subpackages:
+  - spew
+- name: github.com/pmezard/go-difflib
+  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
+  subpackages:
+  - difflib
