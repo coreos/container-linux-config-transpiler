@@ -16,10 +16,13 @@ package config
 
 import (
 	"errors"
-	"reflect"
+	"net/url"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/coreos/container-linux-config-transpiler/config/types"
+	"github.com/coreos/container-linux-config-transpiler/internal/util"
 	"github.com/coreos/go-semver/semver"
 	ignTypes "github.com/coreos/ignition/config/v2_1/types"
 	"github.com/coreos/ignition/config/validate/report"
@@ -61,6 +64,24 @@ networkd:
 				Networkd: types.Networkd{
 					Units: []types.NetworkdUnit{
 						{Name: "bad.blah", Contents: "not valid"},
+					},
+				},
+			}},
+		},
+
+		// Timeouts
+		{
+			in: in{data: `
+ignition:
+  timeouts:
+    http_response_headers: 30
+    http_total: 31
+`},
+			out: out{cfg: types.Config{
+				Ignition: types.Ignition{
+					Timeouts: types.Timeouts{
+						HTTPResponseHeaders: util.IntToPtr(30),
+						HTTPTotal:           util.IntToPtr(31),
 					},
 				},
 			}},
@@ -128,11 +149,13 @@ storage:
           number: 7
           size: 100MB
           start: 50MB
+          guid: 22222222-2222-2222-2222-222222222222
           type_guid: 11111111-1111-1111-1111-111111111111
         - label: DATA
           number: 12
           size: 1GB
           start: 300MB
+          guid: 33333333-3333-3333-3333-333333333333
           type_guid: 00000000-0000-0000-0000-000000000000
         - label: NOTHING
     - device: /dev/sdb
@@ -166,6 +189,24 @@ storage:
         format: ext4
     - name: filesystem3
       path: /sysroot
+    - name: filesystem4
+      mount:
+        device: /dev/disk/by-partlabel/DATA2
+        format: xfs
+        wipe_filesystem: true
+        label: data2
+        uuid: a51034e6-26b3-48df-beed-220562ac7ad1
+        options:
+          - "i'm an option"
+          - "me too"
+    - name: filesystem5
+      mount:
+        device: /dev/disk/by-partlabel/DATA3
+        format: vfat
+    - name: filesystem6
+      mount:
+        device: /dev/disk/by-partlabel/DATA4
+        format: swap
   files:
     - path: /opt/file1
       filesystem: filesystem1
@@ -204,6 +245,27 @@ storage:
         id: 1001
     - path: /opt/file4
       filesystem: filesystem2
+  directories:
+    - path: /opt/dir1
+      filesystem: filesystem1
+      mode: 0755
+      user:
+        name: core
+      group:
+        name: core
+  links:
+    - path: /opt/link1
+      filesystem: filesystem1
+      user:
+        name: noone
+      group:
+        name: systemd-journald
+      hard: false
+      target: /opt/file2
+    - path: /opt/link2
+      filesystem: filesystem2
+      hard: true
+      target: /opt/file3
 `},
 			out: out{cfg: types.Config{
 				Storage: types.Storage{
@@ -217,6 +279,7 @@ storage:
 									Number:   7,
 									Size:     "100MB",
 									Start:    "50MB",
+									GUID:     "22222222-2222-2222-2222-222222222222",
 									TypeGUID: "11111111-1111-1111-1111-111111111111",
 								},
 								{
@@ -224,6 +287,7 @@ storage:
 									Number:   12,
 									Size:     "1GB",
 									Start:    "300MB",
+									GUID:     "33333333-3333-3333-3333-333333333333",
 									TypeGUID: "00000000-0000-0000-0000-000000000000",
 								},
 								{
@@ -270,23 +334,50 @@ storage:
 						},
 						{
 							Name: "filesystem3",
-							Path: "/sysroot",
+							Path: util.StringToPtr("/sysroot"),
+						},
+						{
+							Name: "filesystem4",
+							Mount: &types.Mount{
+								Device:         "/dev/disk/by-partlabel/DATA2",
+								Format:         "xfs",
+								WipeFilesystem: true,
+								Label:          util.StringToPtr("data2"),
+								UUID:           util.StringToPtr("a51034e6-26b3-48df-beed-220562ac7ad1"),
+								Options:        []string{"i'm an option", "me too"},
+							},
+						},
+						{
+							Name: "filesystem5",
+							Mount: &types.Mount{
+								Device: "/dev/disk/by-partlabel/DATA3",
+								Format: "vfat",
+							},
+						},
+						{
+							Name: "filesystem6",
+							Mount: &types.Mount{
+								Device: "/dev/disk/by-partlabel/DATA4",
+								Format: "swap",
+							},
 						},
 					},
 					Files: []types.File{
 						{
 							Filesystem: "filesystem1",
 							Path:       "/opt/file1",
+							User:       types.FileUser{Id: util.IntToPtr(500)},
+							Group:      types.FileGroup{Id: util.IntToPtr(501)},
 							Contents: types.FileContents{
 								Inline: "file1",
 							},
-							Mode:  0644,
-							User:  types.FileUser{Id: 500},
-							Group: types.FileGroup{Id: 501},
+							Mode: 0644,
 						},
 						{
 							Filesystem: "filesystem1",
 							Path:       "/opt/file2",
+							User:       types.FileUser{Id: util.IntToPtr(502)},
+							Group:      types.FileGroup{Id: util.IntToPtr(503)},
 							Contents: types.FileContents{
 								Remote: types.Remote{
 									Url:         "http://example.com/file2",
@@ -299,22 +390,20 @@ storage:
 									},
 								},
 							},
-							Mode:  0644,
-							User:  types.FileUser{Id: 502},
-							Group: types.FileGroup{Id: 503},
+							Mode: 0644,
 						},
 						{
 							Filesystem: "filesystem2",
 							Path:       "/opt/file3",
+							User:       types.FileUser{Id: util.IntToPtr(1000)},
+							Group:      types.FileGroup{Id: util.IntToPtr(1001)},
 							Contents: types.FileContents{
 								Remote: types.Remote{
 									Url:         "http://example.com/file3",
 									Compression: "gzip",
 								},
 							},
-							Mode:  0400,
-							User:  types.FileUser{Id: 1000},
-							Group: types.FileGroup{Id: 1001},
+							Mode: 0400,
 						},
 						{
 							Filesystem: "filesystem2",
@@ -322,6 +411,39 @@ storage:
 							Contents: types.FileContents{
 								Inline: "",
 							},
+						},
+					},
+					Directories: []types.Directory{
+						{
+							Filesystem: "filesystem1",
+							Path:       "/opt/dir1",
+							User: types.FileUser{
+								Name: "core",
+							},
+							Group: types.FileGroup{
+								Name: "core",
+							},
+							Mode: 0755,
+						},
+					},
+					Links: []types.Link{
+						{
+							Filesystem: "filesystem1",
+							Path:       "/opt/link1",
+							User: types.FileUser{
+								Name: "noone",
+							},
+							Group: types.FileGroup{
+								Name: "systemd-journald",
+							},
+							Target: "/opt/file2",
+							Hard:   false,
+						},
+						{
+							Filesystem: "filesystem2",
+							Path:       "/opt/link2",
+							Target:     "/opt/file3",
+							Hard:       true,
 						},
 					},
 				},
@@ -344,6 +466,8 @@ systemd:
     - name: test2.service
       mask: true
       contents: test2 contents
+    - name: test3.service
+      enabled: false
 `},
 			out: out{cfg: types.Config{
 				Systemd: types.Systemd{
@@ -367,6 +491,10 @@ systemd:
 							Name:     "test2.service",
 							Mask:     true,
 							Contents: "test2 contents",
+						},
+						{
+							Name:    "test3.service",
+							Enabled: util.BoolToPtr(false),
 						},
 					},
 				},
@@ -431,6 +559,23 @@ passwd:
         - key5
         - key6
       create: {}
+    - name: user 4
+      password_hash: password 4
+      ssh_authorized_keys:
+        - key7
+        - key8
+      uid: 456
+      gecos: gecos
+      home_dir: /home/user 4
+      no_create_home: true
+      primary_group: wheel
+      groups:
+        - wheel
+        - plugdev
+      no_user_group: true
+      system: true
+      no_log_init: true
+      shell: /bin/tcsh
   groups:
     - name: group 1
       gid: 1000
@@ -444,12 +589,12 @@ passwd:
 					Users: []types.User{
 						{
 							Name:              "user 1",
-							PasswordHash:      "password 1",
+							PasswordHash:      util.StringToPtr("password 1"),
 							SSHAuthorizedKeys: []string{"key1", "key2"},
 						},
 						{
 							Name:              "user 2",
-							PasswordHash:      "password 2",
+							PasswordHash:      util.StringToPtr("password 2"),
 							SSHAuthorizedKeys: []string{"key3", "key4"},
 							Create: &types.UserCreate{
 								Uid:          func(i uint) *uint { return &i }(123),
@@ -466,9 +611,24 @@ passwd:
 						},
 						{
 							Name:              "user 3",
-							PasswordHash:      "password 3",
+							PasswordHash:      util.StringToPtr("password 3"),
 							SSHAuthorizedKeys: []string{"key5", "key6"},
 							Create:            &types.UserCreate{},
+						},
+						{
+							Name:              "user 4",
+							PasswordHash:      util.StringToPtr("password 4"),
+							SSHAuthorizedKeys: []string{"key7", "key8"},
+							UID:               util.IntToPtr(456),
+							Gecos:             "gecos",
+							HomeDir:           "/home/user 4",
+							NoCreateHome:      true,
+							PrimaryGroup:      "wheel",
+							Groups:            []string{"wheel", "plugdev"},
+							NoUserGroup:       true,
+							System:            true,
+							NoLogInit:         true,
+							Shell:             "/bin/tcsh",
 						},
 					},
 					Groups: []types.Group{
@@ -534,12 +694,8 @@ flannel:
 
 	for i, test := range tests {
 		cfg, _, err := Parse([]byte(test.in.data))
-		if !reflect.DeepEqual(err, test.out.r) {
-			t.Errorf("#%d: bad error: want %v, got %v", i, test.out.r, err)
-		}
-		if !reflect.DeepEqual(cfg, test.out.cfg) {
-			t.Errorf("#%d: bad config: want %#v, got %#v", i, test.out.cfg, cfg)
-		}
+		assert.Equal(t, test.out.r, err, "#%d: bad report", i)
+		assert.Equal(t, test.out.cfg, cfg, "#%d: bad config", i)
 	}
 }
 func TestConvertAs2_0(t *testing.T) {
@@ -557,7 +713,7 @@ func TestConvertAs2_0(t *testing.T) {
 	}{
 		{
 			in:  in{cfg: types.Config{}},
-			out: out{cfg: ignTypes.Config{Ignition: ignTypes.Ignition{Version: ignTypes.IgnitionVersion{Major: 2}}}},
+			out: out{cfg: ignTypes.Config{Ignition: ignTypes.Ignition{Version: "2.1.0"}}},
 		},
 		{
 			in: in{cfg: types.Config{
@@ -613,43 +769,58 @@ func TestConvertAs2_0(t *testing.T) {
 			}},
 			out: out{cfg: ignTypes.Config{
 				Ignition: ignTypes.Ignition{
-					Version: ignTypes.IgnitionVersion{Major: 2},
+					Version: "2.1.0",
 					Config: ignTypes.IgnitionConfig{
 						Append: []ignTypes.ConfigReference{
 							{
-								Source: ignTypes.Url{
+								Source: (&url.URL{
 									Scheme: "http",
 									Host:   "example.com",
 									Path:   "/test1",
-								},
+								}).String(),
 								Verification: ignTypes.Verification{
-									Hash: &ignTypes.Hash{
-										Function: "sha512",
-										Sum:      "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-									},
+									Hash: util.StringToPtr("sha512-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
 								},
 							},
 							{
-								Source: ignTypes.Url{
+								Source: (&url.URL{
 									Scheme: "http",
 									Host:   "example.com",
 									Path:   "/test2",
-								},
+								}).String(),
 							},
 						},
 						Replace: &ignTypes.ConfigReference{
-							Source: ignTypes.Url{
+							Source: (&url.URL{
 								Scheme: "http",
 								Host:   "example.com",
 								Path:   "/test3",
-							},
+							}).String(),
 							Verification: ignTypes.Verification{
-								Hash: &ignTypes.Hash{
-									Function: "sha512",
-									Sum:      "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-								},
+								Hash: util.StringToPtr("sha512-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
 							},
 						},
+					},
+				},
+			}},
+		},
+
+		//Timeouts
+		{
+			in: in{cfg: types.Config{
+				Ignition: types.Ignition{
+					Timeouts: types.Timeouts{
+						HTTPResponseHeaders: util.IntToPtr(30),
+						HTTPTotal:           util.IntToPtr(30),
+					},
+				},
+			}},
+			out: out{cfg: ignTypes.Config{
+				Ignition: ignTypes.Ignition{
+					Version: "2.1.0",
+					Timeouts: ignTypes.Timeouts{
+						HTTPResponseHeaders: util.IntToPtr(30),
+						HTTPTotal:           util.IntToPtr(30),
 					},
 				},
 			}},
@@ -669,6 +840,7 @@ func TestConvertAs2_0(t *testing.T) {
 									Number:   7,
 									Size:     "100MB",
 									Start:    "50MB",
+									GUID:     "22222222-2222-2222-2222-222222222222",
 									TypeGUID: "11111111-1111-1111-1111-111111111111",
 								},
 								{
@@ -676,6 +848,7 @@ func TestConvertAs2_0(t *testing.T) {
 									Number:   12,
 									Size:     "1GB",
 									Start:    "300MB",
+									GUID:     "33333333-3333-3333-3333-333333333333",
 									TypeGUID: "00000000-0000-0000-0000-000000000000",
 								},
 								{
@@ -722,23 +895,50 @@ func TestConvertAs2_0(t *testing.T) {
 						},
 						{
 							Name: "filesystem3",
-							Path: "/sysroot",
+							Path: util.StringToPtr("/sysroot"),
+						},
+						{
+							Name: "filesystem4",
+							Mount: &types.Mount{
+								Device:         "/dev/disk/by-partlabel/DATA2",
+								Format:         "xfs",
+								WipeFilesystem: true,
+								Label:          util.StringToPtr("data2"),
+								UUID:           util.StringToPtr("a51034e6-26b3-48df-beed-220562ac7ad1"),
+								Options:        []string{"i'm an option", "me too"},
+							},
+						},
+						{
+							Name: "filesystem5",
+							Mount: &types.Mount{
+								Device: "/dev/disk/by-partlabel/DATA3",
+								Format: "vfat",
+							},
+						},
+						{
+							Name: "filesystem6",
+							Mount: &types.Mount{
+								Device: "/dev/disk/by-partlabel/DATA4",
+								Format: "swap",
+							},
 						},
 					},
 					Files: []types.File{
 						{
 							Filesystem: "filesystem1",
 							Path:       "/opt/file1",
+							User:       types.FileUser{Id: util.IntToPtr(500)},
+							Group:      types.FileGroup{Id: util.IntToPtr(501)},
 							Contents: types.FileContents{
 								Inline: "file1",
 							},
-							Mode:  0644,
-							User:  types.FileUser{Id: 500},
-							Group: types.FileGroup{Id: 501},
+							Mode: 0644,
 						},
 						{
 							Filesystem: "filesystem1",
 							Path:       "/opt/file2",
+							User:       types.FileUser{Id: util.IntToPtr(502)},
+							Group:      types.FileGroup{Id: util.IntToPtr(503)},
 							Contents: types.FileContents{
 								Remote: types.Remote{
 									Url:         "http://example.com/file2",
@@ -751,22 +951,20 @@ func TestConvertAs2_0(t *testing.T) {
 									},
 								},
 							},
-							Mode:  0644,
-							User:  types.FileUser{Id: 502},
-							Group: types.FileGroup{Id: 503},
+							Mode: 0644,
 						},
 						{
 							Filesystem: "filesystem2",
 							Path:       "/opt/file3",
+							User:       types.FileUser{Id: util.IntToPtr(1000)},
+							Group:      types.FileGroup{Id: util.IntToPtr(1001)},
 							Contents: types.FileContents{
 								Remote: types.Remote{
 									Url:         "http://example.com/file3",
 									Compression: "gzip",
 								},
 							},
-							Mode:  0400,
-							User:  types.FileUser{Id: 1000},
-							Group: types.FileGroup{Id: 1001},
+							Mode: 0400,
 						},
 						{
 							Filesystem: "filesystem2",
@@ -776,140 +974,269 @@ func TestConvertAs2_0(t *testing.T) {
 							},
 						},
 					},
+					Directories: []types.Directory{
+						{
+							Filesystem: "filesystem1",
+							Path:       "/opt/dir1",
+							User: types.FileUser{
+								Name: "core",
+							},
+							Group: types.FileGroup{
+								Name: "core",
+							},
+							Mode: 0755,
+						},
+					},
+					Links: []types.Link{
+						{
+							Filesystem: "filesystem1",
+							Path:       "/opt/link1",
+							User: types.FileUser{
+								Name: "noone",
+							},
+							Group: types.FileGroup{
+								Name: "systemd-journald",
+							},
+							Target: "/opt/file2",
+							Hard:   false,
+						},
+						{
+							Filesystem: "filesystem2",
+							Path:       "/opt/link2",
+							Target:     "/opt/file3",
+							Hard:       true,
+						},
+					},
 				},
 			}},
-			out: out{cfg: ignTypes.Config{
-				Ignition: ignTypes.Ignition{Version: ignTypes.IgnitionVersion{Major: 2}},
-				Storage: ignTypes.Storage{
-					Disks: []ignTypes.Disk{
+			out: out{
+				r: report.Report{
+					Entries: []report.Entry{
 						{
-							Device:    ignTypes.Path("/dev/sda"),
-							WipeTable: true,
-							Partitions: []ignTypes.Partition{
-								{
-									Label:    ignTypes.PartitionLabel("ROOT"),
-									Number:   7,
-									Size:     ignTypes.PartitionDimension(0x32000),
-									Start:    ignTypes.PartitionDimension(0x19000),
-									TypeGUID: "11111111-1111-1111-1111-111111111111",
-								},
-								{
-									Label:    ignTypes.PartitionLabel("DATA"),
-									Number:   12,
-									Size:     ignTypes.PartitionDimension(0x200000),
-									Start:    ignTypes.PartitionDimension(0x96000),
-									TypeGUID: "00000000-0000-0000-0000-000000000000",
-								},
-								{
-									Label: ignTypes.PartitionLabel("NOTHING"),
-								},
-							},
-						},
-						{
-							Device:    ignTypes.Path("/dev/sdb"),
-							WipeTable: true,
+							Kind:    report.EntryWarning,
+							Message: "the create object has been deprecated in favor of mount-level options",
 						},
 					},
-					Arrays: []ignTypes.Raid{
-						{
-							Name:    "fast",
-							Level:   "raid0",
-							Devices: []ignTypes.Path{ignTypes.Path("/dev/sdc"), ignTypes.Path("/dev/sdd")},
-						},
-						{
-							Name:    "durable",
-							Level:   "raid1",
-							Devices: []ignTypes.Path{ignTypes.Path("/dev/sde"), ignTypes.Path("/dev/sdf"), ignTypes.Path("/dev/sdg")},
-							Spares:  1,
-						},
-					},
-					Filesystems: []ignTypes.Filesystem{
-						{
-							Name: "filesystem1",
-							Mount: &ignTypes.FilesystemMount{
-								Device: ignTypes.Path("/dev/disk/by-partlabel/ROOT"),
-								Format: ignTypes.FilesystemFormat("btrfs"),
-								Create: &ignTypes.FilesystemCreate{
-									Force:   true,
-									Options: ignTypes.MkfsOptions([]string{"-L", "ROOT"}),
-								},
-							},
-						},
-						{
-							Name: "filesystem2",
-							Mount: &ignTypes.FilesystemMount{
-								Device: ignTypes.Path("/dev/disk/by-partlabel/DATA"),
-								Format: ignTypes.FilesystemFormat("ext4"),
-							},
-						},
-						{
-							Name: "filesystem3",
-							Path: func(p ignTypes.Path) *ignTypes.Path { return &p }("/sysroot"),
-						},
-					},
-					Files: []ignTypes.File{
-						{
-							Filesystem: "filesystem1",
-							Path:       ignTypes.Path("/opt/file1"),
-							Contents: ignTypes.FileContents{
-								Source: ignTypes.Url{
-									Scheme: "data",
-									Opaque: ",file1",
-								},
-							},
-							Mode:  ignTypes.FileMode(0644),
-							User:  ignTypes.FileUser{Id: 500},
-							Group: ignTypes.FileGroup{Id: 501},
-						},
-						{
-							Filesystem: "filesystem1",
-							Path:       ignTypes.Path("/opt/file2"),
-							Contents: ignTypes.FileContents{
-								Source: ignTypes.Url{
-									Scheme: "http",
-									Host:   "example.com",
-									Path:   "/file2",
-								},
-								Compression: "gzip",
-								Verification: ignTypes.Verification{
-									Hash: &ignTypes.Hash{
-										Function: "sha512",
-										Sum:      "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+				},
+				cfg: ignTypes.Config{
+					Ignition: ignTypes.Ignition{Version: "2.1.0"},
+					Storage: ignTypes.Storage{
+						Disks: []ignTypes.Disk{
+							{
+								Device:    "/dev/sda",
+								WipeTable: true,
+								Partitions: []ignTypes.Partition{
+									{
+										Label:    "ROOT",
+										Number:   7,
+										Size:     0x32000,
+										Start:    0x19000,
+										GUID:     "22222222-2222-2222-2222-222222222222",
+										TypeGUID: "11111111-1111-1111-1111-111111111111",
+									},
+									{
+										Label:    "DATA",
+										Number:   12,
+										Size:     0x200000,
+										Start:    0x96000,
+										GUID:     "33333333-3333-3333-3333-333333333333",
+										TypeGUID: "00000000-0000-0000-0000-000000000000",
+									},
+									{
+										Label: "NOTHING",
 									},
 								},
 							},
-							Mode:  ignTypes.FileMode(0644),
-							User:  ignTypes.FileUser{Id: 502},
-							Group: ignTypes.FileGroup{Id: 503},
-						},
-						{
-							Filesystem: "filesystem2",
-							Path:       ignTypes.Path("/opt/file3"),
-							Contents: ignTypes.FileContents{
-								Source: ignTypes.Url{
-									Scheme: "http",
-									Host:   "example.com",
-									Path:   "/file3",
-								},
-								Compression: "gzip",
+							{
+								Device:    "/dev/sdb",
+								WipeTable: true,
 							},
-							Mode:  ignTypes.FileMode(0400),
-							User:  ignTypes.FileUser{Id: 1000},
-							Group: ignTypes.FileGroup{Id: 1001},
 						},
-						{
-							Filesystem: "filesystem2",
-							Path:       ignTypes.Path("/opt/file4"),
-							Contents: ignTypes.FileContents{
-								Source: ignTypes.Url{
-									Scheme: "data",
-									Opaque: ",",
+						Raid: []ignTypes.Raid{
+							{
+								Name:    "fast",
+								Level:   "raid0",
+								Devices: []ignTypes.Device{"/dev/sdc", "/dev/sdd"},
+							},
+							{
+								Name:    "durable",
+								Level:   "raid1",
+								Devices: []ignTypes.Device{"/dev/sde", "/dev/sdf", "/dev/sdg"},
+								Spares:  1,
+							},
+						},
+						Filesystems: []ignTypes.Filesystem{
+							{
+								Name: "filesystem1",
+								Mount: &ignTypes.Mount{
+									Device: "/dev/disk/by-partlabel/ROOT",
+									Format: "btrfs",
+									Create: &ignTypes.Create{
+										Force:   true,
+										Options: []ignTypes.CreateOption{"-L", "ROOT"},
+									},
+								},
+							},
+							{
+								Name: "filesystem2",
+								Mount: &ignTypes.Mount{
+									Device: "/dev/disk/by-partlabel/DATA",
+									Format: "ext4",
+								},
+							},
+							{
+								Name: "filesystem3",
+								Path: util.StringToPtr("/sysroot"),
+							},
+							{
+								Name: "filesystem4",
+								Mount: &ignTypes.Mount{
+									Device:         "/dev/disk/by-partlabel/DATA2",
+									Format:         "xfs",
+									WipeFilesystem: true,
+									Label:          util.StringToPtr("data2"),
+									UUID:           util.StringToPtr("a51034e6-26b3-48df-beed-220562ac7ad1"),
+									Options:        []ignTypes.MountOption{"i'm an option", "me too"},
+								},
+							},
+							{
+								Name: "filesystem5",
+								Mount: &ignTypes.Mount{
+									Device: "/dev/disk/by-partlabel/DATA3",
+									Format: "vfat",
+								},
+							},
+							{
+								Name: "filesystem6",
+								Mount: &ignTypes.Mount{
+									Device: "/dev/disk/by-partlabel/DATA4",
+									Format: "swap",
+								},
+							},
+						},
+						Files: []ignTypes.File{
+							{
+								Node: ignTypes.Node{
+									Filesystem: "filesystem1",
+									Path:       "/opt/file1",
+									User:       ignTypes.NodeUser{ID: util.IntToPtr(500)},
+									Group:      ignTypes.NodeGroup{ID: util.IntToPtr(501)},
+								},
+								FileEmbedded1: ignTypes.FileEmbedded1{
+									Contents: ignTypes.FileContents{
+										Source: (&url.URL{
+											Scheme: "data",
+											Opaque: ",file1",
+										}).String(),
+									},
+									Mode: 0644,
+								},
+							},
+							{
+								Node: ignTypes.Node{
+									Filesystem: "filesystem1",
+									Path:       "/opt/file2",
+									User:       ignTypes.NodeUser{ID: util.IntToPtr(502)},
+									Group:      ignTypes.NodeGroup{ID: util.IntToPtr(503)},
+								},
+								FileEmbedded1: ignTypes.FileEmbedded1{
+									Contents: ignTypes.FileContents{
+										Source: (&url.URL{
+											Scheme: "http",
+											Host:   "example.com",
+											Path:   "/file2",
+										}).String(),
+										Compression: "gzip",
+										Verification: ignTypes.Verification{
+											Hash: util.StringToPtr("sha512-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
+										},
+									},
+									Mode: 0644,
+								},
+							},
+							{
+								Node: ignTypes.Node{
+									Filesystem: "filesystem2",
+									Path:       "/opt/file3",
+									User:       ignTypes.NodeUser{ID: util.IntToPtr(1000)},
+									Group:      ignTypes.NodeGroup{ID: util.IntToPtr(1001)},
+								},
+								FileEmbedded1: ignTypes.FileEmbedded1{
+									Contents: ignTypes.FileContents{
+										Source: (&url.URL{
+											Scheme: "http",
+											Host:   "example.com",
+											Path:   "/file3",
+										}).String(),
+										Compression: "gzip",
+									},
+									Mode: 0400,
+								},
+							},
+							{
+								Node: ignTypes.Node{
+
+									Filesystem: "filesystem2",
+									Path:       "/opt/file4",
+								},
+								FileEmbedded1: ignTypes.FileEmbedded1{
+									Contents: ignTypes.FileContents{
+										Source: (&url.URL{
+											Scheme: "data",
+											Opaque: ",",
+										}).String(),
+									},
+								},
+							},
+						},
+						Directories: []ignTypes.Directory{
+							{
+								Node: ignTypes.Node{
+									Filesystem: "filesystem1",
+									Path:       "/opt/dir1",
+									User: ignTypes.NodeUser{
+										Name: "core",
+									},
+									Group: ignTypes.NodeGroup{
+										Name: "core",
+									},
+								},
+								DirectoryEmbedded1: ignTypes.DirectoryEmbedded1{
+									Mode: 0755,
+								},
+							},
+						},
+						Links: []ignTypes.Link{
+							{
+								Node: ignTypes.Node{
+									Filesystem: "filesystem1",
+									Path:       "/opt/link1",
+									User: ignTypes.NodeUser{
+										Name: "noone",
+									},
+									Group: ignTypes.NodeGroup{
+										Name: "systemd-journald",
+									},
+								},
+								LinkEmbedded1: ignTypes.LinkEmbedded1{
+									Target: "/opt/file2",
+									Hard:   false,
+								},
+							},
+							{
+								Node: ignTypes.Node{
+									Filesystem: "filesystem2",
+									Path:       "/opt/link2",
+								},
+								LinkEmbedded1: ignTypes.LinkEmbedded1{
+									Target: "/opt/file3",
+									Hard:   true,
 								},
 							},
 						},
 					},
 				},
-			}},
+			},
 		},
 
 		// systemd
@@ -941,7 +1268,7 @@ func TestConvertAs2_0(t *testing.T) {
 				},
 			}},
 			out: out{cfg: ignTypes.Config{
-				Ignition: ignTypes.Ignition{Version: ignTypes.IgnitionVersion{Major: 2}},
+				Ignition: ignTypes.Ignition{Version: "2.1.0"},
 				Systemd: ignTypes.Systemd{
 					Units: []ignTypes.Unit{
 						{
@@ -985,9 +1312,9 @@ func TestConvertAs2_0(t *testing.T) {
 				},
 			}},
 			out: out{cfg: ignTypes.Config{
-				Ignition: ignTypes.Ignition{Version: ignTypes.IgnitionVersion{Major: 2}},
+				Ignition: ignTypes.Ignition{Version: "2.1.0"},
 				Networkd: ignTypes.Networkd{
-					Units: []ignTypes.NetworkdUnit{
+					Units: []ignTypes.Networkdunit{
 						{
 							Name:     "test.network",
 							Contents: "[Match]\nName=en*\n[Network]\nDHCP=yes",
@@ -1007,12 +1334,12 @@ func TestConvertAs2_0(t *testing.T) {
 					Users: []types.User{
 						{
 							Name:              "user 1",
-							PasswordHash:      "password 1",
+							PasswordHash:      util.StringToPtr("password 1"),
 							SSHAuthorizedKeys: []string{"key1", "key2"},
 						},
 						{
 							Name:              "user 2",
-							PasswordHash:      "password 2",
+							PasswordHash:      util.StringToPtr("password 2"),
 							SSHAuthorizedKeys: []string{"key3", "key4"},
 							Create: &types.UserCreate{
 								Uid:          func(i uint) *uint { return &i }(123),
@@ -1029,9 +1356,24 @@ func TestConvertAs2_0(t *testing.T) {
 						},
 						{
 							Name:              "user 3",
-							PasswordHash:      "password 3",
+							PasswordHash:      util.StringToPtr("password 3"),
 							SSHAuthorizedKeys: []string{"key5", "key6"},
 							Create:            &types.UserCreate{},
+						},
+						{
+							Name:              "user 4",
+							PasswordHash:      util.StringToPtr("password 4"),
+							SSHAuthorizedKeys: []string{"key7", "key8"},
+							UID:               util.IntToPtr(456),
+							Gecos:             "gecos",
+							HomeDir:           "/home/user 4",
+							NoCreateHome:      true,
+							PrimaryGroup:      "wheel",
+							Groups:            []string{"wheel", "plugdev"},
+							NoUserGroup:       true,
+							System:            true,
+							NoLogInit:         true,
+							Shell:             "/bin/tcsh",
 						},
 					},
 					Groups: []types.Group{
@@ -1048,65 +1390,90 @@ func TestConvertAs2_0(t *testing.T) {
 					},
 				},
 			}},
-			out: out{cfg: ignTypes.Config{
-				Ignition: ignTypes.Ignition{Version: ignTypes.IgnitionVersion{Major: 2}},
-				Passwd: ignTypes.Passwd{
-					Users: []ignTypes.User{
+			out: out{
+				r: report.Report{
+					Entries: []report.Entry{
 						{
-							Name:              "user 1",
-							PasswordHash:      "password 1",
-							SSHAuthorizedKeys: []string{"key1", "key2"},
-							Create:            &ignTypes.UserCreate{},
+							Kind:    report.EntryWarning,
+							Message: "the create object has been deprecated in favor of user-level options",
 						},
 						{
-							Name:              "user 2",
-							PasswordHash:      "password 2",
-							SSHAuthorizedKeys: []string{"key3", "key4"},
-							Create: &ignTypes.UserCreate{
-								Uid:          func(i uint) *uint { return &i }(123),
-								GECOS:        "gecos",
-								Homedir:      "/home/user 2",
-								NoCreateHome: true,
-								PrimaryGroup: "wheel",
-								Groups:       []string{"wheel", "plugdev"},
-								NoUserGroup:  true,
-								System:       true,
-								NoLogInit:    true,
-								Shell:        "/bin/zsh",
-							},
-						},
-						{
-							Name:              "user 3",
-							PasswordHash:      "password 3",
-							SSHAuthorizedKeys: []string{"key5", "key6"},
-							Create:            &ignTypes.UserCreate{},
-						},
-					},
-					Groups: []ignTypes.Group{
-						{
-							Name:         "group 1",
-							Gid:          func(i uint) *uint { return &i }(1000),
-							PasswordHash: "password 1",
-							System:       true,
-						},
-						{
-							Name:         "group 2",
-							PasswordHash: "password 2",
+							Kind:    report.EntryWarning,
+							Message: "the create object has been deprecated in favor of user-level options",
 						},
 					},
 				},
-			}},
+				cfg: ignTypes.Config{
+					Ignition: ignTypes.Ignition{Version: "2.1.0"},
+					Passwd: ignTypes.Passwd{
+						Users: []ignTypes.PasswdUser{
+							{
+								Name:              "user 1",
+								PasswordHash:      util.StringToPtr("password 1"),
+								SSHAuthorizedKeys: []ignTypes.SSHAuthorizedKey{"key1", "key2"},
+								Create:            nil,
+							},
+							{
+								Name:              "user 2",
+								PasswordHash:      util.StringToPtr("password 2"),
+								SSHAuthorizedKeys: []ignTypes.SSHAuthorizedKey{"key3", "key4"},
+								Create: &ignTypes.Usercreate{
+									UID:          util.IntToPtr(123),
+									Gecos:        "gecos",
+									HomeDir:      "/home/user 2",
+									NoCreateHome: true,
+									PrimaryGroup: "wheel",
+									Groups:       []ignTypes.UsercreateGroup{"wheel", "plugdev"},
+									NoUserGroup:  true,
+									System:       true,
+									NoLogInit:    true,
+									Shell:        "/bin/zsh",
+								},
+							},
+							{
+								Name:              "user 3",
+								PasswordHash:      util.StringToPtr("password 3"),
+								SSHAuthorizedKeys: []ignTypes.SSHAuthorizedKey{"key5", "key6"},
+								Create:            &ignTypes.Usercreate{},
+							},
+							{
+								Name:              "user 4",
+								PasswordHash:      util.StringToPtr("password 4"),
+								SSHAuthorizedKeys: []ignTypes.SSHAuthorizedKey{"key7", "key8"},
+								UID:               util.IntToPtr(456),
+								Gecos:             "gecos",
+								HomeDir:           "/home/user 4",
+								NoCreateHome:      true,
+								PrimaryGroup:      "wheel",
+								Groups:            []ignTypes.PasswdUserGroup{"wheel", "plugdev"},
+								NoUserGroup:       true,
+								System:            true,
+								NoLogInit:         true,
+								Shell:             "/bin/tcsh",
+							},
+						},
+						Groups: []ignTypes.PasswdGroup{
+							{
+								Name:         "group 1",
+								Gid:          util.IntToPtr(1000),
+								PasswordHash: "password 1",
+								System:       true,
+							},
+							{
+								Name:         "group 2",
+								PasswordHash: "password 2",
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 
 	for i, test := range tests {
 		cfg, r := ConvertAs2_0(test.in.cfg, "", nil)
-		if !reflect.DeepEqual(r, test.out.r) {
-			t.Errorf("#%d: bad error: want %v, got %v", i, test.out.r, r)
-		}
-		if !reflect.DeepEqual(cfg, test.out.cfg) {
-			t.Errorf("#%d: bad config: want %#v, got %#v", i, test.out.cfg, cfg)
-		}
+		assert.Equal(t, test.out.r, r, "#%d: bad report", i)
+		assert.Equal(t, test.out.cfg, cfg, "#%d: bad config", i)
 	}
 }
 
@@ -1136,7 +1503,7 @@ networkd:
 					Message: "invalid networkd unit extension",
 					Kind:    report.EntryError,
 					Line:    4,
-					Column:  13,
+					Column:  7,
 				}}},
 			},
 		},
@@ -1179,41 +1546,35 @@ ignition:
 `},
 			out: out{cfg: ignTypes.Config{
 				Ignition: ignTypes.Ignition{
-					Version: ignTypes.IgnitionVersion{Major: 2},
+					Version: "2.1.0",
 					Config: ignTypes.IgnitionConfig{
 						Append: []ignTypes.ConfigReference{
 							{
-								Source: ignTypes.Url{
+								Source: (&url.URL{
 									Scheme: "http",
 									Host:   "example.com",
 									Path:   "/test1",
-								},
+								}).String(),
 								Verification: ignTypes.Verification{
-									Hash: &ignTypes.Hash{
-										Function: "sha512",
-										Sum:      "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-									},
+									Hash: util.StringToPtr("sha512-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
 								},
 							},
 							{
-								Source: ignTypes.Url{
+								Source: (&url.URL{
 									Scheme: "http",
 									Host:   "example.com",
 									Path:   "/test2",
-								},
+								}).String(),
 							},
 						},
 						Replace: &ignTypes.ConfigReference{
-							Source: ignTypes.Url{
+							Source: (&url.URL{
 								Scheme: "http",
 								Host:   "example.com",
 								Path:   "/test3",
-							},
+							}).String(),
 							Verification: ignTypes.Verification{
-								Hash: &ignTypes.Hash{
-									Function: "sha512",
-									Sum:      "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-								},
+								Hash: util.StringToPtr("sha512-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
 							},
 						},
 					},
@@ -1258,13 +1619,13 @@ storage:
 						Message: "path not absolute",
 						Kind:    report.EntryError,
 						Line:    4,
-						Column:  13,
+						Column:  7,
 					},
 					{
-						Message: "invalid url scheme",
+						Message: "invalid url \"httpz://example.com/file2\": invalid url scheme",
 						Kind:    report.EntryError,
 						Line:    17,
-						Column:  16,
+						Column:  11,
 					},
 				}},
 			},
@@ -1339,42 +1700,47 @@ storage:
         id: 503
 `},
 			out: out{cfg: ignTypes.Config{
-				Ignition: ignTypes.Ignition{Version: ignTypes.IgnitionVersion{Major: 2}},
+				Ignition: ignTypes.Ignition{Version: "2.1.0"},
 				Storage: ignTypes.Storage{
 					Files: []ignTypes.File{
 						{
-							Filesystem: "root",
-							Path:       ignTypes.Path("/opt/file1"),
-							Contents: ignTypes.FileContents{
-								Source: ignTypes.Url{
-									Scheme: "data",
-									Opaque: ",file1",
-								},
+							Node: ignTypes.Node{
+								Filesystem: "root",
+								Path:       "/opt/file1",
+								User:       ignTypes.NodeUser{ID: util.IntToPtr(500)},
+								Group:      ignTypes.NodeGroup{ID: util.IntToPtr(501)},
 							},
-							Mode:  ignTypes.FileMode(0644),
-							User:  ignTypes.FileUser{Id: 500},
-							Group: ignTypes.FileGroup{Id: 501},
+							FileEmbedded1: ignTypes.FileEmbedded1{
+								Contents: ignTypes.FileContents{
+									Source: (&url.URL{
+										Scheme: "data",
+										Opaque: ",file1",
+									}).String(),
+								},
+								Mode: 0644,
+							},
 						},
 						{
-							Filesystem: "root",
-							Path:       ignTypes.Path("/opt/file2"),
-							Contents: ignTypes.FileContents{
-								Source: ignTypes.Url{
-									Scheme: "http",
-									Host:   "example.com",
-									Path:   "/file2",
-								},
-								Compression: "gzip",
-								Verification: ignTypes.Verification{
-									Hash: &ignTypes.Hash{
-										Function: "sha512",
-										Sum:      "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+							Node: ignTypes.Node{
+								Filesystem: "root",
+								Path:       "/opt/file2",
+								User:       ignTypes.NodeUser{ID: util.IntToPtr(502)},
+								Group:      ignTypes.NodeGroup{ID: util.IntToPtr(503)},
+							},
+							FileEmbedded1: ignTypes.FileEmbedded1{
+								Contents: ignTypes.FileContents{
+									Source: (&url.URL{
+										Scheme: "http",
+										Host:   "example.com",
+										Path:   "/file2",
+									}).String(),
+									Compression: "gzip",
+									Verification: ignTypes.Verification{
+										Hash: util.StringToPtr("sha512-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
 									},
 								},
+								Mode: 0644,
 							},
-							Mode:  ignTypes.FileMode(0644),
-							User:  ignTypes.FileUser{Id: 502},
-							Group: ignTypes.FileGroup{Id: 503},
 						},
 					},
 				},
@@ -1388,12 +1754,8 @@ storage:
 			t.Errorf("#%d: got error while parsing input: %v", i, r)
 		}
 		igncfg, r := ConvertAs2_0(cfg, "", ast)
-		if !reflect.DeepEqual(r, test.out.r) {
-			t.Errorf("#%d: bad error: want %v, got %v", i, test.out.r, r)
-		}
-		if !reflect.DeepEqual(igncfg, test.out.cfg) {
-			t.Errorf("#%d: bad config: want %#v, got %#v", i, test.out.cfg, cfg)
-		}
+		assert.Equal(t, test.out.r, r, "#%d: bad report", i)
+		assert.Equal(t, test.out.cfg, igncfg, "#%d: bad config", i)
 	}
 
 }
