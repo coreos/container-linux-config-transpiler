@@ -37,13 +37,12 @@ passwd:
       password_hash: "$6$43y3tkl..."
       ssh_authorized_keys:
         - key1
-      create:
-        home_dir: /home/user1
-        no_create_home: true
-        groups:
-          - wheel
-          - plugdev
-        shell: /bin/zsh
+      home_dir: /home/user1
+      no_create_home: true
+      groups:
+        - wheel
+        - plugdev
+      shell: /bin/zsh
 ```
 
 This example creates one user, `user1`, with the password hash `$6$43y3tkl...`, and sets up one ssh public key for the user. The user is also given the home directory `/home/user1`, but it's not created, the user is added to the `wheel` and `plugdev` groups, and the user's shell is set to `/bin/zsh`.
@@ -95,11 +94,8 @@ storage:
       mount:
         device: /dev/disk/by-partlabel/ROOT
         format: btrfs
-        create:
-          force: true
-          options:
-            - -L
-            - ROOT
+        wipe_filesystem: true
+        label: ROOT
 ```
 
 This example formats the root filesystem to be `btrfs`, and names it `filesystem1` (primarily for use in the `files` section).
@@ -123,7 +119,7 @@ This example adds a drop-in for the `etcd-member` unit, setting the name for etc
 systemd:
   units:
     - name: hello.service
-      enable: true
+      enabled: true
       contents: |
         [Unit]
         Description=A hello world unit!

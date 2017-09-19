@@ -20,7 +20,7 @@ import (
 	"net/url"
 	"strings"
 
-	ignTypes "github.com/coreos/ignition/config/v2_0/types"
+	ignTypes "github.com/coreos/ignition/config/v2_1/types"
 	"github.com/coreos/ignition/config/validate"
 	"github.com/coreos/ignition/config/validate/report"
 	"github.com/vincent-petithory/dataurl"
@@ -77,13 +77,17 @@ func init() {
 		}
 		if contents != "" {
 			out.Storage.Files = append(out.Storage.Files, ignTypes.File{
-				Filesystem: "root",
-				Path:       "/etc/coreos/update.conf",
-				Mode:       0644,
-				Contents: ignTypes.FileContents{
-					Source: ignTypes.Url{
-						Scheme: "data",
-						Opaque: "," + dataurl.EscapeString(contents),
+				Node: ignTypes.Node{
+					Filesystem: "root",
+					Path:       "/etc/coreos/update.conf",
+				},
+				FileEmbedded1: ignTypes.FileEmbedded1{
+					Mode: 0644,
+					Contents: ignTypes.FileContents{
+						Source: (&url.URL{
+							Scheme: "data",
+							Opaque: "," + dataurl.EscapeString(contents),
+						}).String(),
 					},
 				},
 			})

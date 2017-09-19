@@ -18,6 +18,9 @@ _Note: all fields are optional unless otherwise marked_
         * **hash** (object): the hash of the config
           * **function** (string): the function used to hash the config. Supported functions are sha512.
           * **sum** (string): the resulting sum of the hash applied to the contents.
+  * **timeouts** (object): options relating to http timeouts when fetching files over http or https.
+    * **httpResponseHeaders** (integer) the time to wait (in seconds) for the server's response headers (but not the body) after making a request. 0 indicates no timeout. Default is 10 seconds.
+    * **httpTotal** (integer) the time limit (in seconds) for the operation (connection, request, and response), including retries. 0 indicates no timeout. Default is 0.
 * **storage** (object): describes the desired state of the system's storage devices.
   * **disks** (list of objects): the list of disks to be configured and their options.
     * **device** (string, required): the absolute path to the device. Devices are typically referenced by the `/dev/disk/by-*` symlinks.
@@ -28,6 +31,7 @@ _Note: all fields are optional unless otherwise marked_
       * **size** (string): the size of the partition with a unit (KiB, MiB, GiB). If zero, the partition will fill the remainder of the disk.
       * **start** (string): the start of the partition with a unit (KiB, MiB, GiB). If zero, the partition will be positioned at the earliest available part of the disk.
       * **type_guid** (string): the GPT [partition type GUID][part-types]. If omitted, the default will be 0FC63DAF-8483-4772-8E79-3D69D8477DE4 (Linux filesystem data).
+      * **guid** (string): the GPT unique partition GUID.
   * **raid** (list of objects): the list of RAID arrays to be configured.
     * **name** (string, required): the name to use for the resulting md device.
     * **level** (string, required): the redundancy level of the array (e.g. linear, raid1, raid5, etc.).
@@ -38,9 +42,13 @@ _Note: all fields are optional unless otherwise marked_
     * **mount** (object): contains the set of mount and formatting options for the filesystem. A non-null entry indicates that the filesystem should be mounted before it is used by Ignition.
       * **device** (string, required): the absolute path to the device. Devices are typically referenced by the `/dev/disk/by-*` symlinks.
       * **format** (string, required): the filesystem format (ext4, btrfs, or xfs).
-      * **create** (object): contains the set of options to be used when creating the filesystem. A non-null entry indicates that the filesystem shall be created.
-        * **force** (boolean): whether or not the create operation shall overwrite an existing filesystem.
-        * **options** (list of strings): any additional options to be passed to the format-specific mkfs utility.
+      * **wipeFilesystem** (boolean): whether or not to wipe the device before filesystem creation, see [Ignition's documentation on filesystems][ignition-fs-reuse] for more information.
+      * **label** (string): the label of the filesystem.
+      * **uuid** (string): the uuid of the filesystem.
+      * **options** (list of strings): any additional options to be passed to the format-specific mkfs utility.
+      * **create** (object, DEPRECATED): contains the set of options to be used when creating the filesystem. A non-null entry indicates that the filesystem shall be created.
+        * **force** (boolean, DEPRECATED): whether or not the create operation shall overwrite an existing filesystem.
+        * **options** (list of strings, DEPRECATED): any additional options to be passed to the format-specific mkfs utility.
     * **path** (string): the mount-point of the filesystem. A non-null entry indicates that the filesystem has already been mounted by the system at the specified path. This is really only useful for "/sysroot".
   * **files** (list of objects): the list of files, rooted in this particular filesystem, to be written.
     * **filesystem** (string, required): the internal identifier of the filesystem. This matches the last filesystem with the given identifier.
@@ -57,12 +65,36 @@ _Note: all fields are optional unless otherwise marked_
     * **mode** (integer): the file's permission mode.
     * **user** (object): specifies the file's owner.
       * **id** (integer): the user ID of the owner.
+      * **name** (string): the user name of the owner.
     * **group** (object): specifies the group of the owner.
       * **id** (integer): the group ID of the owner.
+      * **name** (string): the group name of the owner.
+  * **directories** (list of objects): the list of directories to be created.
+    * **filesystem** (string, required): the internal identifier of the filesystem in which to create the directory. This matches the last filesystem with the given identifier.
+    * **path** (string, required): the absolute path to the directory.
+    * **mode** (integer): the directory's permission mode.
+    * **user** (object): specifies the directory's owner.
+      * **id** (integer): the user ID of the owner.
+      * **name** (string): the user name of the owner.
+    * **group** (object): specifies the group of the owner.
+      * **id** (integer): the group ID of the owner.
+      * **name** (string): the group name of the owner.
+  * **links** (list of objects): the list of links to be created
+    * **filesystem** (string, required): the internal identifier of the filesystem in which to write the link. This matches the last filesystem with the given identifier.
+    * **path** (string, required): the absolute path to the link
+    * **user** (object): specifies the symbolic link's owner.
+      * **id** (integer): the user ID of the owner.
+      * **name** (string): the user name of the owner.
+    * **group** (object): specifies the group of the owner.
+      * **id** (integer): the group ID of the owner.
+      * **name** (string): the group name of the owner.
+    * **target** (string, required): the target path of the link
+    * **hard** (boolean): a symbolic link is created if this is false, a hard one if this is true.
 * **systemd** (object): describes the desired state of the systemd units.
   * **units** (list of objects): the list of systemd units.
     * **name** (string, required): the name of the unit. This must be suffixed with a valid unit type (e.g. "thing.service").
-    * **enable** (boolean): whether or not the service shall be enabled. When true, the service is enabled. In order for this to have any effect, the unit must have an install section.
+    * **enable** (boolean, DEPRECATED): whether or not the service shall be enabled. When true, the service is enabled. In order for this to have any effect, the unit must have an install section.
+    * **enabled** (boolean): whether or not the service shall be enabled. When true, the service is enabled. When false, the service is disabled. When omitted, the service is unmodified. In order for this to have any effect, the unit must have an install section.
     * **mask** (boolean): whether or not the service shall be masked. When true, the service is masked by symlinking it to `/dev/null`.
     * **contents** (string): the contents of the unit.
     * **dropins** (list of objects): the list of drop-ins for the unit.
@@ -77,16 +109,26 @@ _Note: all fields are optional unless otherwise marked_
     * **name** (string, required): the username for the account.
     * **password_hash** (string): the encrypted password for the account.
     * **ssh_authorized_keys** (list of strings): a list of SSH keys to be added to the user's authorized_keys.
-    * **create** (object): contains the set of options to be used when creating the user. A non-null entry indicates that the user account shall be created.
-      * **uid** (integer): the user ID of the new account.
-      * **gecos** (string): the GECOS field of the new account.
-      * **home_dir** (string): the home directory of the new account.
-      * **no_create_home** (boolean): whether or not to create the user's home directory.
-      * **primary_group** (string): the name or ID of the primary group of the new account.
-      * **groups** (list of strings): the list of supplementary groups of the new account.
-      * **no_user_group** (boolean): whether or not to create a group with the same name as the user.
-      * **no_log_init** (boolean): whether or not to add the user to the lastlog and faillog databases.
-      * **shell** (string): the login shell of the new account.
+    * **uid** (integer): the user ID of the account.
+    * **gecos** (string): the GECOS field of the account.
+    * **home_dir** (string): the home directory of the account.
+    * **no_create_home** (boolean): whether or not to create the user's home directory. This only has an effect if the account doesn't exist yet.
+    * **primary_group** (string): the name of the primary group of the account.
+    * **groups** (list of strings): the list of supplementary groups of the account.
+    * **no_user_group** (boolean): whether or not to create a group with the same name as the user. This only has an effect if the account doesn't exist yet.
+    * **no_log_init** (boolean): whether or not to add the user to the lastlog and faillog databases. This only has an effect if the account doesn't exist yet.
+    * **shell** (string): the login shell of the new account.
+    * **system** (bool): whether or not to make the account a system account. This only has an effect if the account doesn't exist yet.
+    * **create** (object, DEPRECATED): contains the set of options to be used when creating the user. A non-null entry indicates that the user account shall be created.
+      * **uid** (integer, DEPRECATED): the user ID of the new account.
+      * **gecos** (string, DEPRECATED): the GECOS field of the new account.
+      * **home_dir** (string, DEPRECATED): the home directory of the new account.
+      * **no_create_home** (boolean, DEPRECATED): whether or not to create the user's home directory.
+      * **primary_group** (string, DEPRECATED): the name or ID of the primary group of the new account.
+      * **groups** (list of strings, DEPRECATED): the list of supplementary groups of the new account.
+      * **no_user_group** (boolean, DEPRECATED): whether or not to create a group with the same name as the user.
+      * **no_log_init** (boolean, DEPRECATED): whether or not to add the user to the lastlog and faillog databases.
+      * **shell** (string, DEPRECATED): the login shell of the new account.
   * **groups** (list of objects): the list of groups to be added.
     * **name** (string, required): the name of the group.
     * **gid** (integer): the group ID of the new group.
@@ -115,3 +157,4 @@ _Note: all fields are optional unless otherwise marked_
 
 [part-types]: http://en.wikipedia.org/wiki/GUID_Partition_Table#Partition_type_GUIDs
 [rfc2397]: https://tools.ietf.org/html/rfc2397
+[ignition-fs-reuse]: https://github.com/coreos/ignition/blob/master/doc/operator-notes.md#filesystem-reuse-semantics

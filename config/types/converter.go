@@ -18,7 +18,7 @@ import (
 	"reflect"
 
 	"github.com/coreos/container-linux-config-transpiler/config/astyaml"
-	ignTypes "github.com/coreos/ignition/config/v2_0/types"
+	ignTypes "github.com/coreos/ignition/config/v2_1/types"
 	"github.com/coreos/ignition/config/validate"
 	"github.com/coreos/ignition/config/validate/report"
 )
@@ -42,7 +42,7 @@ func ConvertAs2_0(in Config, platform string, ast validate.AstNode) (ignTypes.Co
 
 	out := ignTypes.Config{
 		Ignition: ignTypes.Ignition{
-			Version: ignTypes.IgnitionVersion{Major: 2, Minor: 0},
+			Version: "2.1.0",
 		},
 	}
 

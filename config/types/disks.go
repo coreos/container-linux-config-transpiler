@@ -18,7 +18,7 @@ import (
 	"fmt"
 
 	"github.com/alecthomas/units"
-	ignTypes "github.com/coreos/ignition/config/v2_0/types"
+	ignTypes "github.com/coreos/ignition/config/v2_1/types"
 	"github.com/coreos/ignition/config/validate"
 	"github.com/coreos/ignition/config/validate/report"
 )
@@ -38,6 +38,7 @@ type Partition struct {
 	Number   int    `yaml:"number"`
 	Size     string `yaml:"size"`
 	Start    string `yaml:"start"`
+	GUID     string `yaml:"guid"`
 	TypeGUID string `yaml:"type_guid"`
 }
 
@@ -46,7 +47,7 @@ func init() {
 		r := report.Report{}
 		for disk_idx, disk := range in.Storage.Disks {
 			newDisk := ignTypes.Disk{
-				Device:    ignTypes.Path(disk.Device),
+				Device:    disk.Device,
 				WipeTable: disk.WipeTable,
 			}
 
@@ -73,11 +74,12 @@ func init() {
 				}
 
 				newPart := ignTypes.Partition{
-					Label:    ignTypes.PartitionLabel(partition.Label),
+					Label:    partition.Label,
 					Number:   partition.Number,
 					Size:     size,
 					Start:    start,
-					TypeGUID: ignTypes.PartitionTypeGUID(partition.TypeGUID),
+					GUID:     partition.GUID,
+					TypeGUID: partition.TypeGUID,
 				}
 				newDisk.Partitions = append(newDisk.Partitions, newPart)
 			}
@@ -88,7 +90,7 @@ func init() {
 	})
 }
 
-func convertPartitionDimension(in string) (ignTypes.PartitionDimension, error) {
+func convertPartitionDimension(in string) (int, error) {
 	if in == "" {
 		return 0, nil
 	}
@@ -106,5 +108,5 @@ func convertPartitionDimension(in string) (ignTypes.PartitionDimension, error) {
 	if b%BYTES_PER_SECTOR != 0 {
 		sectors++
 	}
-	return ignTypes.PartitionDimension(uint64(sectors)), nil
+	return int(sectors), nil
 }

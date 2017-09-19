@@ -1,8 +1,8 @@
-hash: 866f7f8e6abd6c52e124db97d9c5665e261f65a06289e9803dfd18c6720ca40f
-updated: 2017-08-07T13:11:10.67669909-07:00
+hash: 2c5c36bd2a9d2d05852b59a5c3f294e435a250930db95f14c8c57e4f6f724376
+updated: 2017-09-18T14:28:31.346687765-07:00
 imports:
 - name: github.com/ajeddeloh/yaml
-  version: 1072abfea31191db507785e2e0c1b8d1440d35a5
+  version: 6b94386aeefd8c4b8470aee72bfca084c2f91da9
 - name: github.com/alecthomas/units
   version: 6b4e7dc5e3143b85ea77909c72caf89416fc2915
 - name: github.com/coreos/go-semver
@@ -18,9 +18,21 @@ imports:
   version: 11813c57bc05f30644bbae7891ae30a4a62e0b33
   subpackages:
   - config/types
-  - config/v2_0/types
+  - config/v2_1/types
   - config/validate
   - config/validate/report
+- name: github.com/stretchr/testify
+  version: 69483b4bd14f5845b5a1e55bca19e954e827f1d0
+  subpackages:
+  - assert
 - name: github.com/vincent-petithory/dataurl
   version: 9a301d65acbb728fcc3ace14f45f511a4cfeea9c
-testImports: []
+testImports:
+- name: github.com/davecgh/go-spew
+  version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
+  subpackages:
+  - spew
+- name: github.com/pmezard/go-difflib
+  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
+  subpackages:
+  - difflib
