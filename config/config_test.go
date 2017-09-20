@@ -158,6 +158,18 @@ storage:
           guid: 33333333-3333-3333-3333-333333333333
           type_guid: 00000000-0000-0000-0000-000000000000
         - label: NOTHING
+        - label: ROOT_ON_RAID
+          type_guid: raid_containing_root
+          number: 13
+        - label: SWAP
+          number: 14
+          type_guid: swap_partition
+        - label: RAID
+          number: 15
+          type_guid: raid_partition
+        - label: LINUX_FS
+          number: 16
+          type_guid: linux_filesystem_data
     - device: /dev/sdb
       wipe_table: true
   raid:
@@ -292,6 +304,26 @@ storage:
 								},
 								{
 									Label: "NOTHING",
+								},
+								{
+									Label:    "ROOT_ON_RAID",
+									Number:   13,
+									TypeGUID: "raid_containing_root",
+								},
+								{
+									Label:    "SWAP",
+									Number:   14,
+									TypeGUID: "swap_partition",
+								},
+								{
+									Label:    "RAID",
+									Number:   15,
+									TypeGUID: "raid_partition",
+								},
+								{
+									Label:    "LINUX_FS",
+									Number:   16,
+									TypeGUID: "linux_filesystem_data",
 								},
 							},
 						},
@@ -854,6 +886,26 @@ func TestConvertAs2_0(t *testing.T) {
 								{
 									Label: "NOTHING",
 								},
+								{
+									Label:    "ROOT_ON_RAID",
+									Number:   13,
+									TypeGUID: "raid_containing_root",
+								},
+								{
+									Label:    "SWAP",
+									Number:   14,
+									TypeGUID: "swap_partition",
+								},
+								{
+									Label:    "RAID",
+									Number:   15,
+									TypeGUID: "raid_partition",
+								},
+								{
+									Label:    "LINUX_FS",
+									Number:   16,
+									TypeGUID: "linux_filesystem_data",
+								},
 							},
 						},
 						{
@@ -1044,6 +1096,26 @@ func TestConvertAs2_0(t *testing.T) {
 									},
 									{
 										Label: "NOTHING",
+									},
+									{
+										Label:    "ROOT_ON_RAID",
+										Number:   13,
+										TypeGUID: "be9067b9-ea49-4f15-b4f6-f36f8c9e1818",
+									},
+									{
+										Label:    "SWAP",
+										Number:   14,
+										TypeGUID: "0657fd6d-a4ab-43c4-84e5-0933c84b4f4f",
+									},
+									{
+										Label:    "RAID",
+										Number:   15,
+										TypeGUID: "a19d880f-05fc-4d3b-a006-743f0f84911e",
+									},
+									{
+										Label:    "LINUX_FS",
+										Number:   16,
+										TypeGUID: "0fc63daf-8483-4772-8e79-3d69d8477de4",
 									},
 								},
 							},
