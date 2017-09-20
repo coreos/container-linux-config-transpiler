@@ -27,6 +27,15 @@ const (
 	BYTES_PER_SECTOR = 512
 )
 
+var (
+	type_guid_map = map[string]string{
+		"raid_containing_root":  "be9067b9-ea49-4f15-b4f6-f36f8c9e1818",
+		"linux_filesystem_data": "0fc63daf-8483-4772-8e79-3d69d8477de4",
+		"swap_partition":        "0657fd6d-a4ab-43c4-84e5-0933c84b4f4f",
+		"raid_partition":        "a19d880f-05fc-4d3b-a006-743f0f84911e",
+	}
+)
+
 type Disk struct {
 	Device     string      `yaml:"device"`
 	WipeTable  bool        `yaml:"wipe_table"`
@@ -71,6 +80,9 @@ func init() {
 					r.Merge(convertReport)
 					// dont add invalid partitions
 					continue
+				}
+				if type_guid, ok := type_guid_map[partition.TypeGUID]; ok {
+					partition.TypeGUID = type_guid
 				}
 
 				newPart := ignTypes.Partition{
