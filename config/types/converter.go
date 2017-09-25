@@ -20,10 +20,11 @@ import (
 	"github.com/coreos/container-linux-config-transpiler/config/astyaml"
 	ignTypes "github.com/coreos/ignition/config/v2_1/types"
 	"github.com/coreos/ignition/config/validate"
+	"github.com/coreos/ignition/config/validate/astnode"
 	"github.com/coreos/ignition/config/validate/report"
 )
 
-type converterFor2_0 func(in Config, ast validate.AstNode, out ignTypes.Config, platform string) (ignTypes.Config, report.Report, validate.AstNode)
+type converterFor2_0 func(in Config, ast astnode.AstNode, out ignTypes.Config, platform string) (ignTypes.Config, report.Report, astnode.AstNode)
 
 var convertersFor2_0 []converterFor2_0
 
@@ -31,7 +32,7 @@ func register2_0(f converterFor2_0) {
 	convertersFor2_0 = append(convertersFor2_0, f)
 }
 
-func ConvertAs2_0(in Config, platform string, ast validate.AstNode) (ignTypes.Config, report.Report) {
+func ConvertAs2_0(in Config, platform string, ast astnode.AstNode) (ignTypes.Config, report.Report) {
 	// convert our tree from having yaml tags to having json tags, so when Validate() is
 	// called on the tree, it can find the keys in the ignition structs (which are denoted
 	// by `json` tags)

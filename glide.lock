@@ -1,5 +1,5 @@
-hash: 2c5c36bd2a9d2d05852b59a5c3f294e435a250930db95f14c8c57e4f6f724376
-updated: 2017-09-18T14:28:31.346687765-07:00
+hash: 5c7a111caf375e2dc4e8c2cd6e415b872c5e2aa3b60c08bd7816cedbd16d7187
+updated: 2017-09-25T14:34:09.292382858-07:00
 imports:
 - name: github.com/ajeddeloh/yaml
   version: 6b94386aeefd8c4b8470aee72bfca084c2f91da9
@@ -15,11 +15,12 @@ imports:
   - dbus
   - unit
 - name: github.com/coreos/ignition
-  version: 11813c57bc05f30644bbae7891ae30a4a62e0b33
+  version: 01c039a5ce59acd39e5741713e59abfcb74d0782
   subpackages:
   - config/types
   - config/v2_1/types
   - config/validate
+  - config/validate/astnode
   - config/validate/report
 - name: github.com/stretchr/testify
   version: 69483b4bd14f5845b5a1e55bca19e954e827f1d0
