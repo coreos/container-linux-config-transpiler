@@ -25,7 +25,7 @@ import (
 	"github.com/coreos/container-linux-config-transpiler/config/platform"
 	"github.com/coreos/container-linux-config-transpiler/config/templating"
 	"github.com/coreos/container-linux-config-transpiler/config/types/util"
-	"github.com/coreos/ignition/config/validate"
+	"github.com/coreos/ignition/config/validate/astnode"
 )
 
 var (
@@ -36,7 +36,7 @@ var (
 )
 
 func init() {
-	register2_0(func(in Config, ast validate.AstNode, out ignTypes.Config, p string) (ignTypes.Config, report.Report, validate.AstNode) {
+	register2_0(func(in Config, ast astnode.AstNode, out ignTypes.Config, p string) (ignTypes.Config, report.Report, astnode.AstNode) {
 		if p == platform.OpenStackMetadata || p == platform.CloudStackConfigDrive {
 			out.Systemd.Units = append(out.Systemd.Units, ignTypes.Unit{
 				Name: "coreos-metadata.service",
@@ -130,7 +130,7 @@ func getCliArgs(e interface{}) []string {
 
 // Get returns the value for key, where key is an int or string and n is a
 // sequence node or mapping node, respectively.
-func getNodeChild(n validate.AstNode, key interface{}) (validate.AstNode, error) {
+func getNodeChild(n astnode.AstNode, key interface{}) (astnode.AstNode, error) {
 	if n == nil {
 		return nil, ErrNilNode
 	}
@@ -155,7 +155,7 @@ func getNodeChild(n validate.AstNode, key interface{}) (validate.AstNode, error)
 }
 
 // GetPath works like calling Get() repeatly with each argument.
-func getNodeChildPath(n validate.AstNode, key ...interface{}) (validate.AstNode, error) {
+func getNodeChildPath(n astnode.AstNode, key ...interface{}) (astnode.AstNode, error) {
 	if len(key) == 0 {
 		return n, nil
 	}

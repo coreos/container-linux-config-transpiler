@@ -20,7 +20,7 @@ import (
 	"github.com/coreos/container-linux-config-transpiler/config/astyaml"
 
 	ignTypes "github.com/coreos/ignition/config/v2_1/types"
-	"github.com/coreos/ignition/config/validate"
+	"github.com/coreos/ignition/config/validate/astnode"
 	"github.com/coreos/ignition/config/validate/report"
 	"github.com/vincent-petithory/dataurl"
 )
@@ -73,7 +73,7 @@ type Link struct {
 }
 
 func init() {
-	register2_0(func(in Config, ast validate.AstNode, out ignTypes.Config, platform string) (ignTypes.Config, report.Report, validate.AstNode) {
+	register2_0(func(in Config, ast astnode.AstNode, out ignTypes.Config, platform string) (ignTypes.Config, report.Report, astnode.AstNode) {
 		r := report.Report{}
 		files_node, _ := getNodeChildPath(ast, "storage", "files")
 		for i, file := range in.Storage.Files {

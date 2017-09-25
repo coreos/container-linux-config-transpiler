@@ -7,7 +7,7 @@ import (
 
 	"github.com/coreos/go-semver/semver"
 	ignTypes "github.com/coreos/ignition/config/v2_1/types"
-	"github.com/coreos/ignition/config/validate"
+	"github.com/coreos/ignition/config/validate/astnode"
 	"github.com/coreos/ignition/config/validate/report"
 )
 
@@ -115,7 +115,7 @@ func (flannel *Flannel) UnmarshalYAML(unmarshal func(interface{}) error) error {
 }
 
 func init() {
-	register2_0(func(in Config, ast validate.AstNode, out ignTypes.Config, platform string) (ignTypes.Config, report.Report, validate.AstNode) {
+	register2_0(func(in Config, ast astnode.AstNode, out ignTypes.Config, platform string) (ignTypes.Config, report.Report, astnode.AstNode) {
 		if in.Flannel != nil {
 			contents, err := flannelContents(*in.Flannel, platform)
 			if err != nil {

@@ -18,7 +18,7 @@ import (
 	"net/url"
 
 	ignTypes "github.com/coreos/ignition/config/v2_1/types"
-	"github.com/coreos/ignition/config/validate"
+	"github.com/coreos/ignition/config/validate/astnode"
 	"github.com/coreos/ignition/config/validate/report"
 )
 
@@ -56,7 +56,7 @@ type Timeouts struct {
 }
 
 func init() {
-	register2_0(func(in Config, ast validate.AstNode, out ignTypes.Config, platform string) (ignTypes.Config, report.Report, validate.AstNode) {
+	register2_0(func(in Config, ast astnode.AstNode, out ignTypes.Config, platform string) (ignTypes.Config, report.Report, astnode.AstNode) {
 		r := report.Report{}
 		out.Ignition.Timeouts.HTTPResponseHeaders = in.Ignition.Timeouts.HTTPResponseHeaders
 		out.Ignition.Timeouts.HTTPTotal = in.Ignition.Timeouts.HTTPTotal
@@ -86,7 +86,7 @@ func init() {
 	})
 }
 
-func convertConfigReference(in ConfigReference, ast validate.AstNode) (ignTypes.ConfigReference, report.Report) {
+func convertConfigReference(in ConfigReference, ast astnode.AstNode) (ignTypes.ConfigReference, report.Report) {
 	_, err := url.Parse(in.Source)
 	if err != nil {
 		r := report.ReportFromError(err, report.EntryError)
