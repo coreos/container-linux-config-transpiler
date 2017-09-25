@@ -1,3 +1,20 @@
+25-Sep-2017 CONFIG-TRANSPILER v0.5.0
+
+  Changes
+
+    - Support Ignition spec 2.1.0
+
+  Features
+
+    - Common partition type GUIDs can be specified via aliases
+
+  Fixes
+
+    - Fix regression in validation logic causing inaccurate line and column
+      reporting
+    - Fix issue where locksmith fields would generate double quoted strings
+      in /etc/coreos/update.conf
+
 08-Aug-2017 CONFIG-TRANSPILER v0.4.2
 
   Fixes
