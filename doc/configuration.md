@@ -105,7 +105,7 @@ _Note: all fields are optional unless otherwise marked_
     * **name** (string, required): the name of the file. This must be suffixed with a valid unit type (e.g. "00-eth0.network").
     * **contents** (string): the contents of the networkd file.
 * **passwd** (object): describes the desired additions to the passwd database.
-  * **users** (list of objects): the list of accounts to be added.
+  * **users** (list of objects): the list of accounts that shall exist.
     * **name** (string, required): the username for the account.
     * **password_hash** (string): the encrypted password for the account.
     * **ssh_authorized_keys** (list of strings): a list of SSH keys to be added to the user's authorized_keys.
