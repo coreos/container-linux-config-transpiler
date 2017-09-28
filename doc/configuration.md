@@ -19,8 +19,8 @@ _Note: all fields are optional unless otherwise marked_
           * **function** (string): the function used to hash the config. Supported functions are sha512.
           * **sum** (string): the resulting sum of the hash applied to the contents.
   * **timeouts** (object): options relating to http timeouts when fetching files over http or https.
-    * **httpResponseHeaders** (integer) the time to wait (in seconds) for the server's response headers (but not the body) after making a request. 0 indicates no timeout. Default is 10 seconds.
-    * **httpTotal** (integer) the time limit (in seconds) for the operation (connection, request, and response), including retries. 0 indicates no timeout. Default is 0.
+    * **http_response_headers** (integer) the time to wait (in seconds) for the server's response headers (but not the body) after making a request. 0 indicates no timeout. Default is 10 seconds.
+    * **http_total** (integer) the time limit (in seconds) for the operation (connection, request, and response), including retries. 0 indicates no timeout. Default is 0.
 * **storage** (object): describes the desired state of the system's storage devices.
   * **disks** (list of objects): the list of disks to be configured and their options.
     * **device** (string, required): the absolute path to the device. Devices are typically referenced by the `/dev/disk/by-*` symlinks.
@@ -42,7 +42,7 @@ _Note: all fields are optional unless otherwise marked_
     * **mount** (object): contains the set of mount and formatting options for the filesystem. A non-null entry indicates that the filesystem should be mounted before it is used by Ignition.
       * **device** (string, required): the absolute path to the device. Devices are typically referenced by the `/dev/disk/by-*` symlinks.
       * **format** (string, required): the filesystem format (ext4, btrfs, or xfs).
-      * **wipeFilesystem** (boolean): whether or not to wipe the device before filesystem creation, see [Ignition's documentation on filesystems][ignition-fs-reuse] for more information.
+      * **wipe_filesystem** (boolean): whether or not to wipe the device before filesystem creation, see [Ignition's documentation on filesystems][ignition-fs-reuse] for more information.
       * **label** (string): the label of the filesystem.
       * **uuid** (string): the uuid of the filesystem.
       * **options** (list of strings): any additional options to be passed to the format-specific mkfs utility.
