@@ -99,8 +99,11 @@ ignition:
             function: sha512
             sum: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
       - source: http://example.com/test2
+      - source: https://example.com/test3
+      - source: s3://example.com/test4
+      - source: tftp://example.com/test5
     replace:
-      source: http://example.com/test3
+      source: http://example.com/test6
       verification:
         hash:
           function: sha512
@@ -122,9 +125,18 @@ ignition:
 							{
 								Source: "http://example.com/test2",
 							},
+							{
+								Source: "https://example.com/test3",
+							},
+							{
+								Source: "s3://example.com/test4",
+							},
+							{
+								Source: "tftp://example.com/test5",
+							},
 						},
 						Replace: &types.ConfigReference{
-							Source: "http://example.com/test3",
+							Source: "http://example.com/test6",
 							Verification: types.Verification{
 								Hash: types.Hash{
 									Function: "sha512",
@@ -257,6 +269,26 @@ storage:
         id: 1001
     - path: /opt/file4
       filesystem: filesystem2
+    - path: /opt/file5
+      filesystem: filesystem1
+      contents:
+        remote:
+          url: https://example.com/file5
+    - path: /opt/file6
+      filesystem: filesystem1
+      contents:
+        remote:
+          url: s3://example.com/file6
+    - path: /opt/file7
+      filesystem: filesystem1
+      contents:
+        remote:
+          url: tftp://example.com/file7
+    - path: /opt/file8
+      filesystem: filesystem1
+      contents:
+        remote:
+          url: data:,hello-world
   directories:
     - path: /opt/dir1
       filesystem: filesystem1
@@ -442,6 +474,42 @@ storage:
 							Path:       "/opt/file4",
 							Contents: types.FileContents{
 								Inline: "",
+							},
+						},
+						{
+							Filesystem: "filesystem1",
+							Path:       "/opt/file5",
+							Contents: types.FileContents{
+								Remote: types.Remote{
+									Url: "https://example.com/file5",
+								},
+							},
+						},
+						{
+							Filesystem: "filesystem1",
+							Path:       "/opt/file6",
+							Contents: types.FileContents{
+								Remote: types.Remote{
+									Url: "s3://example.com/file6",
+								},
+							},
+						},
+						{
+							Filesystem: "filesystem1",
+							Path:       "/opt/file7",
+							Contents: types.FileContents{
+								Remote: types.Remote{
+									Url: "tftp://example.com/file7",
+								},
+							},
+						},
+						{
+							Filesystem: "filesystem1",
+							Path:       "/opt/file8",
+							Contents: types.FileContents{
+								Remote: types.Remote{
+									Url: "data:,hello-world",
+								},
 							},
 						},
 					},
