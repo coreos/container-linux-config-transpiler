@@ -1,11 +1,11 @@
 FROM golang:alpine
 ENV CGO_ENABLED=0
-WORKDIR $GOPATH/src/github.com/coreos/container-linux-config-transpiler
-COPY . .
-RUN apk update && apk add --virtual .build-deps bash git \
-    && ./build \
-    && mv bin/ct /usr/bin/ && mv Dockerfile.build-scratch /tmp \
-    && rm -rf $GOPATH \
-    && apk del .build-deps && rm -rf /var/cache/apk
-WORKDIR /tmp
+RUN apk update && apk add --virtual .build-deps bash git make \
+    && git clone https://github.com/coreos/container-linux-config-transpiler \
+    && cd container-linux-config-transpiler \
+    && make \
+    && mv bin/ct /usr/bin/ \
+    && rm -rf /var/cache/apk \
+    && rm -rf /go/container-linux-config-transpiler
 ENTRYPOINT ["/usr/bin/ct"]
+CMD ["-pretty"]
