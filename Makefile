@@ -36,11 +36,20 @@ vendor:
 clean:
 	$(Q)rm -rf bin
 
-.PHONY: release
-release: \
+.PHONY: release_aarch64
+release_aarch64 := \
+	bin/ct-$(VERSION)-aarch64-unknown-linux-gnu
+
+.PHONY: release_x86_64
+release_x86_64 := \
 	bin/ct-$(VERSION)-x86_64-unknown-linux-gnu \
 	bin/ct-$(VERSION)-x86_64-apple-darwin \
 	bin/ct-$(VERSION)-x86_64-pc-windows-gnu.exe
+
+.PHONY: release
+release: $(release_aarch64) $(release_x86_64)
+
+bin/ct-%-aarch64-unknown-linux-gnu: GOARGS = GOOS=linux GOARCH=arm64
 
 bin/ct-%-x86_64-unknown-linux-gnu: GOARGS = GOOS=linux GOARCH=amd64
 bin/ct-%-x86_64-apple-darwin: GOARGS = GOOS=darwin GOARCH=amd64
