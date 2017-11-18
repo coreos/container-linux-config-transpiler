@@ -7,13 +7,13 @@ _Note: all fields are optional unless otherwise marked_
 * **ignition** (object): metadata about the configuration itself.
   * **config** (objects): options related to the configuration.
     * **append** (list of objects): a list of the configs to be appended to the current config.
-      * **source** (string, required): the URL of the config. Supported schemes are http, https, s3, and tftp. Note: When using http, it is advisable to use the verification option to ensure the contents haven't been modified.
+      * **source** (string, required): the URL of the config. Supported schemes are http, https, s3, tftp, and [data][rfc2397]. Note: When using http, it is advisable to use the verification option to ensure the contents haven't been modified.
       * **verification** (object): options related to the verification of the config.
         * **hash** (object): the hash of the config
           * **function** (string): the function used to hash the config. Supported functions are sha512.
           * **sum** (string): the resulting sum of the hash applied to the contents.
     * **replace** (object): the config that will replace the current.
-      * **source** (string, required): the URL of the config. Supported schemes are http, https, s3, and tftp. Note: When using http, it is advisable to use the verification option to ensure the contents haven't been modified.
+      * **source** (string, required): the URL of the config. Supported schemes are http, https, s3, tftp, and [data][rfc2397]. Note: When using http, it is advisable to use the verification option to ensure the contents haven't been modified.
       * **verification** (object): options related to the verification of the config.
         * **hash** (object): the hash of the config
           * **function** (string): the function used to hash the config. Supported functions are sha512.
