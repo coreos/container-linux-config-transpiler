@@ -114,6 +114,7 @@ func init() {
 						line, col, _ := n.ValueLineCol(nil)
 						convertReport.AddPosition(line, col, "")
 					}
+					r.Merge(convertReport)
 					continue
 				}
 
