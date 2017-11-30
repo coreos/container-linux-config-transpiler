@@ -42,7 +42,7 @@ passwd:
       groups:
         - wheel
         - plugdev
-      shell: /bin/zsh
+      shell: /bin/bash
 ```
 
 This example creates one user, `user1`, with the password hash `$6$43y3tkl...`, and sets up one ssh public key for the user. The user is also given the home directory `/home/user1`, but it's not created, the user is added to the `wheel` and `plugdev` groups, and the user's shell is set to `/bin/zsh`.
