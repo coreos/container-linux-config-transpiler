@@ -15,6 +15,7 @@
 package types
 
 import (
+	"io/ioutil"
 	"net/url"
 
 	"github.com/coreos/container-linux-config-transpiler/config/astyaml"
@@ -47,6 +48,7 @@ type File struct {
 type FileContents struct {
 	Remote Remote `yaml:"remote"`
 	Inline string `yaml:"inline"`
+	Local  string `yaml:"local"`
 }
 
 type Remote struct {
@@ -101,6 +103,28 @@ func init() {
 					Source: (&url.URL{
 						Scheme: "data",
 						Opaque: "," + dataurl.EscapeString(file.Contents.Inline),
+					}).String(),
+				}
+			}
+
+			if file.Contents.Local != "" {
+				contents, err := ioutil.ReadFile(file.Contents.Local)
+				if err != nil {
+					// If the file could not be read, record error and continue.
+					convertReport := report.ReportFromError(err, report.EntryError)
+					if n, err := getNodeChildPath(file_node, "contents", "local"); err == nil {
+						line, col, _ := n.ValueLineCol(nil)
+						convertReport.AddPosition(line, col, "")
+					}
+					r.Merge(convertReport)
+					continue
+				}
+
+				// Include the contents of the local file as if it were provided inline.
+				newFile.Contents = ignTypes.FileContents{
+					Source: (&url.URL{
+						Scheme: "data",
+						Opaque: "," + dataurl.Escape(contents),
 					}).String(),
 				}
 			}
