@@ -47,6 +47,20 @@ passwd:
 
 This example creates one user, `user1`, with the password hash `$6$43y3tkl...`, and sets up one ssh public key for the user. The user is also given the home directory `/home/user1`, but it's not created, the user is added to the `wheel` and `plugdev` groups, and the user's shell is set to `/bin/zsh`.
 
+Password hashes for the `password_hash` field can be created using the following command:
+
+```
+$ mkpasswd --method=sha-512
+```
+
+On Fedora, the `mkpasswd` command behaves differently and a Debian docker container can be used to run `mkpasswd`:
+
+```
+$ docker run --rm -it debian bash
+$ apt-get update && apt-get install -y whois
+$ mkpasswd --method=sha-512
+```
+
 ## Storage and files
 
 ### Files
