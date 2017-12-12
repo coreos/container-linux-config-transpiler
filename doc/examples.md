@@ -45,21 +45,27 @@ passwd:
       shell: /bin/bash
 ```
 
-This example creates one user, `user1`, with the password hash `$6$43y3tkl...`, and sets up one ssh public key for the user. The user is also given the home directory `/home/user1`, but it's not created, the user is added to the `wheel` and `plugdev` groups, and the user's shell is set to `/bin/zsh`.
+This example creates one user, `user1`, with the password hash `$6$43y3tkl...`, and sets up one ssh public key for the user. The user is also given the home directory `/home/user1`, but it's not created, the user is added to the `wheel` and `plugdev` groups, and the user's shell is set to `/bin/bash`.
 
-Password hashes for the `password_hash` field can be created using the following command:
+#### Generating a password hash
 
-```
-$ mkpasswd --method=sha-512
-```
-
-On Fedora, the `mkpasswd` command behaves differently and a Debian docker container can be used to run `mkpasswd`:
+If you choose to use a password instead of an SSH key, generating a safe hash is extremely important to the security of your system. Simplified hashes like md5crypt are trivial to crack on modern GPU hardware. Here are a few ways to generate secure hashes:
 
 ```
-$ docker run --rm -it debian bash
-$ apt-get update && apt-get install -y whois
-$ mkpasswd --method=sha-512
+# On Debian/Ubuntu (via the package "whois")
+mkpasswd --method=SHA-512 --rounds=4096
+
+# OpenSSL (note: this will only make md5crypt.  While better than plantext it should not be considered fully secure)
+openssl passwd -1
+
+# Python
+python -c "import crypt,random,string; print(crypt.crypt(input('clear-text password: '), '\$6\$' + ''.join([random.choice(string.ascii_letters + string.digits) for _ in range(16)])))"
+
+# Perl (change password and salt values)
+perl -e 'print crypt("password","\$6\$SALT\$") . "\n"'
 ```
+
+Using a higher number of rounds will help create more secure passwords, but given enough time, password hashes can be reversed.  On most RPM based distributions there is a tool called mkpasswd available in the `expect` package, but this does not handle "rounds" nor advanced hashing algorithms.
 
 ## Storage and files
 
