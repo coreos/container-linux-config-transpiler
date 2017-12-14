@@ -37,7 +37,7 @@ var (
 )
 
 func init() {
-	register2_0(func(in Config, ast astnode.AstNode, out ignTypes.Config, p string) (ignTypes.Config, report.Report, astnode.AstNode) {
+	register(func(in Config, ast astnode.AstNode, out ignTypes.Config, p string) (ignTypes.Config, report.Report, astnode.AstNode) {
 		if p == platform.OpenStackMetadata || p == platform.CloudStackConfigDrive {
 			out.Systemd.Units = append(out.Systemd.Units, ignTypes.Unit{
 				Name: "coreos-metadata.service",
