@@ -15,8 +15,11 @@
 package types
 
 import (
+	"errors"
+	"flag"
 	"io/ioutil"
 	"net/url"
+	"path"
 
 	"github.com/coreos/container-linux-config-transpiler/config/astyaml"
 
@@ -108,7 +111,21 @@ func init() {
 			}
 
 			if file.Contents.Local != "" {
-				contents, err := ioutil.ReadFile(file.Contents.Local)
+				// The provided local file path is relative to the value of the
+				// --files-dir flag.
+				filesDir := flag.Lookup("files-dir")
+				if filesDir == nil || filesDir.Value.String() == "" {
+					err := errors.New("local files require setting the --files-dir flag to the directory that contains the file")
+					flagReport := report.ReportFromError(err, report.EntryError)
+					if n, err := getNodeChildPath(file_node, "contents", "local"); err == nil {
+						line, col, _ := n.ValueLineCol(nil)
+						flagReport.AddPosition(line, col, "")
+					}
+					r.Merge(flagReport)
+					continue
+				}
+				localPath := path.Join(filesDir.Value.String(), file.Contents.Local)
+				contents, err := ioutil.ReadFile(localPath)
 				if err != nil {
 					// If the file could not be read, record error and continue.
 					convertReport := report.ReportFromError(err, report.EntryError)
