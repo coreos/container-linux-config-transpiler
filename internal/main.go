@@ -41,6 +41,7 @@ func main() {
 		outFile  string
 		strict   bool
 		platform string
+		filesDir string
 	}{}
 
 	flag.BoolVar(&flags.help, "help", false, "Print help and exit.")
@@ -50,6 +51,7 @@ func main() {
 	flag.StringVar(&flags.outFile, "out-file", "", "Path to the resulting Ignition config. Standard output unless specified otherwise.")
 	flag.BoolVar(&flags.strict, "strict", false, "Fail if any warnings are encountered.")
 	flag.StringVar(&flags.platform, "platform", "", fmt.Sprintf("Platform to target. Accepted values: %v.", platform.Platforms))
+	flag.StringVar(&flags.filesDir, "files-dir", "", "Directory to read local files from.")
 
 	flag.Parse()
 
