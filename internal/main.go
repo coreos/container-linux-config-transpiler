@@ -79,17 +79,6 @@ func main() {
 		}
 	}
 
-	if flags.outFile == "" {
-		outFile = os.Stdout
-	} else {
-		var err error
-		outFile, err = os.Create(flags.outFile)
-		if err != nil {
-			stderr("Failed to create: %v", err)
-			os.Exit(1)
-		}
-	}
-
 	dataIn, err := ioutil.ReadAll(inFile)
 	if err != nil {
 		stderr("Failed to read: %v", err)
@@ -123,6 +112,17 @@ func main() {
 	if err != nil {
 		stderr("Failed to marshal output: %v", err)
 		os.Exit(1)
+	}
+
+	if flags.outFile == "" {
+		outFile = os.Stdout
+	} else {
+		var err error
+		outFile, err = os.Create(flags.outFile)
+		if err != nil {
+			stderr("Failed to create: %v", err)
+			os.Exit(1)
+		}
 	}
 
 	if _, err := outFile.Write(dataOut); err != nil {
