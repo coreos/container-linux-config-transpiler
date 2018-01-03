@@ -55,7 +55,8 @@ _Note: all fields are optional unless otherwise marked_
     * **path** (string, required): the absolute path to the file.
     * **contents** (object): options related to the contents of the file.
       * **inline** (string): the contents of the file.
-      * **remote** (object): options related to the fetching of remote file contents.
+      * **local** (string): the path to a local file, relative to the `--files-dir` directory. When using local files, the `--files-dir` flag must be passed to `ct`. The file contents are included in the generated config.
+      * **remote** (object): options related to the fetching of remote file contents. Remote files are fetched by Ignition when Ignition runs, the contents are not included in the generated config.
         * **compression** (string): the type of compression used on the contents (null or gzip)
         * **url** (string): the URL of the file contents. Supported schemes are http, https, tftp, s3, and [data][rfc2397]. Note: When using http, it is advisable to use the verification option to ensure the contents haven't been modified.
         * **verification** (object): options related to the verification of the file contents.
