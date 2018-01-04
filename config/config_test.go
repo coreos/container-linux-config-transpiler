@@ -268,24 +268,29 @@ storage:
       group:
         id: 1001
     - path: /opt/file4
+      mode: 0200
       filesystem: filesystem2
     - path: /opt/file5
+      mode: 0300
       filesystem: filesystem1
       contents:
         remote:
           url: https://example.com/file5
     - path: /opt/file6
       filesystem: filesystem1
+      mode: 0400
       contents:
         remote:
           url: s3://example.com/file6
     - path: /opt/file7
       filesystem: filesystem1
+      mode: 0500
       contents:
         remote:
           url: tftp://example.com/file7
     - path: /opt/file8
       filesystem: filesystem1
+      mode: 0600
       contents:
         remote:
           url: data:,hello-world
@@ -435,7 +440,7 @@ storage:
 							Contents: types.FileContents{
 								Inline: "file1",
 							},
-							Mode: 0644,
+							Mode: util.IntToPtr(0644),
 						},
 						{
 							Filesystem: "filesystem1",
@@ -454,7 +459,7 @@ storage:
 									},
 								},
 							},
-							Mode: 0644,
+							Mode: util.IntToPtr(0644),
 						},
 						{
 							Filesystem: "filesystem2",
@@ -467,11 +472,12 @@ storage:
 									Compression: "gzip",
 								},
 							},
-							Mode: 0400,
+							Mode: util.IntToPtr(0400),
 						},
 						{
 							Filesystem: "filesystem2",
 							Path:       "/opt/file4",
+							Mode:       util.IntToPtr(0200),
 							Contents: types.FileContents{
 								Inline: "",
 							},
@@ -479,6 +485,7 @@ storage:
 						{
 							Filesystem: "filesystem1",
 							Path:       "/opt/file5",
+							Mode:       util.IntToPtr(0300),
 							Contents: types.FileContents{
 								Remote: types.Remote{
 									Url: "https://example.com/file5",
@@ -488,6 +495,7 @@ storage:
 						{
 							Filesystem: "filesystem1",
 							Path:       "/opt/file6",
+							Mode:       util.IntToPtr(0400),
 							Contents: types.FileContents{
 								Remote: types.Remote{
 									Url: "s3://example.com/file6",
@@ -497,6 +505,7 @@ storage:
 						{
 							Filesystem: "filesystem1",
 							Path:       "/opt/file7",
+							Mode:       util.IntToPtr(0500),
 							Contents: types.FileContents{
 								Remote: types.Remote{
 									Url: "tftp://example.com/file7",
@@ -506,6 +515,7 @@ storage:
 						{
 							Filesystem: "filesystem1",
 							Path:       "/opt/file8",
+							Mode:       util.IntToPtr(0600),
 							Contents: types.FileContents{
 								Remote: types.Remote{
 									Url: "data:,hello-world",
@@ -523,7 +533,7 @@ storage:
 							Group: types.FileGroup{
 								Name: "core",
 							},
-							Mode: 0755,
+							Mode: util.IntToPtr(0755),
 						},
 					},
 					Links: []types.Link{
@@ -1052,7 +1062,7 @@ func TestConvert(t *testing.T) {
 							Contents: types.FileContents{
 								Inline: "file1",
 							},
-							Mode: 0644,
+							Mode: util.IntToPtr(0644),
 						},
 						{
 							Filesystem: "filesystem1",
@@ -1071,7 +1081,7 @@ func TestConvert(t *testing.T) {
 									},
 								},
 							},
-							Mode: 0644,
+							Mode: util.IntToPtr(0644),
 						},
 						{
 							Filesystem: "filesystem2",
@@ -1084,11 +1094,12 @@ func TestConvert(t *testing.T) {
 									Compression: "gzip",
 								},
 							},
-							Mode: 0400,
+							Mode: util.IntToPtr(0400),
 						},
 						{
 							Filesystem: "filesystem2",
 							Path:       "/opt/file4",
+							Mode:       util.IntToPtr(0400),
 							Contents: types.FileContents{
 								Inline: "",
 							},
@@ -1104,7 +1115,7 @@ func TestConvert(t *testing.T) {
 							Group: types.FileGroup{
 								Name: "core",
 							},
-							Mode: 0755,
+							Mode: util.IntToPtr(0755),
 						},
 					},
 					Links: []types.Link{
@@ -1326,6 +1337,7 @@ func TestConvert(t *testing.T) {
 											Opaque: ",",
 										}).String(),
 									},
+									Mode: 0400,
 								},
 							},
 						},
