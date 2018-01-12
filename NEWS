@@ -1,3 +1,23 @@
+12-Jan-2018 CONFIG-TRANSPILER v0.6.0
+
+  Changes
+
+    - Releases now include arm64 binaries
+    - Enable the coreos-metadata-sshkeys service when generating OpenStack
+      configs
+    - Unset file modes now default to 0644 for files and 0755 for directories
+
+  Features
+
+    - Local files on disk can now be referenced in CLCs in place of including a
+      file inline
+
+  Fixes
+
+    - Report URL parse errors in remote file URLs
+    - Stop creating an empty file when invoked with the -out-file flag and
+      conversion fails
+
 25-Sep-2017 CONFIG-TRANSPILER v0.5.0
 
   Changes
