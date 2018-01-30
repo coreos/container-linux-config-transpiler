@@ -30,6 +30,27 @@ There are plenty of small, self-contained examples [in the documentation][exampl
 
 The easiest way to get started using ct is to download one of the binaries from the [releases page on GitHub][releases].
 
+One can use the following script to download and verify the signature of Config Transpiler:
+
+```bash
+# Sepcify Config Transpiler version
+CT_VER=v0.6.1
+# Specify download URL
+DOWNLOAD_URL=https://github.com/coreos/container-linux-config-transpiler/releases/download
+
+# Download Config Transpiler binary
+curl -L ${DOWNLOAD_URL}/${CT_VER}/ct-${CT_VER}-x86_64-unknown-linux-gnu -o /tmp/ct-${CT_VER}-x86_64-unknown-linux-gnu
+chmod u+x /tmp/ct-${CT_VER}-x86_64-unknown-linux-gnu
+
+# Download and import CoreOS application signing GPG key
+curl https://coreos.com/dist/pubkeys/app-signing-pubkey.gpg -o /tmp/app-signing-pubkey.gpg
+gpg --import --keyid-format LONG /tmp/app-signing-pubkey.gpg
+
+# Download and verify Config Transpiler signature
+curl -L ${DOWNLOAD_URL}/${CT_VER}/ct-${CT_VER}-x86_64-unknown-linux-gnu.asc -o /tmp/ct-${CT_VER}-x86_64-unknown-linux-gnu.asc
+gpg --verify /tmp/ct-${CT_VER}-x86_64-unknown-linux-gnu.asc /tmp/ct-${CT_VER}-x86_64-unknown-linux-gnu
+```
+
 [releases]: https://github.com/coreos/container-linux-config-transpiler/releases
 
 ### Building from source
