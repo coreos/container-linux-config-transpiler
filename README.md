@@ -35,20 +35,23 @@ One can use the following script to download and verify the signature of Config 
 ```bash
 # Sepcify Config Transpiler version
 CT_VER=v0.6.1
+# Sepcify OS
+OS=apple-darwin # MacOS
+OS=unknown-linux-gnu # Linux
 # Specify download URL
 DOWNLOAD_URL=https://github.com/coreos/container-linux-config-transpiler/releases/download
 
 # Download Config Transpiler binary
-curl -L ${DOWNLOAD_URL}/${CT_VER}/ct-${CT_VER}-x86_64-unknown-linux-gnu -o /tmp/ct-${CT_VER}-x86_64-unknown-linux-gnu
-chmod u+x /tmp/ct-${CT_VER}-x86_64-unknown-linux-gnu
+curl -L ${DOWNLOAD_URL}/${CT_VER}/ct-${CT_VER}-x86_64-${OS} -o /tmp/ct-${CT_VER}-x86_64-${OS}
+chmod u+x /tmp/ct-${CT_VER}-x86_64-${OS}
 
 # Download and import CoreOS application signing GPG key
 curl https://coreos.com/dist/pubkeys/app-signing-pubkey.gpg -o /tmp/app-signing-pubkey.gpg
 gpg --import --keyid-format LONG /tmp/app-signing-pubkey.gpg
 
 # Download and verify Config Transpiler signature
-curl -L ${DOWNLOAD_URL}/${CT_VER}/ct-${CT_VER}-x86_64-unknown-linux-gnu.asc -o /tmp/ct-${CT_VER}-x86_64-unknown-linux-gnu.asc
-gpg --verify /tmp/ct-${CT_VER}-x86_64-unknown-linux-gnu.asc /tmp/ct-${CT_VER}-x86_64-unknown-linux-gnu
+curl -L ${DOWNLOAD_URL}/${CT_VER}/ct-${CT_VER}-x86_64-${OS}.asc -o /tmp/ct-${CT_VER}-x86_64-${OS}.asc
+gpg2 --verify /tmp/ct-${CT_VER}-x86_64-${OS}.asc /tmp/ct-${CT_VER}-x86_64-${OS}
 ```
 
 [releases]: https://github.com/coreos/container-linux-config-transpiler/releases
