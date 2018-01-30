@@ -41,13 +41,16 @@ OS=unknown-linux-gnu # Linux
 # Specify download URL
 DOWNLOAD_URL=https://github.com/coreos/container-linux-config-transpiler/releases/download
 
+# Remove previous downloads
+rm -f /tmp/ct-${CT_VER}-x86_64-${OS} /tmp/ct-${CT_VER}-x86_64-${OS}.asc /tmp/coreos-app-signing-pubkey.gpg
+
 # Download Config Transpiler binary
 curl -L ${DOWNLOAD_URL}/${CT_VER}/ct-${CT_VER}-x86_64-${OS} -o /tmp/ct-${CT_VER}-x86_64-${OS}
 chmod u+x /tmp/ct-${CT_VER}-x86_64-${OS}
 
 # Download and import CoreOS application signing GPG key
-curl https://coreos.com/dist/pubkeys/app-signing-pubkey.gpg -o /tmp/app-signing-pubkey.gpg
-gpg --import --keyid-format LONG /tmp/app-signing-pubkey.gpg
+curl https://coreos.com/dist/pubkeys/app-signing-pubkey.gpg -o /tmp/coreos-app-signing-pubkey.gpg
+gpg --import --keyid-format LONG /tmp/coreos-app-signing-pubkey.gpg
 
 # Download and verify Config Transpiler signature
 curl -L ${DOWNLOAD_URL}/${CT_VER}/ct-${CT_VER}-x86_64-${OS}.asc -o /tmp/ct-${CT_VER}-x86_64-${OS}.asc
