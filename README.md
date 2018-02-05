@@ -52,7 +52,7 @@ chmod u+x /tmp/ct-${CT_VER}-x86_64-${OS}
 curl https://coreos.com/dist/pubkeys/app-signing-pubkey.gpg -o /tmp/coreos-app-signing-pubkey.gpg
 gpg --import --keyid-format LONG /tmp/coreos-app-signing-pubkey.gpg
 
-# Download and verify Config Transpiler signature
+# Download and import CoreOS application signing GPG key if it has not already been imported
 curl -L ${DOWNLOAD_URL}/${CT_VER}/ct-${CT_VER}-x86_64-${OS}.asc -o /tmp/ct-${CT_VER}-x86_64-${OS}.asc
 gpg2 --verify /tmp/ct-${CT_VER}-x86_64-${OS}.asc /tmp/ct-${CT_VER}-x86_64-${OS}
 ```
