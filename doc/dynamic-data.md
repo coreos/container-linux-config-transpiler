@@ -24,11 +24,56 @@ This is the information available in each provider.
 | OpenStack-Metadata | ✓          | ✓              | ✓             |                |               |
 | Vagrant-Virtualbox | ✓          | ✓              |               |                |               |
 
+## Custom metadata providers
+
+`ct` also supports custom metadata providers. To use the `custom` platform, modify the coreos-metadata service unit to execute your own custom metadata fetcher. The custom metadata fetcher must write an environment file `/run/metadata/coreos` defining a `COREOS_CUSTOM_*` environment variable for every piece of dynamic data used in the specified Container Linux Config. The environment variables are the same as in the Container Linux Config, but prefixed with `COREOS_CUSTOM_`.
+
+### Example
+
+Assume `https://example.com/metadata-script.sh` is a script which communicates with a metadata service and then writes the following file to `/run/metadata/coreos`:
+```
+COREOS_CUSTOM_HOSTNAME=foobar
+COREOS_CUSTOM_PRIVATE_IPV4=<The instance's private ipv4 address>
+COREOS_CUSTOM_PUBLIC_IPV4=<The instance's public ipv4 address>
+```
+
+The following Container Linux Config downloads the metadata fetching script, replaces the ExecStart line in `coreos-metadata` service to use the script instead, and configures etcd using the metadata provided. Use the `--platform=custom` flag when transpiling.
+```yaml container-linux-config
+storage:
+  files:
+    - filesystem: "root"
+      path: "/opt/get-metadata.sh"
+      mode: 0755
+      contents:
+        remote:
+          url: "https://example.com/metadata-script.sh"
+
+systemd:
+  units:
+    - name: "coreos-metadata.service"
+      dropins:
+       - name: "use-script.conf"
+         contents: |
+           [Service]
+           # Empty ExecStart= prevents the previously defined ExecStart from running
+           ExecStart=
+           ExecStart=/opt/get-metadata.sh
+
+etcd:
+  version:                     "3.0.15"
+  name:                        "{HOSTNAME}"
+  advertise_client_urls:       "http://{PRIVATE_IPV4}:2379"
+  initial_advertise_peer_urls: "http://{PRIVATE_IPV4}:2380"
+  listen_client_urls:          "http://0.0.0.0:2379"
+  listen_peer_urls:            "http://{PRIVATE_IPV4}:2380"
+  initial_cluster:             "{HOSTNAME}=http://{PRIVATE_IPV4}:2380"
+```
+
 ## Behind the scenes
 
 For a more in-depth walk through of how this feature works, let's look at the etcd example from the [examples document][examples].
 
-```yaml
+```yaml container-linux-config
 etcd:
   version:                     "3.0.15"
   name:                        "{HOSTNAME}"
