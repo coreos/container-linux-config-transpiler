@@ -1,4 +1,8 @@
 language: go
+
+services:
+  - docker
+
 go:
   - 1.7
   - 1.8
@@ -6,3 +10,10 @@ install:
   -
 script:
   - ./test
+  - ./docker-build
+deploy:
+  provider: script
+  script: ./docker-push
+  skip_cleanup: true
+  on:
+    branch: master
