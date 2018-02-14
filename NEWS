@@ -1,3 +1,11 @@
+14-Feb-2018 CONFIG-TRANSPILER v0.7.0
+
+  Features:
+
+    - Add support for custom metadata providers
+    - Add support for etcd 3.3.x
+    - Automatically build docker images as part of CI
+
 19-Jan-2018 CONFIG-TRANSPILER v0.6.1
 
   Fixes
