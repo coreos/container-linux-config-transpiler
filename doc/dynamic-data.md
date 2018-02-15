@@ -38,7 +38,7 @@ COREOS_CUSTOM_PUBLIC_IPV4=<The instance's public ipv4 address>
 ```
 
 The following Container Linux Config downloads the metadata fetching script, replaces the ExecStart line in `coreos-metadata` service to use the script instead, and configures etcd using the metadata provided. Use the `--platform=custom` flag when transpiling.
-```yaml container-linux-config
+```yaml container-linux-config:custom
 storage:
   files:
     - filesystem: "root"
@@ -73,7 +73,7 @@ etcd:
 
 For a more in-depth walk through of how this feature works, let's look at the etcd example from the [examples document][examples].
 
-```yaml container-linux-config
+```yaml container-linux-config:ec2
 etcd:
   version:                     "3.0.15"
   name:                        "{HOSTNAME}"
