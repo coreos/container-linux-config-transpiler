@@ -57,7 +57,7 @@ chmod u+x /tmp/ct-${CT_VER}-${ARCH}-${OS}
 
 # Download and import CoreOS application signing GPG key
 curl https://coreos.com/dist/pubkeys/app-signing-pubkey.gpg -o /tmp/coreos-app-signing-pubkey.gpg
-gpg --import --keyid-format LONG /tmp/coreos-app-signing-pubkey.gpg
+gpg2 --import --keyid-format LONG /tmp/coreos-app-signing-pubkey.gpg
 
 # Download and import CoreOS application signing GPG key if it has not already been imported
 curl -L ${DOWNLOAD_URL}/${CT_VER}/ct-${CT_VER}-${ARCH}-${OS}.asc -o /tmp/ct-${CT_VER}-${ARCH}-${OS}.asc
