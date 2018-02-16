@@ -30,6 +30,40 @@ There are plenty of small, self-contained examples [in the documentation][exampl
 
 The easiest way to get started using ct is to download one of the binaries from the [releases page on GitHub][releases].
 
+One can use the following script to download and verify the signature of Config Transpiler:
+
+```bash
+# Specify Config Transpiler version
+CT_VER=v0.6.1
+
+# Specify Architecture
+# ARCH=aarch64 # ARM's 64-bit architecture
+ARCH=x86_64
+
+# Specify OS
+# OS=apple-darwin # MacOS
+# OS=pc-windows-gnu.exe # Windows
+OS=unknown-linux-gnu # Linux
+
+# Specify download URL
+DOWNLOAD_URL=https://github.com/coreos/container-linux-config-transpiler/releases/download
+
+# Remove previous downloads
+rm -f /tmp/ct-${CT_VER}-${ARCH}-${OS} /tmp/ct-${CT_VER}-${ARCH}-${OS}.asc /tmp/coreos-app-signing-pubkey.gpg
+
+# Download Config Transpiler binary
+curl -L ${DOWNLOAD_URL}/${CT_VER}/ct-${CT_VER}-${ARCH}-${OS} -o /tmp/ct-${CT_VER}-${ARCH}-${OS}
+chmod u+x /tmp/ct-${CT_VER}-${ARCH}-${OS}
+
+# Download and import CoreOS application signing GPG key
+curl https://coreos.com/dist/pubkeys/app-signing-pubkey.gpg -o /tmp/coreos-app-signing-pubkey.gpg
+gpg2 --import --keyid-format LONG /tmp/coreos-app-signing-pubkey.gpg
+
+# Download and import CoreOS application signing GPG key if it has not already been imported
+curl -L ${DOWNLOAD_URL}/${CT_VER}/ct-${CT_VER}-${ARCH}-${OS}.asc -o /tmp/ct-${CT_VER}-${ARCH}-${OS}.asc
+gpg2 --verify /tmp/ct-${CT_VER}-${ARCH}-${OS}.asc /tmp/ct-${CT_VER}-${ARCH}-${OS}
+```
+
 [releases]: https://github.com/coreos/container-linux-config-transpiler/releases
 
 ### Building from source
