@@ -26,6 +26,12 @@ There are plenty of small, self-contained examples [in the documentation][exampl
 
 ## Installation
 
+### macOS homebrew
+
+```bash
+brew install coreos-ct
+```
+
 ### Prebuilt binaries
 
 The easiest way to get started using ct is to download one of the binaries from the [releases page on GitHub][releases].
