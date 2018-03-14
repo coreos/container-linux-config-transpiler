@@ -21,6 +21,12 @@ _Note: all fields are optional unless otherwise marked_
   * **timeouts** (object): options relating to http timeouts when fetching files over http or https.
     * **http_response_headers** (integer): the time to wait (in seconds) for the server's response headers (but not the body) after making a request. 0 indicates no timeout. Default is 10 seconds.
     * **http_total** (integer): the time limit (in seconds) for the operation (connection, request, and response), including retries. 0 indicates no timeout. Default is 0.
+  * **security** (object): options relating to network security.
+    * **tls** (object): options relating to TLS when fetching resources over `https`.
+      * **certificate_authorities** (object): the list of additional certificate authorities (in addition to the system authorities) to be used for TLS verification when fetching over `https`.
+        * **source** (string, required): the URL of the certificate (in PEM format). Supported schemes are `http`, `https`, `s3`, `tftp`, and [`data`][rfc2397]. Note: When using `http`, it is advisable to use the verification option to ensure the contents haven't been modified.
+        * **verification** (object): options related to the verification of the certificate.
+          * **hash** (string): the hash of the certificate, in the form `<type>-<value>` where type is sha512.
 * **storage** (object): describes the desired state of the system's storage devices.
   * **disks** (list of objects): the list of disks to be configured and their options.
     * **device** (string, required): the absolute path to the device. Devices are typically referenced by the `/dev/disk/by-*` symlinks.
@@ -37,6 +43,7 @@ _Note: all fields are optional unless otherwise marked_
     * **level** (string, required): the redundancy level of the array (e.g. linear, raid1, raid5, etc.).
     * **devices** (list of strings, required): the list of devices (referenced by their absolute path) in the array.
     * **spares** (integer): the number of spares (if applicable) in the array.
+    * **options** (list of strings): any additional options to be passed to mdadm.
   * **filesystems** (list of objects): the list of filesystems to be configured and/or used in the "files" section. Either "mount" or "path" needs to be specified.
     * **name** (string): the identifier for the filesystem, internal to Ignition. This is only required if the filesystem needs to be referenced in the "files" section.
     * **mount** (object): contains the set of mount and formatting options for the filesystem. A non-null entry indicates that the filesystem should be mounted before it is used by Ignition.
@@ -53,6 +60,8 @@ _Note: all fields are optional unless otherwise marked_
   * **files** (list of objects): the list of files, rooted in this particular filesystem, to be written.
     * **filesystem** (string, required): the internal identifier of the filesystem. This matches the last filesystem with the given identifier.
     * **path** (string, required): the absolute path to the file.
+    * **overwrite** (boolean): whether to delete preexisting nodes at the path. Defaults to true.
+    * **append** (boolean): whether to append to the specified file. Creates a new file if nothing exists at the path. Cannot be set if overwrite is set to true.
     * **contents** (object): options related to the contents of the file.
       * **inline** (string): the contents of the file.
       * **local** (string): the path to a local file, relative to the `--files-dir` directory. When using local files, the `--files-dir` flag must be passed to `ct`. The file contents are included in the generated config.
@@ -73,6 +82,7 @@ _Note: all fields are optional unless otherwise marked_
   * **directories** (list of objects): the list of directories to be created.
     * **filesystem** (string, required): the internal identifier of the filesystem in which to create the directory. This matches the last filesystem with the given identifier.
     * **path** (string, required): the absolute path to the directory.
+    * **overwrite** (boolean): whether to delete preexisting nodes at the path.
     * **mode** (integer): the directory's permission mode.
     * **user** (object): specifies the directory's owner.
       * **id** (integer): the user ID of the owner.
@@ -83,6 +93,7 @@ _Note: all fields are optional unless otherwise marked_
   * **links** (list of objects): the list of links to be created
     * **filesystem** (string, required): the internal identifier of the filesystem in which to write the link. This matches the last filesystem with the given identifier.
     * **path** (string, required): the absolute path to the link
+    * **overwrite** (boolean): whether to delete preexisting nodes at the path.
     * **user** (object): specifies the symbolic link's owner.
       * **id** (integer): the user ID of the owner.
       * **name** (string): the user name of the owner.
@@ -105,6 +116,9 @@ _Note: all fields are optional unless otherwise marked_
   * **units** (list of objects): the list of networkd files.
     * **name** (string, required): the name of the file. This must be suffixed with a valid unit type (e.g. "00-eth0.network").
     * **contents** (string): the contents of the networkd file.
+    * **dropins** (list of objects): the list of drop-ins for the unit.
+      * **name** (string, required): the name of the drop-in. This must be suffixed with ".conf".
+      * **contents** (string): the contents of the drop-in.
 * **passwd** (object): describes the desired additions to the passwd database.
   * **users** (list of objects): the list of accounts that shall exist.
     * **name** (string, required): the username for the account.
