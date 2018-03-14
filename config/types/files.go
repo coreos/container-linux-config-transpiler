@@ -56,6 +56,8 @@ type File struct {
 	Group      *FileGroup   `yaml:"group"`
 	Mode       *int         `yaml:"mode"`
 	Contents   FileContents `yaml:"contents"`
+	Overwrite  *bool        `yaml:"overwrite"`
+	Append     bool         `yaml:"append"`
 }
 
 type FileContents struct {
@@ -76,6 +78,7 @@ type Directory struct {
 	User       *FileUser  `yaml:"user"`
 	Group      *FileGroup `yaml:"group"`
 	Mode       *int       `yaml:"mode"`
+	Overwrite  *bool      `yaml:"overwrite"`
 }
 
 type Link struct {
@@ -85,6 +88,7 @@ type Link struct {
 	Group      *FileGroup `yaml:"group"`
 	Hard       bool       `yaml:"hard"`
 	Target     string     `yaml:"target"`
+	Overwrite  *bool      `yaml:"overwrite"`
 }
 
 func (f File) ValidateMode() report.Report {
@@ -114,9 +118,11 @@ func init() {
 				Node: ignTypes.Node{
 					Filesystem: file.Filesystem,
 					Path:       file.Path,
+					Overwrite:  file.Overwrite,
 				},
 				FileEmbedded1: ignTypes.FileEmbedded1{
-					Mode: file.Mode,
+					Mode:   file.Mode,
+					Append: file.Append,
 				},
 			}
 			if file.User != nil {
@@ -225,6 +231,7 @@ func init() {
 				Node: ignTypes.Node{
 					Filesystem: dir.Filesystem,
 					Path:       dir.Path,
+					Overwrite:  dir.Overwrite,
 				},
 				DirectoryEmbedded1: ignTypes.DirectoryEmbedded1{
 					Mode: dir.Mode,
@@ -249,6 +256,7 @@ func init() {
 				Node: ignTypes.Node{
 					Filesystem: link.Filesystem,
 					Path:       link.Path,
+					Overwrite:  link.Overwrite,
 				},
 				LinkEmbedded1: ignTypes.LinkEmbedded1{
 					Hard:   link.Hard,

@@ -38,6 +38,7 @@ type Config struct {
 type Ignition struct {
 	Config   IgnitionConfig `yaml:"config"`
 	Timeouts Timeouts       `yaml:"timeouts"`
+	Security Security       `yaml:"security"`
 }
 
 type IgnitionConfig struct {

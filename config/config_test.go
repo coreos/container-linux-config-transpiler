@@ -87,6 +87,54 @@ ignition:
 			}},
 		},
 
+		// Security
+		{
+			in: in{data: `
+ignition:
+  security:
+    tls:
+      certificate_authorities:
+        - source: "https://blahblah.com/blah.ca"
+          verification:
+            hash:
+              function: "sha512"
+              sum: "489e73871b490e0a78485a0e85264fd296bfc8683cd6f23299d7334fdf50ed15810636c525e831de16c41fb4c12d377b0db76a38bf7519b9e8a104c49cbed4df"
+        - source: "https://example.com/foo.ca"
+          verification:
+            hash:
+              function: "sha512"
+              sum: "46cd9ba0455e2eeddb70b7c793a6476cfbb75fa306c3e3e4f66973cb3e4f3143a358ee6dd3b065d17ba06b2d63c2bc7cab8e1d01ede19a3eaa4fc18ce952cf65"
+`},
+			out: out{cfg: types.Config{
+				Ignition: types.Ignition{
+					Security: types.Security{
+						TLS: types.TLS{
+							CertificateAuthorities: []types.CaReference{
+								{
+									Source: "https://blahblah.com/blah.ca",
+									Verification: types.Verification{
+										Hash: types.Hash{
+											Function: "sha512",
+											Sum:      "489e73871b490e0a78485a0e85264fd296bfc8683cd6f23299d7334fdf50ed15810636c525e831de16c41fb4c12d377b0db76a38bf7519b9e8a104c49cbed4df",
+										},
+									},
+								},
+								{
+									Source: "https://example.com/foo.ca",
+									Verification: types.Verification{
+										Hash: types.Hash{
+											Function: "sha512",
+											Sum:      "46cd9ba0455e2eeddb70b7c793a6476cfbb75fa306c3e3e4f66973cb3e4f3143a358ee6dd3b065d17ba06b2d63c2bc7cab8e1d01ede19a3eaa4fc18ce952cf65",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			}},
+		},
+
 		// Config
 		{
 			in: in{data: `
@@ -197,6 +245,8 @@ storage:
         - /dev/sdf
         - /dev/sdg
       spares: 1
+      options:
+        - -catch-fire
   filesystems:
     - name: filesystem1
       mount:
@@ -241,6 +291,7 @@ storage:
         id: 500
       group:
         id: 501
+      overwrite: true
     - path: /opt/file2
       filesystem: filesystem1
       contents:
@@ -256,6 +307,7 @@ storage:
         id: 502
       group:
         id: 503
+      overwrite: false
     - path: /opt/file3
       filesystem: filesystem2
       contents:
@@ -267,6 +319,7 @@ storage:
         id: 1000
       group:
         id: 1001
+      append: true
     - path: /opt/file4
       mode: 0200
       filesystem: filesystem2
@@ -380,6 +433,7 @@ storage:
 							Level:   "raid1",
 							Devices: []string{"/dev/sde", "/dev/sdf", "/dev/sdg"},
 							Spares:  1,
+							Options: []string{"-catch-fire"},
 						},
 					},
 					Filesystems: []types.Filesystem{
@@ -440,7 +494,8 @@ storage:
 							Contents: types.FileContents{
 								Inline: "file1",
 							},
-							Mode: util.IntToPtr(0644),
+							Mode:      util.IntToPtr(0644),
+							Overwrite: util.BoolToPtr(true),
 						},
 						{
 							Filesystem: "filesystem1",
@@ -459,7 +514,8 @@ storage:
 									},
 								},
 							},
-							Mode: util.IntToPtr(0644),
+							Mode:      util.IntToPtr(0644),
+							Overwrite: util.BoolToPtr(false),
 						},
 						{
 							Filesystem: "filesystem2",
@@ -472,7 +528,8 @@ storage:
 									Compression: "gzip",
 								},
 							},
-							Mode: util.IntToPtr(0400),
+							Mode:   util.IntToPtr(0400),
+							Append: true,
 						},
 						{
 							Filesystem: "filesystem2",
@@ -619,6 +676,10 @@ networkd:
     - name: empty.netdev
     - name: test.network
       contents: test config
+    - name: test.network
+      dropins:
+        - name: test.conf
+          contents: test dropin
 `},
 			out: out{cfg: types.Config{
 				Networkd: types.Networkd{
@@ -629,6 +690,15 @@ networkd:
 						{
 							Name:     "test.network",
 							Contents: "test config",
+						},
+						{
+							Name: "test.network",
+							Dropins: []types.NetworkdUnitDropIn{
+								{
+									Name:     "test.conf",
+									Contents: "test dropin",
+								},
+							},
 						},
 					},
 				},
@@ -936,6 +1006,61 @@ func TestConvert(t *testing.T) {
 			}},
 		},
 
+		// Security
+		{
+			in: in{cfg: types.Config{
+				Ignition: types.Ignition{
+					Security: types.Security{
+						TLS: types.TLS{
+							CertificateAuthorities: []types.CaReference{
+								{
+									Source: "https://blahblah.com/blah.ca",
+									Verification: types.Verification{
+										Hash: types.Hash{
+											Function: "sha512",
+											Sum:      "489e73871b490e0a78485a0e85264fd296bfc8683cd6f23299d7334fdf50ed15810636c525e831de16c41fb4c12d377b0db76a38bf7519b9e8a104c49cbed4df",
+										},
+									},
+								},
+								{
+									Source: "https://example.com/foo.ca",
+									Verification: types.Verification{
+										Hash: types.Hash{
+											Function: "sha512",
+											Sum:      "46cd9ba0455e2eeddb70b7c793a6476cfbb75fa306c3e3e4f66973cb3e4f3143a358ee6dd3b065d17ba06b2d63c2bc7cab8e1d01ede19a3eaa4fc18ce952cf65",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			}},
+			out: out{cfg: ignTypes.Config{
+				Ignition: ignTypes.Ignition{
+					Version: "2.2.0",
+					Security: ignTypes.Security{
+						TLS: ignTypes.TLS{
+							CertificateAuthorities: []ignTypes.CaReference{
+								{
+									Source: "https://blahblah.com/blah.ca",
+									Verification: ignTypes.Verification{
+										Hash: util.StringToPtr("sha512-489e73871b490e0a78485a0e85264fd296bfc8683cd6f23299d7334fdf50ed15810636c525e831de16c41fb4c12d377b0db76a38bf7519b9e8a104c49cbed4df"),
+									},
+								},
+								{
+									Source: "https://example.com/foo.ca",
+									Verification: ignTypes.Verification{
+										Hash: util.StringToPtr("sha512-46cd9ba0455e2eeddb70b7c793a6476cfbb75fa306c3e3e4f66973cb3e4f3143a358ee6dd3b065d17ba06b2d63c2bc7cab8e1d01ede19a3eaa4fc18ce952cf65"),
+									},
+								},
+							},
+						},
+					},
+				},
+			}},
+		},
+
 		// Storage
 		{
 			in: in{cfg: types.Config{
@@ -1002,6 +1127,7 @@ func TestConvert(t *testing.T) {
 							Level:   "raid1",
 							Devices: []string{"/dev/sde", "/dev/sdf", "/dev/sdg"},
 							Spares:  1,
+							Options: []string{"-catch-fire"},
 						},
 					},
 					Filesystems: []types.Filesystem{
@@ -1062,7 +1188,8 @@ func TestConvert(t *testing.T) {
 							Contents: types.FileContents{
 								Inline: "file1",
 							},
-							Mode: util.IntToPtr(0644),
+							Mode:      util.IntToPtr(0644),
+							Overwrite: util.BoolToPtr(true),
 						},
 						{
 							Filesystem: "filesystem1",
@@ -1081,7 +1208,8 @@ func TestConvert(t *testing.T) {
 									},
 								},
 							},
-							Mode: util.IntToPtr(0644),
+							Mode:      util.IntToPtr(0644),
+							Overwrite: util.BoolToPtr(false),
 						},
 						{
 							Filesystem: "filesystem2",
@@ -1094,7 +1222,8 @@ func TestConvert(t *testing.T) {
 									Compression: "gzip",
 								},
 							},
-							Mode: util.IntToPtr(0400),
+							Mode:   util.IntToPtr(0400),
+							Append: true,
 						},
 						{
 							Filesystem: "filesystem2",
@@ -1214,6 +1343,7 @@ func TestConvert(t *testing.T) {
 								Level:   "raid1",
 								Devices: []ignTypes.Device{"/dev/sde", "/dev/sdf", "/dev/sdg"},
 								Spares:  1,
+								Options: []ignTypes.RaidOption{"-catch-fire"},
 							},
 						},
 						Filesystems: []ignTypes.Filesystem{
@@ -1272,6 +1402,7 @@ func TestConvert(t *testing.T) {
 									Path:       "/opt/file1",
 									User:       &ignTypes.NodeUser{ID: util.IntToPtr(500)},
 									Group:      &ignTypes.NodeGroup{ID: util.IntToPtr(501)},
+									Overwrite:  util.BoolToPtr(true),
 								},
 								FileEmbedded1: ignTypes.FileEmbedded1{
 									Contents: ignTypes.FileContents{
@@ -1289,6 +1420,7 @@ func TestConvert(t *testing.T) {
 									Path:       "/opt/file2",
 									User:       &ignTypes.NodeUser{ID: util.IntToPtr(502)},
 									Group:      &ignTypes.NodeGroup{ID: util.IntToPtr(503)},
+									Overwrite:  util.BoolToPtr(false),
 								},
 								FileEmbedded1: ignTypes.FileEmbedded1{
 									Contents: ignTypes.FileContents{
@@ -1322,6 +1454,7 @@ func TestConvert(t *testing.T) {
 										Compression: "gzip",
 									},
 									Mode:   util.IntToPtr(0400),
+									Append: true,
 								},
 							},
 							{
@@ -1460,6 +1593,15 @@ func TestConvert(t *testing.T) {
 						{
 							Name: "empty.netdev",
 						},
+						{
+							Name: "foo.network",
+							Dropins: []types.NetworkdUnitDropIn{
+								{
+									Name:     "test.conf",
+									Contents: "test dropin",
+								},
+							},
+						},
 					},
 				},
 			}},
@@ -1473,6 +1615,15 @@ func TestConvert(t *testing.T) {
 						},
 						{
 							Name: "empty.netdev",
+						},
+						{
+							Name: "foo.network",
+							Dropins: []ignTypes.NetworkdDropin{
+								{
+									Name:     "test.conf",
+									Contents: "test dropin",
+								},
+							},
 						},
 					},
 				},
