@@ -24,7 +24,7 @@ import (
 	"github.com/coreos/container-linux-config-transpiler/config/types"
 	"github.com/coreos/container-linux-config-transpiler/internal/util"
 	"github.com/coreos/go-semver/semver"
-	ignTypes "github.com/coreos/ignition/config/v2_1/types"
+	ignTypes "github.com/coreos/ignition/config/v2_2/types"
 	"github.com/coreos/ignition/config/validate/report"
 )
 
@@ -435,8 +435,8 @@ storage:
 						{
 							Filesystem: "filesystem1",
 							Path:       "/opt/file1",
-							User:       types.FileUser{Id: util.IntToPtr(500)},
-							Group:      types.FileGroup{Id: util.IntToPtr(501)},
+							User:       &types.FileUser{Id: util.IntToPtr(500)},
+							Group:      &types.FileGroup{Id: util.IntToPtr(501)},
 							Contents: types.FileContents{
 								Inline: "file1",
 							},
@@ -445,8 +445,8 @@ storage:
 						{
 							Filesystem: "filesystem1",
 							Path:       "/opt/file2",
-							User:       types.FileUser{Id: util.IntToPtr(502)},
-							Group:      types.FileGroup{Id: util.IntToPtr(503)},
+							User:       &types.FileUser{Id: util.IntToPtr(502)},
+							Group:      &types.FileGroup{Id: util.IntToPtr(503)},
 							Contents: types.FileContents{
 								Remote: types.Remote{
 									Url:         "http://example.com/file2",
@@ -464,8 +464,8 @@ storage:
 						{
 							Filesystem: "filesystem2",
 							Path:       "/opt/file3",
-							User:       types.FileUser{Id: util.IntToPtr(1000)},
-							Group:      types.FileGroup{Id: util.IntToPtr(1001)},
+							User:       &types.FileUser{Id: util.IntToPtr(1000)},
+							Group:      &types.FileGroup{Id: util.IntToPtr(1001)},
 							Contents: types.FileContents{
 								Remote: types.Remote{
 									Url:         "http://example.com/file3",
@@ -527,10 +527,10 @@ storage:
 						{
 							Filesystem: "filesystem1",
 							Path:       "/opt/dir1",
-							User: types.FileUser{
+							User: &types.FileUser{
 								Name: "core",
 							},
-							Group: types.FileGroup{
+							Group: &types.FileGroup{
 								Name: "core",
 							},
 							Mode: util.IntToPtr(0755),
@@ -540,10 +540,10 @@ storage:
 						{
 							Filesystem: "filesystem1",
 							Path:       "/opt/link1",
-							User: types.FileUser{
+							User: &types.FileUser{
 								Name: "noone",
 							},
-							Group: types.FileGroup{
+							Group: &types.FileGroup{
 								Name: "systemd-journald",
 							},
 							Target: "/opt/file2",
@@ -823,7 +823,7 @@ func TestConvert(t *testing.T) {
 	}{
 		{
 			in:  in{cfg: types.Config{}},
-			out: out{cfg: ignTypes.Config{Ignition: ignTypes.Ignition{Version: "2.1.0"}}},
+			out: out{cfg: ignTypes.Config{Ignition: ignTypes.Ignition{Version: "2.2.0"}}},
 		},
 		{
 			in: in{cfg: types.Config{
@@ -879,7 +879,7 @@ func TestConvert(t *testing.T) {
 			}},
 			out: out{cfg: ignTypes.Config{
 				Ignition: ignTypes.Ignition{
-					Version: "2.1.0",
+					Version: "2.2.0",
 					Config: ignTypes.IgnitionConfig{
 						Append: []ignTypes.ConfigReference{
 							{
@@ -927,7 +927,7 @@ func TestConvert(t *testing.T) {
 			}},
 			out: out{cfg: ignTypes.Config{
 				Ignition: ignTypes.Ignition{
-					Version: "2.1.0",
+					Version: "2.2.0",
 					Timeouts: ignTypes.Timeouts{
 						HTTPResponseHeaders: util.IntToPtr(30),
 						HTTPTotal:           util.IntToPtr(30),
@@ -1057,8 +1057,8 @@ func TestConvert(t *testing.T) {
 						{
 							Filesystem: "filesystem1",
 							Path:       "/opt/file1",
-							User:       types.FileUser{Id: util.IntToPtr(500)},
-							Group:      types.FileGroup{Id: util.IntToPtr(501)},
+							User:       &types.FileUser{Id: util.IntToPtr(500)},
+							Group:      &types.FileGroup{Id: util.IntToPtr(501)},
 							Contents: types.FileContents{
 								Inline: "file1",
 							},
@@ -1067,8 +1067,8 @@ func TestConvert(t *testing.T) {
 						{
 							Filesystem: "filesystem1",
 							Path:       "/opt/file2",
-							User:       types.FileUser{Id: util.IntToPtr(502)},
-							Group:      types.FileGroup{Id: util.IntToPtr(503)},
+							User:       &types.FileUser{Id: util.IntToPtr(502)},
+							Group:      &types.FileGroup{Id: util.IntToPtr(503)},
 							Contents: types.FileContents{
 								Remote: types.Remote{
 									Url:         "http://example.com/file2",
@@ -1086,8 +1086,8 @@ func TestConvert(t *testing.T) {
 						{
 							Filesystem: "filesystem2",
 							Path:       "/opt/file3",
-							User:       types.FileUser{Id: util.IntToPtr(1000)},
-							Group:      types.FileGroup{Id: util.IntToPtr(1001)},
+							User:       &types.FileUser{Id: util.IntToPtr(1000)},
+							Group:      &types.FileGroup{Id: util.IntToPtr(1001)},
 							Contents: types.FileContents{
 								Remote: types.Remote{
 									Url:         "http://example.com/file3",
@@ -1109,10 +1109,10 @@ func TestConvert(t *testing.T) {
 						{
 							Filesystem: "filesystem1",
 							Path:       "/opt/dir1",
-							User: types.FileUser{
+							User: &types.FileUser{
 								Name: "core",
 							},
-							Group: types.FileGroup{
+							Group: &types.FileGroup{
 								Name: "core",
 							},
 							Mode: util.IntToPtr(0755),
@@ -1122,10 +1122,10 @@ func TestConvert(t *testing.T) {
 						{
 							Filesystem: "filesystem1",
 							Path:       "/opt/link1",
-							User: types.FileUser{
+							User: &types.FileUser{
 								Name: "noone",
 							},
-							Group: types.FileGroup{
+							Group: &types.FileGroup{
 								Name: "systemd-journald",
 							},
 							Target: "/opt/file2",
@@ -1150,7 +1150,7 @@ func TestConvert(t *testing.T) {
 					},
 				},
 				cfg: ignTypes.Config{
-					Ignition: ignTypes.Ignition{Version: "2.1.0"},
+					Ignition: ignTypes.Ignition{Version: "2.2.0"},
 					Storage: ignTypes.Storage{
 						Disks: []ignTypes.Disk{
 							{
@@ -1270,8 +1270,8 @@ func TestConvert(t *testing.T) {
 								Node: ignTypes.Node{
 									Filesystem: "filesystem1",
 									Path:       "/opt/file1",
-									User:       ignTypes.NodeUser{ID: util.IntToPtr(500)},
-									Group:      ignTypes.NodeGroup{ID: util.IntToPtr(501)},
+									User:       &ignTypes.NodeUser{ID: util.IntToPtr(500)},
+									Group:      &ignTypes.NodeGroup{ID: util.IntToPtr(501)},
 								},
 								FileEmbedded1: ignTypes.FileEmbedded1{
 									Contents: ignTypes.FileContents{
@@ -1280,15 +1280,15 @@ func TestConvert(t *testing.T) {
 											Opaque: ",file1",
 										}).String(),
 									},
-									Mode: 0644,
+									Mode: util.IntToPtr(0644),
 								},
 							},
 							{
 								Node: ignTypes.Node{
 									Filesystem: "filesystem1",
 									Path:       "/opt/file2",
-									User:       ignTypes.NodeUser{ID: util.IntToPtr(502)},
-									Group:      ignTypes.NodeGroup{ID: util.IntToPtr(503)},
+									User:       &ignTypes.NodeUser{ID: util.IntToPtr(502)},
+									Group:      &ignTypes.NodeGroup{ID: util.IntToPtr(503)},
 								},
 								FileEmbedded1: ignTypes.FileEmbedded1{
 									Contents: ignTypes.FileContents{
@@ -1302,15 +1302,15 @@ func TestConvert(t *testing.T) {
 											Hash: util.StringToPtr("sha512-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
 										},
 									},
-									Mode: 0644,
+									Mode: util.IntToPtr(0644),
 								},
 							},
 							{
 								Node: ignTypes.Node{
 									Filesystem: "filesystem2",
 									Path:       "/opt/file3",
-									User:       ignTypes.NodeUser{ID: util.IntToPtr(1000)},
-									Group:      ignTypes.NodeGroup{ID: util.IntToPtr(1001)},
+									User:       &ignTypes.NodeUser{ID: util.IntToPtr(1000)},
+									Group:      &ignTypes.NodeGroup{ID: util.IntToPtr(1001)},
 								},
 								FileEmbedded1: ignTypes.FileEmbedded1{
 									Contents: ignTypes.FileContents{
@@ -1321,7 +1321,7 @@ func TestConvert(t *testing.T) {
 										}).String(),
 										Compression: "gzip",
 									},
-									Mode: 0400,
+									Mode:   util.IntToPtr(0400),
 								},
 							},
 							{
@@ -1337,7 +1337,7 @@ func TestConvert(t *testing.T) {
 											Opaque: ",",
 										}).String(),
 									},
-									Mode: 0400,
+									Mode: util.IntToPtr(0400),
 								},
 							},
 						},
@@ -1346,15 +1346,15 @@ func TestConvert(t *testing.T) {
 								Node: ignTypes.Node{
 									Filesystem: "filesystem1",
 									Path:       "/opt/dir1",
-									User: ignTypes.NodeUser{
+									User: &ignTypes.NodeUser{
 										Name: "core",
 									},
-									Group: ignTypes.NodeGroup{
+									Group: &ignTypes.NodeGroup{
 										Name: "core",
 									},
 								},
 								DirectoryEmbedded1: ignTypes.DirectoryEmbedded1{
-									Mode: 0755,
+									Mode: util.IntToPtr(0755),
 								},
 							},
 						},
@@ -1363,10 +1363,10 @@ func TestConvert(t *testing.T) {
 								Node: ignTypes.Node{
 									Filesystem: "filesystem1",
 									Path:       "/opt/link1",
-									User: ignTypes.NodeUser{
+									User: &ignTypes.NodeUser{
 										Name: "noone",
 									},
-									Group: ignTypes.NodeGroup{
+									Group: &ignTypes.NodeGroup{
 										Name: "systemd-journald",
 									},
 								},
@@ -1420,14 +1420,14 @@ func TestConvert(t *testing.T) {
 				},
 			}},
 			out: out{cfg: ignTypes.Config{
-				Ignition: ignTypes.Ignition{Version: "2.1.0"},
+				Ignition: ignTypes.Ignition{Version: "2.2.0"},
 				Systemd: ignTypes.Systemd{
 					Units: []ignTypes.Unit{
 						{
 							Name:     "test1.service",
 							Enable:   true,
 							Contents: "[Service]\nType=oneshot\nExecStart=/usr/bin/echo test 1\n\n[Install]\nWantedBy=multi-user.target\n",
-							Dropins: []ignTypes.Dropin{
+							Dropins: []ignTypes.SystemdDropin{
 								{
 									Name:     "conf1.conf",
 									Contents: "[Service]\nExecStart=",
@@ -1464,7 +1464,7 @@ func TestConvert(t *testing.T) {
 				},
 			}},
 			out: out{cfg: ignTypes.Config{
-				Ignition: ignTypes.Ignition{Version: "2.1.0"},
+				Ignition: ignTypes.Ignition{Version: "2.2.0"},
 				Networkd: ignTypes.Networkd{
 					Units: []ignTypes.Networkdunit{
 						{
@@ -1556,7 +1556,7 @@ func TestConvert(t *testing.T) {
 					},
 				},
 				cfg: ignTypes.Config{
-					Ignition: ignTypes.Ignition{Version: "2.1.0"},
+					Ignition: ignTypes.Ignition{Version: "2.2.0"},
 					Passwd: ignTypes.Passwd{
 						Users: []ignTypes.PasswdUser{
 							{
@@ -1597,7 +1597,7 @@ func TestConvert(t *testing.T) {
 								HomeDir:           "/home/user 4",
 								NoCreateHome:      true,
 								PrimaryGroup:      "wheel",
-								Groups:            []ignTypes.PasswdUserGroup{"wheel", "plugdev"},
+								Groups:            []ignTypes.Group{"wheel", "plugdev"},
 								NoUserGroup:       true,
 								System:            true,
 								NoLogInit:         true,
@@ -1698,7 +1698,7 @@ ignition:
 `},
 			out: out{cfg: ignTypes.Config{
 				Ignition: ignTypes.Ignition{
-					Version: "2.1.0",
+					Version: "2.2.0",
 					Config: ignTypes.IgnitionConfig{
 						Append: []ignTypes.ConfigReference{
 							{
@@ -1774,7 +1774,7 @@ storage:
 						Column:  13,
 					},
 					{
-						Message: "invalid url \"httpz://example.com/file2\": invalid url scheme",
+						Message: "invalid url scheme",
 						Kind:    report.EntryError,
 						Line:    17,
 						Column:  16,
@@ -1852,15 +1852,15 @@ storage:
         id: 503
 `},
 			out: out{cfg: ignTypes.Config{
-				Ignition: ignTypes.Ignition{Version: "2.1.0"},
+				Ignition: ignTypes.Ignition{Version: "2.2.0"},
 				Storage: ignTypes.Storage{
 					Files: []ignTypes.File{
 						{
 							Node: ignTypes.Node{
 								Filesystem: "root",
 								Path:       "/opt/file1",
-								User:       ignTypes.NodeUser{ID: util.IntToPtr(500)},
-								Group:      ignTypes.NodeGroup{ID: util.IntToPtr(501)},
+								User:       &ignTypes.NodeUser{ID: util.IntToPtr(500)},
+								Group:      &ignTypes.NodeGroup{ID: util.IntToPtr(501)},
 							},
 							FileEmbedded1: ignTypes.FileEmbedded1{
 								Contents: ignTypes.FileContents{
@@ -1869,15 +1869,15 @@ storage:
 										Opaque: ",file1",
 									}).String(),
 								},
-								Mode: 0644,
+								Mode: util.IntToPtr(0644),
 							},
 						},
 						{
 							Node: ignTypes.Node{
 								Filesystem: "root",
 								Path:       "/opt/file2",
-								User:       ignTypes.NodeUser{ID: util.IntToPtr(502)},
-								Group:      ignTypes.NodeGroup{ID: util.IntToPtr(503)},
+								User:       &ignTypes.NodeUser{ID: util.IntToPtr(502)},
+								Group:      &ignTypes.NodeGroup{ID: util.IntToPtr(503)},
 							},
 							FileEmbedded1: ignTypes.FileEmbedded1{
 								Contents: ignTypes.FileContents{
@@ -1891,7 +1891,7 @@ storage:
 										Hash: util.StringToPtr("sha512-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
 									},
 								},
-								Mode: 0644,
+								Mode: util.IntToPtr(0644),
 							},
 						},
 					},
