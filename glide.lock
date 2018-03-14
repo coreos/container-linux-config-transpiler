@@ -1,6 +1,8 @@
-hash: 5c7a111caf375e2dc4e8c2cd6e415b872c5e2aa3b60c08bd7816cedbd16d7187
-updated: 2017-09-25T14:34:09.292382858-07:00
+hash: 53c28e8c479ec5cfecb0b89dd3ea5afae4f98b0f57001d13064bf27906873aa5
+updated: 2018-04-06T12:32:28.497419889-07:00
 imports:
+- name: github.com/ajeddeloh/go-json
+  version: 73d058cf8437a1989030afe571eeab9f90eebbbd
 - name: github.com/ajeddeloh/yaml
   version: 6b94386aeefd8c4b8470aee72bfca084c2f91da9
 - name: github.com/alecthomas/units
@@ -10,16 +12,19 @@ imports:
   subpackages:
   - semver
 - name: github.com/coreos/go-systemd
-  version: 7c9533367ef925dc1078d75e5b7141e10da2c4e8
+  version: 40e2722dffead74698ca12a750f64ef313ddce05
   subpackages:
   - dbus
   - unit
 - name: github.com/coreos/ignition
-  version: 01c039a5ce59acd39e5741713e59abfcb74d0782
+  version: 8bc8a13ee812ce0755be0245808c3044a7ef0add
   subpackages:
+  - config/shared/errors
+  - config/shared/validations
   - config/types
-  - config/v2_1/types
+  - config/v2_2/types
   - config/validate
+  - config/validate/astjson
   - config/validate/astnode
   - config/validate/report
 - name: github.com/stretchr/testify
@@ -28,6 +33,10 @@ imports:
   - assert
 - name: github.com/vincent-petithory/dataurl
   version: 9a301d65acbb728fcc3ace14f45f511a4cfeea9c
+- name: go4.org
+  version: 03efcb870d84809319ea509714dd6d19a1498483
+  subpackages:
+  - errorutil
 testImports:
 - name: github.com/davecgh/go-spew
   version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
