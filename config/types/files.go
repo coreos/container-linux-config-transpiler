@@ -37,6 +37,8 @@ var (
 
 	WarningUnsetFileMode = fmt.Errorf("mode unspecified for file, defaulting to %#o", DefaultFileMode)
 	WarningUnsetDirMode  = fmt.Errorf("mode unspecified for directory, defaulting to %#o", DefaultDirMode)
+
+	ErrTooManyFileSources = errors.New("only one of the following can be set: local, inline, remote.url")
 )
 
 type FileUser struct {
@@ -97,6 +99,23 @@ func (f File) ValidateMode() report.Report {
 func (d Directory) ValidateMode() report.Report {
 	if d.Mode == nil {
 		return report.ReportFromError(WarningUnsetDirMode, report.EntryWarning)
+	}
+	return report.Report{}
+}
+
+func (fc FileContents) Validate() report.Report {
+	i := 0
+	if fc.Remote.Url != "" {
+		i++
+	}
+	if fc.Inline != "" {
+		i++
+	}
+	if fc.Local != "" {
+		i++
+	}
+	if i > 1 {
+		return report.ReportFromError(ErrTooManyFileSources, report.EntryError)
 	}
 	return report.Report{}
 }
