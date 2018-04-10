@@ -25,7 +25,7 @@ import (
 	"github.com/coreos/container-linux-config-transpiler/config/astyaml"
 	"github.com/coreos/container-linux-config-transpiler/internal/util"
 
-	ignTypes "github.com/coreos/ignition/config/v2_1/types"
+	ignTypes "github.com/coreos/ignition/config/v2_2/types"
 	"github.com/coreos/ignition/config/validate/astnode"
 	"github.com/coreos/ignition/config/validate/report"
 	"github.com/vincent-petithory/dataurl"
@@ -54,10 +54,12 @@ type FileGroup struct {
 type File struct {
 	Filesystem string       `yaml:"filesystem"`
 	Path       string       `yaml:"path"`
-	User       FileUser     `yaml:"user"`
-	Group      FileGroup    `yaml:"group"`
+	User       *FileUser    `yaml:"user"`
+	Group      *FileGroup   `yaml:"group"`
 	Mode       *int         `yaml:"mode"`
 	Contents   FileContents `yaml:"contents"`
+	Overwrite  *bool        `yaml:"overwrite"`
+	Append     bool         `yaml:"append"`
 }
 
 type FileContents struct {
@@ -73,20 +75,22 @@ type Remote struct {
 }
 
 type Directory struct {
-	Filesystem string    `yaml:"filesystem"`
-	Path       string    `yaml:"path"`
-	User       FileUser  `yaml:"user"`
-	Group      FileGroup `yaml:"group"`
-	Mode       *int      `yaml:"mode"`
+	Filesystem string     `yaml:"filesystem"`
+	Path       string     `yaml:"path"`
+	User       *FileUser  `yaml:"user"`
+	Group      *FileGroup `yaml:"group"`
+	Mode       *int       `yaml:"mode"`
+	Overwrite  *bool      `yaml:"overwrite"`
 }
 
 type Link struct {
-	Filesystem string    `yaml:"filesystem"`
-	Path       string    `yaml:"path"`
-	User       FileUser  `yaml:"user"`
-	Group      FileGroup `yaml:"group"`
-	Hard       bool      `yaml:"hard"`
-	Target     string    `yaml:"target"`
+	Filesystem string     `yaml:"filesystem"`
+	Path       string     `yaml:"path"`
+	User       *FileUser  `yaml:"user"`
+	Group      *FileGroup `yaml:"group"`
+	Hard       bool       `yaml:"hard"`
+	Target     string     `yaml:"target"`
+	Overwrite  *bool      `yaml:"overwrite"`
 }
 
 func (f File) ValidateMode() report.Report {
@@ -133,18 +137,24 @@ func init() {
 				Node: ignTypes.Node{
 					Filesystem: file.Filesystem,
 					Path:       file.Path,
-					User: ignTypes.NodeUser{
-						ID:   file.User.Id,
-						Name: file.User.Name,
-					},
-					Group: ignTypes.NodeGroup{
-						ID:   file.Group.Id,
-						Name: file.Group.Name,
-					},
+					Overwrite:  file.Overwrite,
 				},
 				FileEmbedded1: ignTypes.FileEmbedded1{
-					Mode: *file.Mode,
+					Mode:   file.Mode,
+					Append: file.Append,
 				},
+			}
+			if file.User != nil {
+				newFile.User = &ignTypes.NodeUser{
+					ID:   file.User.Id,
+					Name: file.User.Name,
+				}
+			}
+			if file.Group != nil {
+				newFile.Group = &ignTypes.NodeGroup{
+					ID:   file.Group.Id,
+					Name: file.Group.Name,
+				}
 			}
 
 			if file.Contents.Inline != "" {
@@ -236,43 +246,55 @@ func init() {
 			if dir.Mode == nil {
 				dir.Mode = util.IntToPtr(DefaultDirMode)
 			}
-			out.Storage.Directories = append(out.Storage.Directories, ignTypes.Directory{
+			newDir := ignTypes.Directory{
 				Node: ignTypes.Node{
 					Filesystem: dir.Filesystem,
 					Path:       dir.Path,
-					User: ignTypes.NodeUser{
-						ID:   dir.User.Id,
-						Name: dir.User.Name,
-					},
-					Group: ignTypes.NodeGroup{
-						ID:   dir.Group.Id,
-						Name: dir.Group.Name,
-					},
+					Overwrite:  dir.Overwrite,
 				},
 				DirectoryEmbedded1: ignTypes.DirectoryEmbedded1{
-					Mode: *dir.Mode,
+					Mode: dir.Mode,
 				},
-			})
+			}
+			if dir.User != nil {
+				newDir.User = &ignTypes.NodeUser{
+					ID:   dir.User.Id,
+					Name: dir.User.Name,
+				}
+			}
+			if dir.Group != nil {
+				newDir.Group = &ignTypes.NodeGroup{
+					ID:   dir.Group.Id,
+					Name: dir.Group.Name,
+				}
+			}
+			out.Storage.Directories = append(out.Storage.Directories, newDir)
 		}
 		for _, link := range in.Storage.Links {
-			out.Storage.Links = append(out.Storage.Links, ignTypes.Link{
+			newLink := ignTypes.Link{
 				Node: ignTypes.Node{
 					Filesystem: link.Filesystem,
 					Path:       link.Path,
-					User: ignTypes.NodeUser{
-						ID:   link.User.Id,
-						Name: link.User.Name,
-					},
-					Group: ignTypes.NodeGroup{
-						ID:   link.Group.Id,
-						Name: link.Group.Name,
-					},
+					Overwrite:  link.Overwrite,
 				},
 				LinkEmbedded1: ignTypes.LinkEmbedded1{
 					Hard:   link.Hard,
 					Target: link.Target,
 				},
-			})
+			}
+			if link.User != nil {
+				newLink.User = &ignTypes.NodeUser{
+					ID:   link.User.Id,
+					Name: link.User.Name,
+				}
+			}
+			if link.Group != nil {
+				newLink.Group = &ignTypes.NodeGroup{
+					ID:   link.Group.Id,
+					Name: link.Group.Name,
+				}
+			}
+			out.Storage.Links = append(out.Storage.Links, newLink)
 		}
 		return out, r, ast
 	})
