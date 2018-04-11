@@ -77,7 +77,7 @@ gpg2 --verify /tmp/ct-${CT_VER}-${ARCH}-${OS}.asc /tmp/ct-${CT_VER}-${ARCH}-${OS
 To build from source you'll need to have the go compiler installed on your system.
 
 ```shell
-git clone --branch v0.7.0 https://github.com/coreos/container-linux-config-transpiler
+git clone --branch v0.8.0 https://github.com/coreos/container-linux-config-transpiler
 cd container-linux-config-transpiler
 make
 ```

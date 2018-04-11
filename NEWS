@@ -1,3 +1,15 @@
+10-Apr-2018 CONFIG-TRANSPILER v0.8.0
+
+  Changes
+
+    - Generate Ignition 2.2.0 configs
+    - Add fields present in Ignition 2.2.0 spec
+    - Emit a warning when a unit is enabled but no "Install" section is defined
+
+  Fixes
+
+    - Emit an error when more than one source is specified for a file
+
 14-Feb-2018 CONFIG-TRANSPILER v0.7.0
 
   Features:
