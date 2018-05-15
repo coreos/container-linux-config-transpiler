@@ -1795,6 +1795,34 @@ func TestParseAndConvert(t *testing.T) {
 	}{
 		{
 			in: in{data: `
+etcd:
+    enable_v2: false
+    version: 3.3.1
+`},
+			out: out{
+				cfg: ignTypes.Config{
+					Ignition: ignTypes.Ignition{
+						Version: "2.2.0",
+					},
+					Systemd: ignTypes.Systemd{
+						Units: []ignTypes.Unit{
+							{
+								Name:   "etcd-member.service",
+								Enable: true,
+								Dropins: []ignTypes.SystemdDropin{
+									{
+										Name:     "20-clct-etcd-member.conf",
+										Contents: "[Service]\nEnvironment=\"ETCD_IMAGE_TAG=v3.3.1\"\nExecStart=\nExecStart=/usr/lib/coreos/etcd-wrapper $ETCD_OPTS \\\n  --enable-v2=false",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			in: in{data: `
 networkd:
   units:
     - name: bad.blah
