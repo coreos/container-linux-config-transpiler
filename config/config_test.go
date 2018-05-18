@@ -843,9 +843,9 @@ etcd:
 							Patch: 15,
 						})),
 					Options: types.Etcd3_0{
-						Discovery:        "https://discovery.etcd.io/<token>",
-						ListenClientUrls: "http://0.0.0.0:2379,http://0.0.0.0:4001",
-						MaxWals:          44,
+						Discovery:        util.StringToPtr("https://discovery.etcd.io/<token>"),
+						ListenClientUrls: util.StringToPtr("http://0.0.0.0:2379,http://0.0.0.0:4001"),
+						MaxWals:          util.IntToPtr(44),
 					},
 				},
 			}},
@@ -865,7 +865,7 @@ flannel:
 							Patch: 2,
 						})),
 					Options: types.Flannel0_6{
-						EtcdPrefix: "/coreos.com/network2",
+						EtcdPrefix: util.StringToPtr("/coreos.com/network2"),
 					},
 				},
 			}},

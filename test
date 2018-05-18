@@ -24,7 +24,7 @@ echo "Checking gofix..."
 go tool fix -diff $SRC
 
 echo "Checking gofmt..."
-fmtRes=$(gofmt -l $FORMATTABLE)
+fmtRes=$(gofmt -d -l $FORMATTABLE)
 if [ -n "${fmtRes}" ]; then
   echo -e "gofmt checking failed:\n${fmtRes}"
   exit 2
