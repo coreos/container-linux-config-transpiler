@@ -1,11 +1,12 @@
 # Config transpiler overview
 
-The Config Transpiler, ct, is the utility responsible for transforming a user-provided Container Linux Configuration into an [Ignition][ignition] configuration. The resulting Ignition config can then be provided to a Container Linux machine when it first boots in order to provision it.
+The [Config Transpiler][ct], ct, is the utility responsible for transforming a user-provided Container Linux Configuration into an [Ignition][ignition] configuration. The resulting Ignition config can then be provided to a Container Linux machine when it first boots in order to provision it.
 
 The Container Linux Config is intended to be human-friendly, and is thus in YAML. The syntax is rather forgiving, and things like references and multi-line strings are supported.
 
 The resulting Ignition config is very much not intended to be human-friendly. It is an artifact produced by ct that users should simply pass along to their machines. JSON was chosen over a binary format to make the process more transparent and to allow power users to inspect/modify what ct produces, but it would have worked fine if the result from ct had not been human readable at all.
 
+[ct]: https://github.com/coreos/container-linux-config-transpiler/
 [ignition]: https://github.com/coreos/ignition
 
 ## Why a two-step process?
