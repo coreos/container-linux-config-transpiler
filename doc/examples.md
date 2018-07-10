@@ -143,9 +143,9 @@ systemd:
       contents: |
         [Unit]
         Description=A hello world unit!
-        Type=oneshot
 
         [Service]
+        Type=oneshot
         ExecStart=/usr/bin/echo "Hello, World!"
 
         [Install]
