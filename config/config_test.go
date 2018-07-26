@@ -1181,10 +1181,9 @@ func TestConvert(t *testing.T) {
 					},
 					Files: []types.File{
 						{
-							Filesystem: "filesystem1",
-							Path:       "/opt/file1",
-							User:       &types.FileUser{Id: util.IntToPtr(500)},
-							Group:      &types.FileGroup{Id: util.IntToPtr(501)},
+							Path:  "/opt/file1",
+							User:  &types.FileUser{Id: util.IntToPtr(500)},
+							Group: &types.FileGroup{Id: util.IntToPtr(501)},
 							Contents: types.FileContents{
 								Inline: "file1",
 							},
@@ -1246,11 +1245,20 @@ func TestConvert(t *testing.T) {
 							},
 							Mode: util.IntToPtr(0755),
 						},
+						{
+							Path: "/opt/dir2",
+							User: &types.FileUser{
+								Name: "core",
+							},
+							Group: &types.FileGroup{
+								Name: "core",
+							},
+							Mode: util.IntToPtr(0755),
+						},
 					},
 					Links: []types.Link{
 						{
-							Filesystem: "filesystem1",
-							Path:       "/opt/link1",
+							Path: "/opt/link1",
 							User: &types.FileUser{
 								Name: "noone",
 							},
@@ -1398,7 +1406,7 @@ func TestConvert(t *testing.T) {
 						Files: []ignTypes.File{
 							{
 								Node: ignTypes.Node{
-									Filesystem: "filesystem1",
+									Filesystem: "root",
 									Path:       "/opt/file1",
 									User:       &ignTypes.NodeUser{ID: util.IntToPtr(500)},
 									Group:      &ignTypes.NodeGroup{ID: util.IntToPtr(501)},
@@ -1490,11 +1498,26 @@ func TestConvert(t *testing.T) {
 									Mode: util.IntToPtr(0755),
 								},
 							},
+							{
+								Node: ignTypes.Node{
+									Filesystem: "root",
+									Path:       "/opt/dir2",
+									User: &ignTypes.NodeUser{
+										Name: "core",
+									},
+									Group: &ignTypes.NodeGroup{
+										Name: "core",
+									},
+								},
+								DirectoryEmbedded1: ignTypes.DirectoryEmbedded1{
+									Mode: util.IntToPtr(0755),
+								},
+							},
 						},
 						Links: []ignTypes.Link{
 							{
 								Node: ignTypes.Node{
-									Filesystem: "filesystem1",
+									Filesystem: "root",
 									Path:       "/opt/link1",
 									User: &ignTypes.NodeUser{
 										Name: "noone",

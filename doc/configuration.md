@@ -58,7 +58,7 @@ _Note: all fields are optional unless otherwise marked_
         * **options** (list of strings, DEPRECATED): any additional options to be passed to the format-specific mkfs utility.
     * **path** (string): the mount-point of the filesystem. A non-null entry indicates that the filesystem has already been mounted by the system at the specified path. This is really only useful for "/sysroot".
   * **files** (list of objects): the list of files, rooted in this particular filesystem, to be written.
-    * **filesystem** (string, required): the internal identifier of the filesystem. This matches the last filesystem with the given identifier.
+    * **filesystem** (string): the internal identifier of the filesystem. This matches the last filesystem with the given identifier. Defaults to "root".
     * **path** (string, required): the absolute path to the file.
     * **overwrite** (boolean): whether to delete preexisting nodes at the path. Defaults to true.
     * **append** (boolean): whether to append to the specified file. Creates a new file if nothing exists at the path. Cannot be set if overwrite is set to true.
@@ -80,7 +80,7 @@ _Note: all fields are optional unless otherwise marked_
       * **id** (integer): the group ID of the owner.
       * **name** (string): the group name of the owner.
   * **directories** (list of objects): the list of directories to be created.
-    * **filesystem** (string, required): the internal identifier of the filesystem in which to create the directory. This matches the last filesystem with the given identifier.
+    * **filesystem** (string): the internal identifier of the filesystem in which to create the directory. This matches the last filesystem with the given identifier. Defaults to "root".
     * **path** (string, required): the absolute path to the directory.
     * **overwrite** (boolean): whether to delete preexisting nodes at the path.
     * **mode** (integer): the directory's permission mode.
@@ -91,7 +91,7 @@ _Note: all fields are optional unless otherwise marked_
       * **id** (integer): the group ID of the owner.
       * **name** (string): the group name of the owner.
   * **links** (list of objects): the list of links to be created
-    * **filesystem** (string, required): the internal identifier of the filesystem in which to write the link. This matches the last filesystem with the given identifier.
+    * **filesystem** (string): the internal identifier of the filesystem in which to write the link. This matches the last filesystem with the given identifier. Defaults to "root".
     * **path** (string, required): the absolute path to the link
     * **overwrite** (boolean): whether to delete preexisting nodes at the path.
     * **user** (object): specifies the symbolic link's owner.

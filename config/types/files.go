@@ -132,6 +132,9 @@ func init() {
 			if file.Mode == nil {
 				file.Mode = util.IntToPtr(DefaultFileMode)
 			}
+			if file.Filesystem == "" {
+				file.Filesystem = "root"
+			}
 			file_node, _ := getNodeChild(files_node, i)
 			newFile := ignTypes.File{
 				Node: ignTypes.Node{
@@ -246,6 +249,9 @@ func init() {
 			if dir.Mode == nil {
 				dir.Mode = util.IntToPtr(DefaultDirMode)
 			}
+			if dir.Filesystem == "" {
+				dir.Filesystem = "root"
+			}
 			newDir := ignTypes.Directory{
 				Node: ignTypes.Node{
 					Filesystem: dir.Filesystem,
@@ -271,6 +277,9 @@ func init() {
 			out.Storage.Directories = append(out.Storage.Directories, newDir)
 		}
 		for _, link := range in.Storage.Links {
+			if link.Filesystem == "" {
+				link.Filesystem = "root"
+			}
 			newLink := ignTypes.Link{
 				Node: ignTypes.Node{
 					Filesystem: link.Filesystem,
