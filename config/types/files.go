@@ -94,7 +94,7 @@ type Link struct {
 }
 
 func (f File) ValidateMode() report.Report {
-	if f.Mode == nil {
+	if f.Mode == nil && !f.Append {
 		return report.ReportFromError(WarningUnsetFileMode, report.EntryWarning)
 	}
 	return report.Report{}
