@@ -35,8 +35,9 @@ var (
 	DefaultFileMode = 0644
 	DefaultDirMode  = 0755
 
-	WarningUnsetFileMode = fmt.Errorf("mode unspecified for file, defaulting to %#o", DefaultFileMode)
-	WarningUnsetDirMode  = fmt.Errorf("mode unspecified for directory, defaulting to %#o", DefaultDirMode)
+	WarningUnsetFileMode        = fmt.Errorf("mode unspecified for file, defaulting to %#o", DefaultFileMode)
+	InfoUnsetFileModeWithAppend = fmt.Errorf("mode unspecified for file, defaulting to %#o if the file does not exist", DefaultFileMode)
+	WarningUnsetDirMode         = fmt.Errorf("mode unspecified for directory, defaulting to %#o", DefaultDirMode)
 
 	ErrTooManyFileSources = errors.New("only one of the following can be set: local, inline, remote.url")
 )
@@ -94,8 +95,12 @@ type Link struct {
 }
 
 func (f File) ValidateMode() report.Report {
-	if f.Mode == nil && !f.Append {
-		return report.ReportFromError(WarningUnsetFileMode, report.EntryWarning)
+	if f.Mode == nil {
+		if f.Append {
+			return report.ReportFromError(InfoUnsetFileModeWithAppend, report.EntryInfo)
+		} else {
+			return report.ReportFromError(WarningUnsetFileMode, report.EntryWarning)
+		}
 	}
 	return report.Report{}
 }
