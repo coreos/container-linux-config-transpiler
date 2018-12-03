@@ -15,6 +15,8 @@
 package types
 
 import (
+	"fmt"
+
 	"github.com/coreos/ignition/config/shared/errors"
 	"github.com/coreos/ignition/config/validate/report"
 )
@@ -60,7 +62,7 @@ func (f Filesystem) ValidatePath() report.Report {
 	r := report.Report{}
 	if f.Path != nil && validatePath(*f.Path) != nil {
 		r.Add(report.Entry{
-			Message: errors.ErrPathRelative.Error(),
+			Message: fmt.Sprintf("filesystem %q: path not absolute", f.Name),
 			Kind:    report.EntryError,
 		})
 	}
