@@ -15,6 +15,8 @@
 package types
 
 import (
+	"fmt"
+
 	"github.com/coreos/ignition/config/shared/errors"
 	"github.com/coreos/ignition/config/validate/report"
 )
@@ -61,7 +63,7 @@ func (fc FileContents) ValidateSource() report.Report {
 	err := validateURL(fc.Source)
 	if err != nil {
 		r.Add(report.Entry{
-			Message: err.Error(),
+			Message: fmt.Sprintf("invalid url %q: %v", fc.Source, err),
 			Kind:    report.EntryError,
 		})
 	}

@@ -5,7 +5,7 @@ import:
 - package: github.com/alecthomas/units
   version: 6b4e7dc5e3143b85ea77909c72caf89416fc2915
 - package: github.com/coreos/ignition
-  version: v0.24.0
+  version: v0.29.0
   subpackages:
   - config/types
   - config/validate

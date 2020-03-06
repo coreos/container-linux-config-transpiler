@@ -24,7 +24,7 @@ import (
 	"github.com/coreos/container-linux-config-transpiler/config/types"
 	"github.com/coreos/container-linux-config-transpiler/internal/util"
 	"github.com/coreos/go-semver/semver"
-	ignTypes "github.com/coreos/ignition/config/v2_2/types"
+	ignTypes "github.com/coreos/ignition/config/v2_3/types"
 	"github.com/coreos/ignition/config/validate/report"
 )
 
@@ -377,7 +377,7 @@ storage:
 							WipeTable: true,
 							Partitions: []types.Partition{
 								{
-									Label:    "ROOT",
+									Label:    util.StringToPtr("ROOT"),
 									Number:   7,
 									Size:     "100MB",
 									Start:    "50MB",
@@ -385,7 +385,7 @@ storage:
 									TypeGUID: "11111111-1111-1111-1111-111111111111",
 								},
 								{
-									Label:    "DATA",
+									Label:    util.StringToPtr("DATA"),
 									Number:   12,
 									Size:     "1GB",
 									Start:    "300MB",
@@ -393,25 +393,25 @@ storage:
 									TypeGUID: "00000000-0000-0000-0000-000000000000",
 								},
 								{
-									Label: "NOTHING",
+									Label: util.StringToPtr("NOTHING"),
 								},
 								{
-									Label:    "ROOT_ON_RAID",
+									Label:    util.StringToPtr("ROOT_ON_RAID"),
 									Number:   13,
 									TypeGUID: "raid_containing_root",
 								},
 								{
-									Label:    "SWAP",
+									Label:    util.StringToPtr("SWAP"),
 									Number:   14,
 									TypeGUID: "swap_partition",
 								},
 								{
-									Label:    "RAID",
+									Label:    util.StringToPtr("RAID"),
 									Number:   15,
 									TypeGUID: "raid_partition",
 								},
 								{
-									Label:    "LINUX_FS",
+									Label:    util.StringToPtr("LINUX_FS"),
 									Number:   16,
 									TypeGUID: "linux_filesystem_data",
 								},
@@ -1071,7 +1071,7 @@ func TestConvert(t *testing.T) {
 							WipeTable: true,
 							Partitions: []types.Partition{
 								{
-									Label:    "ROOT",
+									Label:    util.StringToPtr("ROOT"),
 									Number:   7,
 									Size:     "100MB",
 									Start:    "50MB",
@@ -1079,7 +1079,7 @@ func TestConvert(t *testing.T) {
 									TypeGUID: "11111111-1111-1111-1111-111111111111",
 								},
 								{
-									Label:    "DATA",
+									Label:    util.StringToPtr("DATA"),
 									Number:   12,
 									Size:     "1GB",
 									Start:    "300MB",
@@ -1087,25 +1087,25 @@ func TestConvert(t *testing.T) {
 									TypeGUID: "00000000-0000-0000-0000-000000000000",
 								},
 								{
-									Label: "NOTHING",
+									Label: util.StringToPtr("NOTHING"),
 								},
 								{
-									Label:    "ROOT_ON_RAID",
+									Label:    util.StringToPtr("ROOT_ON_RAID"),
 									Number:   13,
 									TypeGUID: "raid_containing_root",
 								},
 								{
-									Label:    "SWAP",
+									Label:    util.StringToPtr("SWAP"),
 									Number:   14,
 									TypeGUID: "swap_partition",
 								},
 								{
-									Label:    "RAID",
+									Label:    util.StringToPtr("RAID"),
 									Number:   15,
 									TypeGUID: "raid_partition",
 								},
 								{
-									Label:    "LINUX_FS",
+									Label:    util.StringToPtr("LINUX_FS"),
 									Number:   16,
 									TypeGUID: "linux_filesystem_data",
 								},
@@ -1295,41 +1295,41 @@ func TestConvert(t *testing.T) {
 								WipeTable: true,
 								Partitions: []ignTypes.Partition{
 									{
-										Label:    "ROOT",
+										Label:    util.StringToPtr("ROOT"),
 										Number:   7,
-										Size:     0x32000,
-										Start:    0x19000,
+										SizeMiB:  util.IntToPtr(100),
+										StartMiB: util.IntToPtr(50),
 										GUID:     "22222222-2222-2222-2222-222222222222",
 										TypeGUID: "11111111-1111-1111-1111-111111111111",
 									},
 									{
-										Label:    "DATA",
+										Label:    util.StringToPtr("DATA"),
 										Number:   12,
-										Size:     0x200000,
-										Start:    0x96000,
+										SizeMiB:  util.IntToPtr(1024),
+										StartMiB: util.IntToPtr(300),
 										GUID:     "33333333-3333-3333-3333-333333333333",
 										TypeGUID: "00000000-0000-0000-0000-000000000000",
 									},
 									{
-										Label: "NOTHING",
+										Label: util.StringToPtr("NOTHING"),
 									},
 									{
-										Label:    "ROOT_ON_RAID",
+										Label:    util.StringToPtr("ROOT_ON_RAID"),
 										Number:   13,
 										TypeGUID: "be9067b9-ea49-4f15-b4f6-f36f8c9e1818",
 									},
 									{
-										Label:    "SWAP",
+										Label:    util.StringToPtr("SWAP"),
 										Number:   14,
 										TypeGUID: "0657fd6d-a4ab-43c4-84e5-0933c84b4f4f",
 									},
 									{
-										Label:    "RAID",
+										Label:    util.StringToPtr("RAID"),
 										Number:   15,
 										TypeGUID: "a19d880f-05fc-4d3b-a006-743f0f84911e",
 									},
 									{
-										Label:    "LINUX_FS",
+										Label:    util.StringToPtr("LINUX_FS"),
 										Number:   16,
 										TypeGUID: "0fc63daf-8483-4772-8e79-3d69d8477de4",
 									},
@@ -1976,7 +1976,7 @@ storage:
 						Column:  13,
 					},
 					{
-						Message: "invalid url scheme",
+						Message: "invalid url \"httpz://example.com/file2\": invalid url scheme",
 						Kind:    report.EntryError,
 						Line:    17,
 						Column:  16,
