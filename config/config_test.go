@@ -893,7 +893,7 @@ func TestConvert(t *testing.T) {
 	}{
 		{
 			in:  in{cfg: types.Config{}},
-			out: out{cfg: ignTypes.Config{Ignition: ignTypes.Ignition{Version: "2.2.0"}}},
+			out: out{cfg: ignTypes.Config{Ignition: ignTypes.Ignition{Version: "2.3.0"}}},
 		},
 		{
 			in: in{cfg: types.Config{
@@ -949,7 +949,7 @@ func TestConvert(t *testing.T) {
 			}},
 			out: out{cfg: ignTypes.Config{
 				Ignition: ignTypes.Ignition{
-					Version: "2.2.0",
+					Version: "2.3.0",
 					Config: ignTypes.IgnitionConfig{
 						Append: []ignTypes.ConfigReference{
 							{
@@ -997,7 +997,7 @@ func TestConvert(t *testing.T) {
 			}},
 			out: out{cfg: ignTypes.Config{
 				Ignition: ignTypes.Ignition{
-					Version: "2.2.0",
+					Version: "2.3.0",
 					Timeouts: ignTypes.Timeouts{
 						HTTPResponseHeaders: util.IntToPtr(30),
 						HTTPTotal:           util.IntToPtr(30),
@@ -1038,7 +1038,7 @@ func TestConvert(t *testing.T) {
 			}},
 			out: out{cfg: ignTypes.Config{
 				Ignition: ignTypes.Ignition{
-					Version: "2.2.0",
+					Version: "2.3.0",
 					Security: ignTypes.Security{
 						TLS: ignTypes.TLS{
 							CertificateAuthorities: []ignTypes.CaReference{
@@ -1287,7 +1287,7 @@ func TestConvert(t *testing.T) {
 					},
 				},
 				cfg: ignTypes.Config{
-					Ignition: ignTypes.Ignition{Version: "2.2.0"},
+					Ignition: ignTypes.Ignition{Version: "2.3.0"},
 					Storage: ignTypes.Storage{
 						Disks: []ignTypes.Disk{
 							{
@@ -1576,7 +1576,7 @@ func TestConvert(t *testing.T) {
 				},
 			}},
 			out: out{cfg: ignTypes.Config{
-				Ignition: ignTypes.Ignition{Version: "2.2.0"},
+				Ignition: ignTypes.Ignition{Version: "2.3.0"},
 				Systemd: ignTypes.Systemd{
 					Units: []ignTypes.Unit{
 						{
@@ -1629,7 +1629,7 @@ func TestConvert(t *testing.T) {
 				},
 			}},
 			out: out{cfg: ignTypes.Config{
-				Ignition: ignTypes.Ignition{Version: "2.2.0"},
+				Ignition: ignTypes.Ignition{Version: "2.3.0"},
 				Networkd: ignTypes.Networkd{
 					Units: []ignTypes.Networkdunit{
 						{
@@ -1730,7 +1730,7 @@ func TestConvert(t *testing.T) {
 					},
 				},
 				cfg: ignTypes.Config{
-					Ignition: ignTypes.Ignition{Version: "2.2.0"},
+					Ignition: ignTypes.Ignition{Version: "2.3.0"},
 					Passwd: ignTypes.Passwd{
 						Users: []ignTypes.PasswdUser{
 							{
@@ -1825,7 +1825,7 @@ etcd:
 			out: out{
 				cfg: ignTypes.Config{
 					Ignition: ignTypes.Ignition{
-						Version: "2.2.0",
+						Version: "2.3.0",
 					},
 					Systemd: ignTypes.Systemd{
 						Units: []ignTypes.Unit{
@@ -1900,7 +1900,7 @@ ignition:
 `},
 			out: out{cfg: ignTypes.Config{
 				Ignition: ignTypes.Ignition{
-					Version: "2.2.0",
+					Version: "2.3.0",
 					Config: ignTypes.IgnitionConfig{
 						Append: []ignTypes.ConfigReference{
 							{
@@ -2054,7 +2054,7 @@ storage:
         id: 503
 `},
 			out: out{cfg: ignTypes.Config{
-				Ignition: ignTypes.Ignition{Version: "2.2.0"},
+				Ignition: ignTypes.Ignition{Version: "2.3.0"},
 				Storage: ignTypes.Storage{
 					Files: []ignTypes.File{
 						{
