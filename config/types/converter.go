@@ -43,7 +43,7 @@ func Convert(in Config, platform string, ast astnode.AstNode) (ignTypes.Config, 
 
 	out := ignTypes.Config{
 		Ignition: ignTypes.Ignition{
-			Version: "2.2.0",
+			Version: "2.3.0",
 		},
 	}
 
